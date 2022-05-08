@@ -789,7 +789,7 @@ _ac_f.add_save_dialog_for_step = (diag, stepi, step, ypos) ->
     })
     table.insert(diag, {
         class: "dropdown",
-        name: "selectmode#{i}",
+        name: "selectmode#{stepi}",
         hint: [[
 What lines to select after finishing this step.
 "Macro's Selection" defaults to the previous selection
@@ -1000,11 +1000,11 @@ _ac_f.save_chain = (_ac_subs, _ac_sel, _ac_active) ->
         if _ac_config.c.chains[result.chainname] != nil
             yes2 = "Yes"
             cancel2 = "Abort"
-            btn2, result2 = _ac_aegisub.dialog.display({
+            btn2, result2 = _ac_aegisub.dialog.display({{
                 class: "label",
                 label: "This will replace an existing chain. Are you sure you want to continue?",
                 x: 0, y: 0, width: 1, height: 1,
-            }, {yes2, cancel2}, {"ok": yes2, "cancel": cancel2})
+            }}, {yes2, cancel2}, {"ok": yes2, "cancel": cancel2})
 
             return if btn2 != yes2
 
