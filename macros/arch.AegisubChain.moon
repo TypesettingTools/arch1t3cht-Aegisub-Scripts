@@ -7,7 +7,6 @@ export script_author = "arch1t3cht"
 
 -- All global runtime variables are prefixed by _ac_ so that they won't be modified by third-party scripts called by us.
 -- With environments this shouldn't actually be necessary, but let's just take the safe route.
--- TODO do the same for local variables (which actually is necessary, as we can't change the environment before defining the function)
 
 _ac_was_present = _ac_present
 export _ac_present = true
@@ -132,6 +131,14 @@ _ac_f.pcall_wrap = (f, ...) ->
     return pcall(f, ...)
 
 
+-- make sure the load doesn't capture any variables
+_ac_f.load_wrap = (_ac_l_script, _ac_l_content) ->
+    if _ac_l_script\match("%.moon$")
+        return assert(_ac_i.moonbase.loadstring(_ac_l_content))
+    else
+        return assert(loadstring(_ac_l_content))
+
+
 _ac_f.save_config = () ->
     _ac_config\write(true)
 
@@ -151,8 +158,6 @@ _ac_f.dialog_open_hook = (dialog, buttons, button_ids) ->
 
         fields = {k,{value: v} for k,v in pairs(result)}
 
-        -- TODO add an option for showing a dummy dialog first
-        -- again we just record everything for now and filter it later.
         for i, field in pairs(dialog)
             if field.name != nil and fields[field.name] != nil
                 fields[field.name].descriptor = field
@@ -323,14 +328,10 @@ _ac_f.run_script_initial = (script) ->
     export script_namespace = nil
     export script_author = nil
 
-    _ac_l_env = {}
-    _ac_f.move_globals(_ac_l_env, _ac_gs.our_globals)
+    env = {}
+    _ac_f.move_globals(env, _ac_gs.our_globals)
 
-    local chunk
-    if script\match("%.moon$")
-        chunk = assert(_ac_i.moonbase.loadstring(content))
-    else
-        chunk = assert(loadstring(content))
+    chunk = _ac_f.load_wrap(script, content)
 
     _ac_aegisub.log(5, "Loading #{scrpath}...\n")
     status, errc = _ac_f.pcall_wrap(chunk)
@@ -342,11 +343,11 @@ _ac_f.run_script_initial = (script) ->
         else
             _ac_aegisub.log("Failed to load #{script}! Skipping...\n")
 
-    _ac_f.move_globals(_ac_gs.our_globals, _ac_l_env)
+    _ac_f.move_globals(_ac_gs.our_globals, env)
 
     _ac_gs.loaded_scripts[script] = {
         cwd: _ac_i.lfs.currentdir(),
-        env: _ac_l_env
+        env: env
     }
 
 
@@ -675,19 +676,17 @@ _ac_f.run_chain = (chain, _ac_subs, _ac_sel, _ac_active) ->
     return _ac_sel, _ac_active
 
 
--- Wraps a function in a try-finally block - If our script crashes we still try to restore the environment to something usable.
+-- This was the attempt to wrap a function in a try-finally block - If our script crashes we still try to restore the environment to something usable.
 _ac_f.wrap = (f) ->
     (...) ->
         _ac_f.initialize()
 
-        -- newsel, newactive = f(...)
-        -- TODO uncomment
         status, newsel, newactive = _ac_f.pcall_wrap(f, ...)
         if status == false
             errc = newsel
             _ac_aegisub.log("Failed with the following error:\n")
             _ac_aegisub.log("#{errc}\n")
-            _ac_aegisub.cancel()
+            _ac_aegisub.log("Try reloading your automation scripts.\n")
 
         _ac_f.finalize()
 
