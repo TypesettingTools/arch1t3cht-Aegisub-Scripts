@@ -1,6 +1,6 @@
 export script_name = "AegisubChain"
 export script_description = "Compose macros out of existing automation scripts."
-export script_version = "0.0.1"
+export script_version = "0.1.0"
 export script_namespace = "arch.#{script_name}"
 export script_author = "arch1t3cht"
 
@@ -110,12 +110,15 @@ _ac_gs.values_for_chain = nil   -- results of the dialog we showed the user befo
 _ac_gs.current_step_index = nil -- index of the current step in the chain being executed
 _ac_gs.current_step_dialog_index = nil  -- index of the dialog for the current step of the chain being executed
 
-_ac_gs.our_packages = {}        -- store our packages here when running a script
+_ac_gs.our_globals = {}
 
 -- more juggling
 export _ac_depctrl_aegisub = aegisub
 export _ac_script_aegisub = {}
 export aegisub = _ac_aegisub
+
+_ac_c.initial_globals = {k,true for k, v in pairs(_G)}
+
 
 -- There is some other global state we need to keep track of:
 --  - The working directory
@@ -272,39 +275,35 @@ _ac_f.scripts_in_path = () ->
     return scripts
 
 
--- Yeah so this is absolutely horrible but it's the only way I could make it work.
--- Depctrl needs global variables like script_name and script_namespace to be defined,
--- and captures those, so every loaded package will need a new depctrl instance.
--- The obvious solution would just be to reinstantiate *all* packages that weren't loaded
--- at AegisubChain's startup, individually for every script. But that blew up in my face
--- for various reasons (ffi stuff, for one, which I didn't want to get into), and this was
--- the only method that worked.
--- Hopefully depctrl is the only module that captures relevant global variables. If any
--- other ones start breaking, I'll either figure that out and add them here, or quit fansubbing.
+-- The hardest part of all this is making sure that the scripts get all of the APIs and
+-- global variables they need, while not interfering with other scripts, and while actually
+-- receiving our modified aegisub object.
 --
--- Possible solutions for future packages might also be adding preloaders that set up the correct
--- environment before loading them.
+-- The obvious solution is using setfenv to give each script chunk their own environment.
+-- But but this runs into issues when registering scripts, as the exports of script_name, etc
+-- will only be in this sandbox environment and won't reach DependencyControl.
+-- Thus, possible ideas are:
+--  1. Changing package.loaded to make each script load their own depctrl from scratch:
+--     Didn't work for reasons I have yet to understand.
+--  2. Using metatables to pass only these values through to the global environment:
+--     Doesn't work, since assignments to script_name, etc don't seem to be assignments to global variables.
+--  3. Also giving the depctrl instance this environment
+--     Didn't work.
+--  4. Changing the environment of the entire thread, and swapping back and forth
+--     Didn't work.
+--  5. Not using environments after all, and simulating 4. by just manually juggling globals. AKA the stupid way
+--     The only one that worked, and what I'm using right now.
 
-_ac_f.stash_depctrl_packages = () ->
-    for k, v in pairs(package.loaded)
-        -- continue if not k\match("^l0%.DependencyControl")
 
-        -- this is way faster but might blow up in our faces... let's find out :)
-        continue unless k == "l0.DependencyControl"
+_ac_f.move_globals = (from_globals, to_globals) ->
+    for k,v in pairs(_G)
+        continue if _ac_c.initial_globals[k]
+        to_globals[k] = v
+        _G[k] = nil
 
-        _ac_gs.our_packages[k] = v
-        package.loaded[k] = nil
-
-
-_ac_f.restore_packages = () ->
-    packs = {}
-
-    for k, v in pairs(_ac_gs.our_packages)
-        packs = package.loaded[k]
-        package.loaded[k] = v
-        _ac_gs.our_packages[k] = nil
-
-    return packs
+    for k,v in pairs(from_globals)
+        _G[k] = v
+        from_globals[k] = nil
 
 
 _ac_f.run_script_initial = (script) ->
@@ -316,16 +315,22 @@ _ac_f.run_script_initial = (script) ->
     return if content\match(_ac_c.red_flag)
 
     _ac_gs.current_script = script
-    _ac_f.stash_depctrl_packages()
     _ac_i.lfs.chdir(_ac_c.init_dir)
+
+    export script_name = nil
+    export script_description = nil
+    export script_version = nil
+    export script_namespace = nil
+    export script_author = nil
+
+    _ac_l_env = {}
+    _ac_f.move_globals(_ac_l_env, _ac_gs.our_globals)
 
     local chunk
     if script\match("%.moon$")
         chunk = assert(_ac_i.moonbase.loadstring(content))
     else
         chunk = assert(loadstring(content))
-
-    setfenv(chunk, _ac_i.fun.table.copy getfenv(0))
 
     _ac_aegisub.log(5, "Loading #{scrpath}...\n")
     status, errc = _ac_f.pcall_wrap(chunk)
@@ -337,10 +342,11 @@ _ac_f.run_script_initial = (script) ->
         else
             _ac_aegisub.log("Failed to load #{script}! Skipping...\n")
 
+    _ac_f.move_globals(_ac_gs.our_globals, _ac_l_env)
+
     _ac_gs.loaded_scripts[script] = {
         cwd: _ac_i.lfs.currentdir(),
-        packages: _ac_f.restore_packages()
-        packages: {}
+        env: _ac_l_env
     }
 
 
@@ -501,13 +507,14 @@ _ac_f.run_script_macro = (macroname, _ac_subs, _ac_sel, _ac_active) ->
         aegisub.cancel()
     script = _ac_gs.loaded_scripts[macro.script]
 
-    _ac_i.lfs.chdir(script.cwd)
-
+    table.sort(_ac_sel)
+    prevlen = #_ac_subs
     operations = {}
     dummysubs = _ac_f.get_dummysubs(operations, _ac_subs)
-    prevlen = #_ac_subs
 
-    table.sort(_ac_sel)
+    _ac_i.lfs.chdir(script.cwd)
+    _ac_f.move_globals(script.env, _ac_gs.our_globals)
+
     status, newsel, newactive = _ac_f.pcall_wrap(macro.fun, dummysubs, _ac_sel, _ac_active)
     if status == false
         errc = newsel
@@ -518,6 +525,7 @@ _ac_f.run_script_macro = (macroname, _ac_subs, _ac_sel, _ac_active) ->
         _ac_aegisub.cancel()
 
     script.cwd = _ac_i.lfs.currentdir()
+    _ac_f.move_globals(_ac_gs.our_globals, script.env)
 
     changed, updatesel, updateactive = _ac_f.process_operations(operations, prevlen, _ac_sel, _ac_active)
 
