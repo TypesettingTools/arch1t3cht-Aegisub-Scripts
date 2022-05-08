@@ -36,6 +36,7 @@ _ac_i.depctrl = require'l0.DependencyControl'
 _ac_i.config = require'l0.DependencyControl.ConfigHandler'
 _ac_i.fun = require'l0.Functional'
 _ac_i.lfs = require'lfs'
+_ac_i.json = require'json'
 _ac_i.moonbase = require'moonscript.base'
 
 -- CONSTANTS
@@ -44,7 +45,7 @@ _ac_i.moonbase = require'moonscript.base'
 _ac_c.red_flag = "Hi, I'm AegisubChain, please don't load me! The following is a random red flag string: Jnd4nKxQWAMinndFqKFotlEJgaiRT0lepihiKGYaERA="
 _ac_c.myname = "arch.AegisubChain.moon"
 
-_ac_c.default_path = "?user/automation/autoload/|?data/automation/autoload/"    -- TODO read from aegisub config by default
+_ac_c.default_path = "?user/automation/autoload/|?data/automation/autoload/"    -- Will be read from aegisub config if it exists
 
 _ac_c.init_dir = _ac_i.lfs.currentdir()    -- some script might change the working directory, so we reset it each time
 
@@ -88,7 +89,6 @@ _ac_c.default_value_modes = {
     "checkbox": "Constant",
     "button": "Constant",
 }
-
 
 -- CONFIG
 export _ac_config = _ac_i.config(_ac_c.config_file, _ac_default_config, "config")
@@ -735,6 +735,8 @@ b) you want to make a value constant, which does not always have the same defaul
 
 
 _ac_f.record_chain = (_ac_subs, _ac_sel, _ac_active) ->
+    _ac_aegisub.log(_ac_c.default_path .. "\n")
+    _ac_aegisub.cancel()
     if not _ac_config.c.warning_shown
         btn, result = _ac_aegisub.dialog.display({
                 {
@@ -1061,7 +1063,21 @@ _ac_f.discard_chain = (_ac_subs, _ac_sel, _ac_active) ->
     _ac_gs.recording_chain = nil
 
 
+_ac_f.read_aegisub_path = () ->
+    f = io.open(_ac_aegisub.decode_path("?user/config.json"))
+    return if f == nil
+    content = f\read("a")
+    config = _ac_i.json.decode(content)
+    return if config == nil
+    return if config["Path"] == nil
+    return if config["Path"]["Automation"] == nil
+    return if config["Path"]["Automation"]["Autoload"] == nil
+    _ac_c.default_path = config["Path"]["Automation"]["Autoload"]
+
+
 if not _ac_was_present
+    _ac_f.read_aegisub_path()
+
     aegisub.register_macro("#{script_name}/Record Chain", "Begin recording a chain", _ac_f.record_chain, () -> not _ac_gs.recording)
     aegisub.register_macro("#{script_name}/Record next Macro in Chain", "Run an automation script as the next step in the chain being recorded.", _ac_f.wrap(_ac_f.record_run_macro), () -> _ac_gs.recording)
     aegisub.register_macro("#{script_name}/Erase last Macro in Chain", "Erase the last macro you have recorded in the current chain", _ac_f.erase_last_macro, () -> _ac_gs.recording and #_ac_gs.recording_chain > 0)
