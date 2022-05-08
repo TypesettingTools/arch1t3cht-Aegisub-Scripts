@@ -51,6 +51,8 @@ _ac_c.init_dir = _ac_i.lfs.currentdir()    -- some script might change the worki
 _ac_c.depctrl = _ac_i.depctrl {}
 _ac_c.config_file = _ac_c.depctrl\getConfigFileName()
 
+_ac_c.debug = false      -- whether we're debugging right now. This turns off all pcalls so error messages can propagate fully.
+
 _ac_c.select_mode_options = {
     "Macro's Selection": "macro",
     "Previous Selection": "keep",
@@ -120,6 +122,12 @@ export aegisub = _ac_aegisub
 --  - Loaded packages, and their captured variables
 
 -- FUNCTION DEFINITIONS
+
+_ac_f.pcall_wrap = (f, ...) ->
+    if _ac_c.debug
+        return true, f(...)
+    return pcall(f, ...)
+
 
 _ac_f.save_config = () ->
     _ac_config\write(true)
@@ -228,6 +236,12 @@ _ac_f.initialize = () ->
         _ac_script_aegisub[k] = v
 
     _ac_script_aegisub.register_macro = _ac_f.register_macro_hook
+
+    if _ac_aegisub.dialog == nil
+        -- welp, aegisub is broken, so we can't really log anything. Let's hack our error message.
+        I_LOST_MY_AEGISUB_INSTANCE_PLEASE_RELOAD_YOUR_AUTOMATION_SCRIPTS = (x) -> x()
+        I_LOST_MY_AEGISUB_INSTANCE_PLEASE_RELOAD_YOUR_AUTOMATION_SCRIPTS()
+
     _ac_script_aegisub.dialog = _ac_i.fun.table.copy _ac_aegisub.dialog
     _ac_script_aegisub.dialog.display = _ac_f.dialog_open_hook
 
@@ -282,7 +296,7 @@ _ac_f.stash_depctrl_packages = () ->
         package.loaded[k] = nil
 
 
-_ac_f.restore_packages = (script) ->
+_ac_f.restore_packages = () ->
     packs = {}
 
     for k, v in pairs(_ac_gs.our_packages)
@@ -314,15 +328,19 @@ _ac_f.run_script_initial = (script) ->
     setfenv(chunk, _ac_i.fun.table.copy getfenv(0))
 
     _ac_aegisub.log(5, "Loading #{scrpath}...\n")
-    status, errc = pcall(chunk, content)
+    status, errc = _ac_f.pcall_wrap(chunk)
     if status == false
-        _ac_aegisub.log("Failed to run #{script} with the following error:\n")
-        _ac_aegisub.log("#{errc}\n")
-        _ac_aegisub.cancel()
+        if _ac_c.debug
+            _ac_aegisub.log("Failed to load #{script} with the following error:\n")
+            _ac_aegisub.log("#{errc}\n")
+            _ac_aegisub.cancel()
+        else
+            _ac_aegisub.log("Failed to load #{script}! Skipping...\n")
 
     _ac_gs.loaded_scripts[script] = {
         cwd: _ac_i.lfs.currentdir(),
-        packages: _ac_f.restore_packages(script)
+        packages: _ac_f.restore_packages()
+        packages: {}
     }
 
 
@@ -490,7 +508,7 @@ _ac_f.run_script_macro = (macroname, _ac_subs, _ac_sel, _ac_active) ->
     prevlen = #_ac_subs
 
     table.sort(_ac_sel)
-    status, newsel, newactive = pcall(macro.fun, dummysubs, _ac_sel, _ac_active)
+    status, newsel, newactive = _ac_f.pcall_wrap(macro.fun, dummysubs, _ac_sel, _ac_active)
     if status == false
         errc = newsel
         if errc == nil
@@ -654,13 +672,14 @@ _ac_f.wrap = (f) ->
     (...) ->
         _ac_f.initialize()
 
-        newsel, newactive = f(...)
+        -- newsel, newactive = f(...)
         -- TODO uncomment
-        -- status, errc, newsel, newactive = pcall(f, ...)
-        -- if status == false
-        --     _ac_aegisub.log("Failed with the following error:\n")
-        --     _ac_aegisub.log("#{errc}\n")
-        --     _ac_aegisub.cancel()
+        status, newsel, newactive = _ac_f.pcall_wrap(f, ...)
+        if status == false
+            errc = newsel
+            _ac_aegisub.log("Failed with the following error:\n")
+            _ac_aegisub.log("#{errc}\n")
+            _ac_aegisub.cancel()
 
         _ac_f.finalize()
 
