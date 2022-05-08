@@ -735,8 +735,6 @@ b) you want to make a value constant, which does not always have the same defaul
 
 
 _ac_f.record_chain = (_ac_subs, _ac_sel, _ac_active) ->
-    _ac_aegisub.log(_ac_c.default_path .. "\n")
-    _ac_aegisub.cancel()
     if not _ac_config.c.warning_shown
         btn, result = _ac_aegisub.dialog.display({
                 {
