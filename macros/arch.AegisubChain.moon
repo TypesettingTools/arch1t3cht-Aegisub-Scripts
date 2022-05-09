@@ -19,7 +19,8 @@ export _ac_default_config = {
     path: ""                            -- Path to search for macros in. Defaults to Aegisub's path if == true
     warning_shown: false                -- Whether the instability warning was shown
     chains: {}                          -- Defined chains
-    blacklist: {}
+    blacklist: {}                       -- List of lua patterns to apply to paths of scripts being loaded. Scripts matching any of them will be skipped.
+    show_in_menu: false                 -- Whether to show scripts to record directly in the automation menu
 }
 
 -- Aegisub gives us its api in the aegisub object. Even though debug prints didn't show any differences,
@@ -102,6 +103,8 @@ _ac_c.default_value_modes = {
 export _ac_config = _ac_i.config(_ac_c.config_file, _ac_default_config, "config")
 
 -- GLOBAL STATE
+_ac_gs.initialized = false      -- whether the script has been initialized
+
 _ac_gs.recording = false
 _ac_gs.recording_chain = {}     -- list of steps in macro currently being recorded
 _ac_gs.current_script = nil     -- script currently being loaded or run
@@ -112,6 +115,7 @@ _ac_gs.captured_macros = nil    -- table of macros that have been "registered" w
 -- Yes, we do all this noise in global state, because it's just way less of a hassle to
 -- juggle all of these variables through different environments.
 _ac_gs.captured_dialogs = nil   -- list of dialogs that have been captured for the current step
+_ac_gs.selected_macro = nil     -- macro that has been selected - if this isn't nil we shouldn't show a dialog
 
 _ac_gs.current_chain = nil      -- chain currently being executed
 _ac_gs.values_for_chain = nil   -- results of the dialog we showed the user before running the chain
@@ -134,6 +138,10 @@ _ac_c.initial_globals = {k,true for k, v in pairs(_G)}
 
 -- FUNCTION DEFINITIONS
 
+_ac_f.log = (...) ->
+    _ac_aegisub.log(...) if _ac_gs.initialized
+
+
 _ac_f.pcall_wrap = (f, ...) ->
     if _ac_c.debug
         return true, f(...)
@@ -153,7 +161,7 @@ _ac_f.save_config = () ->
 
 
 _ac_f.register_macro_hook = (name, desc, fun, testfun, actfun) ->
-    _ac_aegisub.log(5, "Registered #{name} as #{fun}!\n")
+    _ac_f.log(5, "Registered #{name} as #{fun}!\n")
     _ac_gs.captured_macros[name] = {
         fun: fun,
         script: _ac_gs.current_script
@@ -187,12 +195,12 @@ _ac_f.dialog_open_hook = (dialog, buttons, button_ids) ->
     elseif _ac_gs.current_step_index
         step = _ac_gs.current_chain[_ac_gs.current_step_index]
         if step.dialogs == nil
-            _ac_aegisub.log("Invalid chain config!\n")
+            _ac_f.log("Invalid chain config!\n")
             _ac_aegisub.cancel()
 
         diaginfo = step.dialogs[_ac_gs.current_step_dialog_index]
         if diaginfo == nil
-            _ac_aegisub.log("Unknown dialog shown!\n")
+            _ac_f.log("Unknown dialog shown!\n")
 
         if diaginfo.values != nil
             result = {}
@@ -233,7 +241,7 @@ _ac_f.dialog_open_hook = (dialog, buttons, button_ids) ->
             btn, result = _ac_aegisub.dialog.display(dialog, buttons, button_ids)
             return btn, result
     else
-        _ac_aegisub.log("Unknown dialog shown!\n")
+        _ac_f.log("Unknown dialog shown!\n")
         -- same here
         btn, result = _ac_aegisub.dialog.display(dialog, buttons, button_ids)
         return btn, result
@@ -254,13 +262,14 @@ _ac_f.initialize = () ->
 
     _ac_script_aegisub.register_macro = _ac_f.register_macro_hook
 
-    if _ac_aegisub.dialog == nil
-        -- welp, aegisub is broken, so we can't really log anything. Let's hack our error message.
-        I_LOST_MY_AEGISUB_INSTANCE_PLEASE_RELOAD_YOUR_AUTOMATION_SCRIPTS = (x) -> x()
-        I_LOST_MY_AEGISUB_INSTANCE_PLEASE_RELOAD_YOUR_AUTOMATION_SCRIPTS()
+    if _ac_gs.initialized
+        if _ac_aegisub.dialog == nil
+            -- welp, aegisub is broken, so we can't really log anything. Let's hack our error message.
+            I_LOST_MY_AEGISUB_INSTANCE_PLEASE_RELOAD_YOUR_AUTOMATION_SCRIPTS = (x) -> x()
+            I_LOST_MY_AEGISUB_INSTANCE_PLEASE_RELOAD_YOUR_AUTOMATION_SCRIPTS()
 
-    _ac_script_aegisub.dialog = _ac_i.fun.table.copy _ac_aegisub.dialog
-    _ac_script_aegisub.dialog.display = _ac_f.dialog_open_hook
+        _ac_script_aegisub.dialog = _ac_i.fun.table.copy _ac_aegisub.dialog
+        _ac_script_aegisub.dialog.display = _ac_f.dialog_open_hook
 
     export aegisub = _ac_script_aegisub
 
@@ -350,15 +359,15 @@ _ac_f.run_script_initial = (script) ->
 
     chunk = _ac_f.load_wrap(script, content)
 
-    _ac_aegisub.log(5, "Loading #{scrpath}...\n")
+    _ac_f.log(5, "Loading #{scrpath}...\n")
     status, errc = _ac_f.pcall_wrap(chunk)
     if status == false
         if _ac_c.debug
-            _ac_aegisub.log("Failed to load #{script} with the following error:\n")
-            _ac_aegisub.log("#{errc}\n")
+            _ac_f.log("Failed to load #{script} with the following error:\n")
+            _ac_f.log("#{errc}\n")
             _ac_aegisub.cancel()
         else
-            _ac_aegisub.log("Failed to load #{script}! Skipping...\n")
+            _ac_f.log("Failed to load #{script}! Skipping...\n")
 
     _ac_f.move_globals(_ac_gs.our_globals, env)
 
@@ -381,15 +390,15 @@ _ac_f.load_all_scripts = () ->
 
     scripts = _ac_f.scripts_in_path()
 
-    _ac_aegisub.progress.task("Loading macros...")
+    _ac_aegisub.progress.task("Loading macros...") if _ac_aegisub.progress != nil
 
     for i, script in ipairs(scripts)
-        _ac_aegisub.progress.task("Loading macros... [#{script\match("[^/]+$")}]")
-        _ac_aegisub.progress.set(100 * (i - 1) / #scripts)
+        _ac_aegisub.progress.task("Loading macros... [#{script\match("[^/]+$")}]") if _ac_aegisub.progress != nil
+        _ac_aegisub.progress.set(100 * (i - 1) / #scripts) if _ac_aegisub.progress != nil
         _ac_f.run_script_initial(script)
 
     for k, v in pairs(_ac_gs.captured_macros)
-        _ac_aegisub.log(4, "Found macro #{k} as #{v}\n")
+        _ac_f.log(4, "Found macro #{k} as #{v}\n")
 
 
 -- takes the operations recorded, and the selection and the active line before the run.
@@ -418,7 +427,7 @@ _ac_f.process_operations = (operations, prevlen, sel_, active_) ->
             elseif op.args[1] < 0
                 table.insert(filtered_op, {name: "insert", args: {-op.args[1], op.args[2]}})
             else
-                _ac_aegisub.log("Unknown operation argument: #{op.args[1]}\n")
+                _ac_f.log("Unknown operation argument: #{op.args[1]}\n")
                 _ac_aegisub.cancel()
 
         -- -- subs.delete(i1, i2, ...) or
@@ -538,8 +547,8 @@ _ac_f.run_script_macro = (macroname, _ac_subs, _ac_sel, _ac_active) ->
         errc = newsel
         if errc == nil
             errc = "#{errc} - Probably from aegisub.cancel()."
-        _ac_aegisub.log("Failed to run #{macroname} with the following error:\n")
-        _ac_aegisub.log("#{errc}\n")
+        _ac_f.log("Failed to run #{macroname} with the following error:\n")
+        _ac_f.log("#{errc}\n")
         _ac_aegisub.cancel()
 
     script.cwd = _ac_i.lfs.currentdir()
@@ -594,7 +603,7 @@ _ac_f.get_values_for_chain = (chain) ->
                 -- we could place all of the invalid fields at the end, but that's way too
                 -- much boilerplate code for way too little gain
                 if not _ac_f.validate_field(field)
-                    _ac_aegisub.log("Invalid dialog config for user field!\n")
+                    _ac_f.log("Invalid dialog config for user field!\n")
                     _ac_aegisub.cancel()
 
                 table.insert(user_diag, {
@@ -616,7 +625,7 @@ _ac_f.get_values_for_chain = (chain) ->
                 field = diag.button
 
                 if not _ac_f.validate_field(field)
-                    _ac_aegisub.log("Invalid dialog config for user field!\n")
+                    _ac_f.log("Invalid dialog config for user field!\n")
                     _ac_aegisub.cancel()
 
                 table.insert(user_diag, {
@@ -703,9 +712,9 @@ _ac_f.wrap = (f) ->
         status, newsel, newactive = _ac_f.pcall_wrap(f, ...)
         if status == false
             errc = newsel
-            _ac_aegisub.log("Failed with the following error:\n")
-            _ac_aegisub.log("#{errc}\n")
-            _ac_aegisub.log("If you keep getting errors, try reloading your automation scripts.\n")
+            _ac_f.log("Failed with the following error:\n")
+            _ac_f.log("#{errc}\n")
+            _ac_f.log("If you keep getting errors, try reloading your automation scripts.\n")
 
         _ac_f.finalize()
 
@@ -715,6 +724,11 @@ _ac_f.wrap = (f) ->
 -- returns either nil (on cancel) or a selected macro, as well as whether a dummy dialog should be shown first
 _ac_f.select_macro = () ->
     _ac_f.load_all_scripts()
+
+    if _ac_gs.selected_macro != nil
+        val = _ac_gs.selected_macro
+        _ac_gs.selected_macro = nil
+        return val, false
 
     macros = _ac_i.fun.table.keys(_ac_gs.captured_macros)
     table.sort(macros)
@@ -1097,7 +1111,7 @@ _ac_f.configure = (subs, sel, active_line) ->
             {
                 class: "edit",
                 text: _ac_config.c.chain_menu
-                name: "prefix",
+                name: "chain_menu",
                 hint: "The prefix to register chains with. Can contain slashes or be empty.",
                 x: 1, y: 0, width: 3, height: 1,
             },
@@ -1117,9 +1131,19 @@ Defaults to Aegisub's path if empty.]],
                 x: 1, y: 1, width: 3, height: 1,
             },
             {
+                class: "checkbox",
+                name: "show_in_menu",
+                label: "Show macros directly in automation menu",
+                value: _ac_config.c.show_in_menu,
+                hint: [[
+Whether macros to record should be shown directly in the automation menu.
+Off by default, as it will slow down Aegisub's startup.]],
+                x: 0, y: 2, width: 2, height: 1,
+            },
+            {
                 class: "label",
                 label: "Script Blacklist:",
-                x: 0, y: 2, width: 4, height: 1,
+                x: 0, y: 3, width: 4, height: 1,
             },
             {
                 class: "textbox",
@@ -1132,7 +1156,7 @@ Scripts matching one of the patterns will be skipped.
 Example:
 [/\]l0%.DependencyControl%.Toolbox%.moon$
 ]],
-                x: 0, y: 3, width: 4, height: 1,
+                x: 0, y: 4, width: 4, height: 1,
             },
         },
         {yes, cancel},
@@ -1141,8 +1165,8 @@ Example:
     return if btn != yes
 
     -- do checks for all of these so that config merging works better
-    _ac_config.c.chain_menu = result.prefix if _ac_config.c.chain_menu != result.prefix
-    _ac_config.c.path = result.path if _ac_config.c.path != result.path
+    for i, f in ipairs({"chain_menu", "path", "show_in_menu"})
+        _ac_config.c[f] = result[f] if _ac_config.c[f] != result[f]
 
     if result.blacklist != blacklist_default
        ds, dn  = _ac_i.fun.string.split result.blacklist, "\n"
@@ -1175,3 +1199,15 @@ if not _ac_was_present
 
     for k, v in pairs(_ac_config.c.chains)
         aegisub.register_macro("#{_ac_config.c.chain_menu}#{k}", "A chain recorded by #{script_name}", _ac_f.wrap((...) -> _ac_f.run_chain(v, ...)))
+
+    if _ac_config.c.show_in_menu
+        our_script_name = script_name
+        _ac_f.wrap(_ac_f.load_all_scripts)()
+        for k, v in pairs(_ac_gs.captured_macros)
+            runner = (...) ->
+                _ac_gs.selected_macro = k
+                _ac_f.record_run_macro()
+
+            _ac_aegisub.register_macro("#{our_script_name}/Record next Macro/#{k}", "Run #{k} as the next step in the chain being recorded.", _ac_f.wrap(runner), () -> _ac_gs.recording)
+
+_ac_gs.initialized = true
