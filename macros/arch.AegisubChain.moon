@@ -6,7 +6,6 @@ export script_author = "arch1t3cht"
 
 
 -- All global runtime variables are prefixed by _ac_ so that they won't be modified by third-party scripts called by us.
--- With environments this shouldn't actually be necessary, but let's just take the safe route.
 
 _ac_was_present = _ac_present
 export _ac_present = true
@@ -23,7 +22,7 @@ export _ac_default_config = {
     blacklist: {}
 }
 
--- Aegisub gives us its api in the aegisub object. Even though debug prints didn't show it for me,
+-- Aegisub gives us its api in the aegisub object. Even though debug prints didn't show any differences,
 -- functions from a previous macro run are invalid in the next macro run.
 -- Furthermore, the updated aegisub api object will only reach our script if, at the end of the last run,
 -- the aegisub object is in the aegisub variable. Because of this, we need to juggle different aegisub instances
@@ -281,6 +280,7 @@ _ac_f.scripts_in_path = () ->
                 fname = dir .. file
                 match = false
                 for i, p in ipairs(_ac_config.c.blacklist)
+                    continue if p == ""
                     match = true if fname\match(p)
 
                 table.insert(scripts, fname) unless match
@@ -1137,7 +1137,7 @@ Example:
 
     if result.blacklist != blacklist_default
        ds, dn  = _ac_i.fun.string.split result.blacklist, "\n"
-       _ac_config.c.blacklist = ds
+       _ac_config.c.blacklist = [p for p in *ds when p != ""]
 
     _ac_f.save_config()
 
