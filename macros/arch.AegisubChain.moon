@@ -38,6 +38,15 @@ _ac_i.lfs = require'lfs'
 _ac_i.json = require'json'
 _ac_i.moonbase = require'moonscript.base'
 
+-- COMPATIBILITY IMPORTS
+-- This is ugly, but seems necessary: These imports aren't used by our script, but
+-- they're modules that don't follow the modern pattern for lua patterns - instead of
+-- returning a table with their functions, they just write into the global variable table.
+-- Thus, a simple "require" won't return them after the first load.
+-- We fix this by loading them here so that their functions won't get swapped out when switching scripts,
+-- and by praying to Cthulhu that none of them will conflict.
+require'karaskel'
+
 -- CONSTANTS
 
 -- Foolproof method to ensure that AegisubChain never loads itself. Should never be changed.
