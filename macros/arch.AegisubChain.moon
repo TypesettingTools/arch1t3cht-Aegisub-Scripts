@@ -17,9 +17,10 @@ export _ac_i = {}  -- imports
 export _ac_gs = {} -- global mutable variables
 export _ac_default_config = {
     chain_menu: "AegisubChain Chains/"  -- Submenu to list all chains in. Can contain slashes.
-    path: true                          -- Path to search for macros in. Defaults to Aegisub's path if == true
+    path: ""                            -- Path to search for macros in. Defaults to Aegisub's path if == true
     warning_shown: false                -- Whether the instability warning was shown
     chains: {}                          -- Defined chains
+    blacklist: {}
 }
 
 -- Aegisub gives us its api in the aegisub object. Even though debug prints didn't show it for me,
@@ -265,7 +266,7 @@ _ac_f.scripts_in_path = () ->
     scripts = {}
 
     path = _ac_c.default_path
-    if _ac_config.c.path ~= true
+    if _ac_config.c.path != ""
         path = _ac_config.c.path
 
     ds, dn = _ac_i.fun.string.split path, "|"
@@ -273,9 +274,16 @@ _ac_f.scripts_in_path = () ->
     for i, dir in ipairs(ds)
         for file in _ac_i.lfs.dir(_ac_aegisub.decode_path(dir))
             continue if file == _ac_c.myname
-            continue if file\match("^l0%.DependencyControl")   -- let's not
+            -- With all macros working, there's no real reason *not* to allow depctrl.
+            -- If you find an actual application for this, I'd love to hear it.
+            -- continue if file\match("^l0%.DependencyControl")   -- let's not
             if file\match("%.lua$") or file\match("%.moon$")
-                table.insert(scripts, dir .. file)
+                fname = dir .. file
+                match = false
+                for i, p in ipairs(_ac_config.c.blacklist)
+                    match = true if fname\match(p)
+
+                table.insert(scripts, fname) unless match
 
     return scripts
 
@@ -677,6 +685,8 @@ _ac_f.run_chain = (chain, _ac_subs, _ac_sel, _ac_active) ->
 
 
 -- This was the attempt to wrap a function in a try-finally block - If our script crashes we still try to restore the environment to something usable.
+-- But usually, even when catching the crash and restoring the environment, the script is still broken afterwards.
+-- It might be possible to auto-reload the script that crashed...
 _ac_f.wrap = (f) ->
     (...) ->
         _ac_f.initialize()
@@ -686,7 +696,7 @@ _ac_f.wrap = (f) ->
             errc = newsel
             _ac_aegisub.log("Failed with the following error:\n")
             _ac_aegisub.log("#{errc}\n")
-            _ac_aegisub.log("Try reloading your automation scripts.\n")
+            _ac_aegisub.log("If you keep getting errors, try reloading your automation scripts.\n")
 
         _ac_f.finalize()
 
@@ -1034,8 +1044,7 @@ _ac_f.erase_last_macro = (_ac_subs, _ac_sel, _ac_active) ->
         {yes, cancel},
         {"ok": yes, "cancel": cancel})
 
-    if btn != yes
-        return
+    return if btn != yes
 
     _ac_gs.recording_chain[#_ac_gs.recording_chain] = nil
 
@@ -1053,11 +1062,84 @@ _ac_f.discard_chain = (_ac_subs, _ac_sel, _ac_active) ->
         {yes, cancel},
         {"ok": yes, "cancel": cancel})
 
-    if btn != yes
-        return
+    return if btn != yes
 
     _ac_gs.recording = false
     _ac_gs.recording_chain = nil
+
+
+_ac_f.configure = (subs, sel, active_line) ->
+    yes = "Save"
+    cancel = "Cancel"
+
+    _ac_config\load()
+
+    blacklist_default = ""
+    for i, bl in ipairs(_ac_config.c.blacklist)
+        blacklist_default ..= bl .. "\n"
+    blacklist_default = blacklist_default\sub(1, blacklist_default\len() - 1)
+
+    btn, result = _ac_aegisub.dialog.display({
+            {
+                class: "label",
+                label: "Prefix for Chains:",
+                x: 0, y: 0, width: 1, height: 1,
+            },
+            {
+                class: "edit",
+                text: _ac_config.c.chain_menu
+                name: "prefix",
+                hint: "The prefix to register chains with. Can contain slashes or be empty.",
+                x: 1, y: 0, width: 3, height: 1,
+            },
+            {
+                class: "label",
+                label: "Search Path:",
+                x: 0, y: 1, width: 1, height: 1,
+            },
+            {
+                class: "edit",
+                text: _ac_config.c.path
+                name: "path",
+                hint: [[
+The paths to search for scripts to load.
+Can contain Aegisub path specifiers.
+Defaults to Aegisub's path if empty.]],
+                x: 1, y: 1, width: 3, height: 1,
+            },
+            {
+                class: "label",
+                label: "Script Blacklist:",
+                x: 0, y: 2, width: 4, height: 1,
+            },
+            {
+                class: "textbox",
+                text: blacklist_default,
+                name: "blacklist",
+                hint: [[
+A list of lua patterns to be applied to paths of scripts
+to load before expanding pathnames, separated by newlines.
+Scripts matching one of the patterns will be skipped.
+Example:
+[/\]l0%.DependencyControl%.Toolbox%.moon$
+]],
+                x: 0, y: 3, width: 4, height: 1,
+            },
+        },
+        {yes, cancel},
+        {"ok": yes, "cancel": cancel})
+
+    return if btn != yes
+
+    -- do checks for all of these so that config merging works better
+    _ac_config.c.chain_menu = result.prefix if _ac_config.c.chain_menu != result.prefix
+    _ac_config.c.path = result.path if _ac_config.c.path != result.path
+
+    if result.blacklist != blacklist_default
+       ds, dn  = _ac_i.fun.string.split result.blacklist, "\n"
+       _ac_config.c.blacklist = ds
+
+    _ac_f.save_config()
 
 
 _ac_f.read_aegisub_path = () ->
@@ -1080,6 +1162,7 @@ if not _ac_was_present
     aegisub.register_macro("#{script_name}/Erase last Macro in Chain", "Erase the last macro you have recorded in the current chain", _ac_f.erase_last_macro, () -> _ac_gs.recording and #_ac_gs.recording_chain > 0)
     aegisub.register_macro("#{script_name}/Save Chain", "Finalize and save the current chain", _ac_f.save_chain, () -> _ac_gs.recording)
     aegisub.register_macro("#{script_name}/Discard Chain", "Discard the current chain without saving", _ac_f.discard_chain, () -> _ac_gs.recording)
+    aegisub.register_macro("#{script_name}/Configure", "Configure #{script_name}", _ac_f.configure)
 
     for k, v in pairs(_ac_config.c.chains)
         aegisub.register_macro("#{_ac_config.c.chain_menu}#{k}", "A chain recorded by #{script_name}", _ac_f.wrap((...) -> _ac_f.run_chain(v, ...)))
