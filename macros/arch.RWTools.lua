@@ -1,6 +1,7 @@
 script_name = "Rewriting Tools"
 script_author = "arch1t3cht"
 script_version = "1.0.0"
+script_namespace = "arch.rwtools"
 script_description = "Deactivating the current line and escaping styling tags"
 
 switch_name = "Switch Active Lines"
