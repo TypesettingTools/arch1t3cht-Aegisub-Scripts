@@ -1224,6 +1224,142 @@ Example:
     _ac_f.save_config()
 
 
+_ac_f.manage_chains = (subs, sel, active) ->
+    _ac_config\load()
+
+    chainnames = _ac_i.fun.table.keys _ac_config.c.chains
+    table.sort(chainnames)
+
+    yes = "Save"
+    cancel = "Cancel"
+    del = "Delete Selected"
+    exp = "Export Selected"
+    imp = "Import Chains"
+
+    diag = {{
+        class: "label",
+        label: "Chain name                          ",
+        x: 1, y: 0, width: 1, height: 1,
+    }, {
+        class: "label",
+        label: "Select",
+        x: 3, y: 0, width: 1, height: 1,
+    }}
+    ypos = 1
+
+    for i, chainname in ipairs(chainnames)
+        chain = _ac_config.c.chains[chainname]
+        table.insert(diag, {
+            class: "label",
+            label: "Chain",
+            x: 0, y: ypos, width: 1, height: 1,
+        })
+        table.insert(diag, {
+            class: "edit",
+            text: chainname,
+            name: "#{i}_name",
+            x: 1, y: ypos, width: 1, height: 1,
+        })
+        table.insert(diag, {
+            class: "label",
+            label: ":   ",
+            x: 2, y: ypos, width: 1, height: 1,
+        })
+        table.insert(diag, {
+            class: "checkbox",
+            name: "#{i}_selected",
+            value: false,
+            x: 3, y: ypos, width: 1, height: 1,
+        })
+
+        ypos += 1
+
+    if ypos == 1
+        table.insert(diag, {
+            class: "label",
+            label: "No chains found!",
+            x: 0, y: ypos, width: 1, height: 1,
+        })
+
+    btn, results = _ac_aegisub.dialog.display(diag, {yes, del, exp, imp, cancel}, {"ok": yes, "cancel": cancel})
+    return if btn == false
+
+    if btn == yes
+        any_changed = false
+        -- rename chains
+        for i, c in ipairs(chainnames)
+            any_changed or= results["#{i}_name"] != c
+            for j, cc in ipairs(chainnames)
+                continue if j <= i
+                if results["#{i}_name"] == results["#{j}_name"]
+                    _ac_f.log("Conflicting chain names! If you want to replace one with the other, delete the old one first.\n")
+                    _ac_aegisub.cancel()
+
+        return if not any_changed
+
+        for i, oldname in ipairs(chainnames)
+            continue if results["#{i}_name"] == oldname
+            _ac_config.c.chains[results["#{i}_name"]] = _ac_config.c.chains[oldname]
+            _ac_config.c.chains[oldname] = nil
+
+        _ac_f.save_config()
+        _ac_f.log("Renamed chains. Please reload your automation scripts.")
+        return
+
+    selected_chains = [c for i, c in ipairs(chainnames) when results["#{i}_selected"]]
+    if btn == del
+        return if #selected_chains == 0
+        yes2 = "Yes"
+        return if _ac_aegisub.dialog.display({{class: "label", label: "Are you sure you want to delete #{#selected_chains} chain#{#selected_chains != 1 and "s" or ""}?", x: 0, y: 0, width: 1, height: 1}}, {yes2, cancel}, {"ok": yes2, "cancel": cancel}) != yes2
+
+        for i, k in ipairs(selected_chains)
+            _ac_config.c.chains[k] = nil
+
+        _ac_f.save_config()
+
+    elseif btn == exp
+        selected_chains = chainnames if #selected_chains == 0
+
+        _ac_aegisub.dialog.display({{
+            class: "label",
+            label: "Exported #{#selected_chains} chain#{#selected_chains != 1 and "s" or ""}:                                                                       ",
+            x: 0, y: 0, width: 1, height: 1,
+        }, {
+            class: "textbox",
+            text: _ac_i.json.encode({c,_ac_config.c.chains[c] for c in *selected_chains}),
+            x: 0, y: 1, width: 1, height: 10,
+        }})
+
+    elseif btn == imp
+        btn, result = _ac_aegisub.dialog.display({{
+            class: "label",
+            label: "Paste a table of chains to import here:                                                                                                         ",
+            x: 0, y: 0, width: 1, height: 1,
+        }, {
+            class: "textbox",
+            name: "chains",
+            x: 0, y: 1, width: 1, height: 10,
+        }})
+
+        return if not btn
+
+        newchains = _ac_i.json.decode(result.chains)
+        if newchains == nil or type(newchains) != "table"
+            _ac_f.log("Invalid chain format!")
+            return
+
+        will_replace = [k for k,v in pairs(newchains) when _ac_config.c.chains[k] != nil]
+
+        if #will_replace > 0
+            yes2 = "Yes"
+            return if _ac_aegisub.dialog.display({{class: "label", label: "This will override #{#will_replace} chain#{#will_replace != 1 and "s" or ""}. Are you sure?", x: 0, y: 0, width: 1, height: 1,}}, {yes2, cancel}, {"ok": yes2, "cancel": cancel}) != yes2
+
+        for k,v in pairs(newchains)
+            _ac_config.c.chains[k] = v
+
+        _ac_f.save_config()
+
+
 _ac_f.read_aegisub_path = () ->
     f = io.open(_ac_aegisub.decode_path("?user/config.json"))
     return if f == nil
@@ -1245,6 +1381,7 @@ if not _ac_was_present
     aegisub.register_macro("#{script_name}/Save Chain", "Finalize and save the current chain", _ac_f.save_chain, () -> _ac_gs.recording)
     aegisub.register_macro("#{script_name}/Discard Chain", "Discard the current chain without saving", _ac_f.discard_chain, () -> _ac_gs.recording)
     aegisub.register_macro("#{script_name}/Configure", "Configure #{script_name}", _ac_f.configure)
+    aegisub.register_macro("#{script_name}/Manage Chains", "Manage your recorded chains", _ac_f.manage_chains)
 
     for k, v in pairs(_ac_config.c.chains)
         aegisub.register_macro("#{_ac_config.c.chain_menu}#{k}", "A chain recorded by #{script_name}", _ac_f.wrap((...) -> _ac_f.run_chain(v, ...)))
