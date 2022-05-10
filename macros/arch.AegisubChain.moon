@@ -1,6 +1,6 @@
 export script_name = "AegisubChain"
 export script_description = "Compose macros out of existing automation scripts."
-export script_version = "0.1.0"
+export script_version = "0.2.0"
 export script_namespace = "arch.#{script_name}"
 export script_author = "arch1t3cht"
 
@@ -33,7 +33,6 @@ export aegisub = {k, v for k, v in pairs(_ac_aegisub)}
 
 -- IMPORTS
 _ac_i.depctrl = require'l0.DependencyControl'
-_ac_i.config = require'l0.DependencyControl.ConfigHandler'
 _ac_i.fun = require'l0.Functional'
 _ac_i.lfs = require'lfs'
 _ac_i.json = require'json'
@@ -59,7 +58,6 @@ _ac_c.default_path = "?user/automation/autoload/|?data/automation/autoload/"    
 _ac_c.init_dir = _ac_i.lfs.currentdir()    -- some script might change the working directory, so we reset it each time
 
 _ac_c.depctrl = _ac_i.depctrl {}
-_ac_c.config_file = _ac_c.depctrl\getConfigFileName()
 
 _ac_c.debug = false      -- whether we're debugging right now. This turns off all pcalls so error messages can propagate fully.
 
@@ -117,7 +115,7 @@ _ac_c.default_value_modes = {
 }
 
 -- CONFIG
-export _ac_config = _ac_i.config(_ac_c.config_file, _ac_default_config, "config")
+export _ac_config = _ac_c.depctrl\getConfigHandler(_ac_default_config, "config")
 
 -- GLOBAL STATE
 _ac_gs.initialized = false      -- whether the script has been initialized
@@ -1205,7 +1203,7 @@ Scripts matching one of the patterns will be skipped.
 Example:
 [/\]l0%.DependencyControl%.Toolbox%.moon$
 ]],
-                x: 0, y: 4, width: 4, height: 1,
+                x: 0, y: 4, width: 4, height: 5,
             },
         },
         {yes, cancel},
