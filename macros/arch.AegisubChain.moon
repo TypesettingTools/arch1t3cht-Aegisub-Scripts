@@ -74,9 +74,14 @@ _ac_c.value_mode_options = {
     "Constant": "const",
 }
 
+_ac_c.button_mode_options = _ac_i.fun.table.merge({
+    "Raw Passthrough": "passthrough",
+    "Passthrough with defaults": "passthrough_defaults",
+}, _ac_c.value_mode_options)
+
 _ac_c.default_diag_values = {
     "edit": "",
-    "string": "",
+    "textbox": "",
     "dropdown": "",
     "color": "#000000",
     "coloralpha": "#00000000",
@@ -86,9 +91,21 @@ _ac_c.default_diag_values = {
     "checkbox": false,
 }
 
+_ac_c.diag_default_names = {
+    "edit": "text",
+    "textbox": "text",
+    "dropdown": "value",
+    "color": "value",
+    "coloralpha": "value",
+    "alpha": "value",
+    "intedit": "value",
+    "floatedit": "value",
+    "checkbox": "value",
+}
+
 _ac_c.default_value_modes = {
     "edit": "Set in Dialog",
-    "string": "Set in Dialog",
+    "textbox": "Set in Dialog",
     "dropdown": "Constant",
     "color": "Set in Dialog",
     "coloralpha": "Set in Dialog",
@@ -168,6 +185,12 @@ _ac_f.register_macro_hook = (name, desc, fun, testfun, actfun) ->
     }
 
 
+_ac_f.bounded_deep_copy = (x, bound) ->
+    return x if bound == 0
+    return x if type(x) != "table"
+    return {k,_ac_f.bounded_deep_copy(v, bound - 1) for k,v in pairs(x)}
+
+
 _ac_f.dialog_open_hook = (dialog, buttons, button_ids) ->
     if _ac_gs.captured_dialogs != nil
         -- we're currently recording a macro, so display the dialog normally for now
@@ -187,8 +210,7 @@ _ac_f.dialog_open_hook = (dialog, buttons, button_ids) ->
 
         if _ac_gs.show_dummy_dialogs
             -- show another dialog, and use its values
-            btn, result = _ac_aegisub.dialog.display(dialog, buttons, button_ids)
-            return btn, result
+            return _ac_aegisub.dialog.display(dialog, buttons, button_ids)
 
         return btn, result
 
@@ -201,6 +223,27 @@ _ac_f.dialog_open_hook = (dialog, buttons, button_ids) ->
         diaginfo = step.dialogs[_ac_gs.current_step_dialog_index]
         if diaginfo == nil
             _ac_f.log("Unknown dialog shown!\n")
+
+        if diaginfo.button.mode == "passthrough"
+            newdiag = _ac_f.bounded_deep_copy(dialog, 3)
+
+            -- set up the defaults if there are any
+            if diaginfo.values != nil
+                stepvalues = _ac_gs.values_for_chain[_ac_gs.current_step_index]
+                local values
+                if stepvalues != nil
+                    values = stepvalues[_ac_gs.current_step_dialog_index]
+
+                for fname,field in pairs(diaginfo.values)
+                    for k,v in pairs(newdiag)
+                        if v.name == fname
+                            if field.mode == "const"
+                                v[_ac_c.diag_default_names[v.class]] = field.value
+                            elseif field.mode == "user"
+                                v[_ac_c.diag_default_names[v.class]] = values.values[fname]
+
+            -- pass the dialog on
+            return _ac_aegisub.dialog.display(newdiag, buttons, button_ids)
 
         if diaginfo.values != nil
             result = {}
@@ -235,16 +278,11 @@ _ac_f.dialog_open_hook = (dialog, buttons, button_ids) ->
             _ac_gs.current_step_dialog_index += 1
 
             return btn, result
-        else
-            -- either an unknown dialog or a dialog we should show
-            -- in any case, just show it
-            btn, result = _ac_aegisub.dialog.display(dialog, buttons, button_ids)
-            return btn, result
-    else
-        _ac_f.log("Unknown dialog shown!\n")
-        -- same here
-        btn, result = _ac_aegisub.dialog.display(dialog, buttons, button_ids)
-        return btn, result
+
+    _ac_f.log("Unknown dialog shown!\n")
+    -- same here
+    btn, result = _ac_aegisub.dialog.display(dialog, buttons, button_ids)
+    return btn, result
 
 
 -- init function called on entry by all macro functions.
@@ -597,7 +635,7 @@ _ac_f.get_values_for_chain = (chain) ->
 
     for stepi, step in ipairs(chain)
         for i, diag in ipairs(step.dialogs)
-            for fname, field in pairs(diag.values)
+            for fname, field in pairs(diag.values or {})
                 continue if field.mode != "user"
 
                 -- we could place all of the invalid fields at the end, but that's way too
@@ -655,7 +693,7 @@ _ac_f.get_values_for_chain = (chain) ->
         step_values = {}
         for i, diag in ipairs(step.dialogs)
             diag_values = {values: {}}
-            for fname, field in pairs(diag.values)
+            for fname, field in pairs(diag.values or {})
                 continue if field.mode != "user"
                 diag_values.values[fname] = result["s#{stepi}_d#{i}_f_#{fname}"]
 
@@ -921,8 +959,10 @@ or whether it should stay constant for all runs.]],
             hint: [[
 Whether the chain user should select the button
 in a dialog (with the selected value as default),
-or whether it should stay constant for all runs.]],
-            items: _ac_i.fun.table.keys _ac_c.value_mode_options,
+or whether it should stay constant for all runs.
+The "Pass through" options will show this dialog
+to the user without any modifications or autofills.]],
+            items: _ac_i.fun.table.keys _ac_c.button_mode_options,
             value: _ac_c.default_value_modes["button"],
             x: 6, y: ypos, width: 1, height: 1,
         })
@@ -934,6 +974,15 @@ or whether it should stay constant for all runs.]],
 _ac_f.process_save_dialog_for_step = (results, y, stepi, step) ->
     step.dialogs = {}
     for i, capt_diag in ipairs(step.captured_dialogs)
+        buttonmode = _ac_c.button_mode_options[results["s#{stepi}_d#{i}_mb"]]
+        if buttonmode == "passthrough"
+            step.dialogs[i] = {
+                button: {mode: buttonmode}
+            }
+            continue
+
+        buttonmode = "passthrough" if buttonmode == "passthrough_defaults"
+
         values = {}
 
         fnames = _ac_i.fun.table.keys(capt_diag.fields)
@@ -970,7 +1019,7 @@ _ac_f.process_save_dialog_for_step = (results, y, stepi, step) ->
 
         button = {
             value: results["s#{stepi}_d#{i}_b"],
-            mode: _ac_c.value_mode_options[results["s#{stepi}_d#{i}_mb"]],
+            mode: buttonmode,
         }
         if button.mode == "user"
             button.label = results["s#{stepi}_d#{i}_lb"]
