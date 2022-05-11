@@ -121,7 +121,6 @@ export _ac_config = _ac_c.depctrl\getConfigHandler(_ac_default_config, "config")
 -- GLOBAL STATE
 _ac_gs.initialized = false      -- whether the script has been initialized
 
-_ac_gs.recording = false
 _ac_gs.recording_chain = {}     -- list of steps in macro currently being recorded
 _ac_gs.current_script = nil     -- script currently being loaded or run
 _ac_gs.show_dummy_dialogs = false
@@ -820,7 +819,6 @@ or back up your subtitle file before running any AegisubChain macros.]],
         _ac_config.c.warning_shown = true
         _ac_f.save_config()
 
-    _ac_gs.recording = true
     _ac_gs.recording_chain = {}
 
 
@@ -1103,7 +1101,6 @@ _ac_f.save_chain = (_ac_subs, _ac_sel, _ac_active) ->
         _ac_config.c.chains[result.chainname] = chain
         _ac_f.save_config()
 
-        _ac_gs.recording = false
         _ac_gs.recording_chain = {}
 
 
@@ -1140,7 +1137,6 @@ _ac_f.discard_chain = (_ac_subs, _ac_sel, _ac_active) ->
 
     return if btn != yes
 
-    _ac_gs.recording = false
     _ac_gs.recording_chain = nil
 
 
@@ -1379,11 +1375,10 @@ _ac_f.read_aegisub_path = () ->
 if not _ac_was_present
     _ac_f.read_aegisub_path()
 
-    aegisub.register_macro("#{script_name}/Record Chain", "Begin recording a chain", _ac_f.record_chain, () -> not _ac_gs.recording)
-    aegisub.register_macro("#{script_name}/Record next Macro in Chain", "Run an automation script as the next step in the chain being recorded.", _ac_f.wrap(_ac_f.record_run_macro), () -> _ac_gs.recording)
-    aegisub.register_macro("#{script_name}/Erase last Macro in Chain", "Erase the last macro you have recorded in the current chain", _ac_f.erase_last_macro, () -> _ac_gs.recording and #_ac_gs.recording_chain > 0)
-    aegisub.register_macro("#{script_name}/Save Chain", "Finalize and save the current chain", _ac_f.save_chain, () -> _ac_gs.recording)
-    aegisub.register_macro("#{script_name}/Discard Chain", "Discard the current chain without saving", _ac_f.discard_chain, () -> _ac_gs.recording)
+    aegisub.register_macro("#{script_name}/Record next Macro in Chain", "Run an automation script as the next step in the chain being recorded.", _ac_f.wrap(_ac_f.record_run_macro))
+    aegisub.register_macro("#{script_name}/Erase last Macro in Chain", "Erase the last macro you have recorded in the current chain", _ac_f.erase_last_macro, () -> #_ac_gs.recording_chain > 0)
+    aegisub.register_macro("#{script_name}/Save Chain", "Finalize and save the current chain", _ac_f.save_chain, () -> #_ac_gs.recording_chain > 0)
+    aegisub.register_macro("#{script_name}/Discard Chain", "Discard the current chain without saving", _ac_f.discard_chain, () -> #_ac_gs.recording_chain > 0)
     aegisub.register_macro("#{script_name}/Configure", "Configure #{script_name}", _ac_f.configure)
     aegisub.register_macro("#{script_name}/Manage Chains", "Manage your recorded chains", _ac_f.manage_chains)
 
@@ -1398,6 +1393,6 @@ if not _ac_was_present
                 _ac_gs.selected_macro = k
                 _ac_f.record_run_macro()
 
-            _ac_aegisub.register_macro("#{our_script_name}/Record next Macro/#{k}", "Run #{k} as the next step in the chain being recorded.", _ac_f.wrap(runner), () -> _ac_gs.recording)
+            _ac_aegisub.register_macro("#{our_script_name}/Record next Macro/#{k}", "Run #{k} as the next step in the chain being recorded.", _ac_f.wrap(runner))
 
 _ac_gs.initialized = true
