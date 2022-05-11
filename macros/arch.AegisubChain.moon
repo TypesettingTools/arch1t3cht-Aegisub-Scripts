@@ -876,7 +876,7 @@ if the macro returns no selection.]],
         -- Show form fields for those fields in the macro that were changed
         for fname, field in pairs(capt_diag.fields)
             continue if field.class == "label"
-            continue if field.value == (field.descriptor.value or _ac_c.default_diag_values[field.descriptor.class])
+            continue if field.value == (field.descriptor[_ac_c.diag_default_names[field.descriptor.class]] or _ac_c.default_diag_values[field.descriptor.class])
 
             table.insert(diag, {
                 class: "label",
