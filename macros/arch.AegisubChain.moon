@@ -1310,7 +1310,7 @@ _ac_f.manage_chains = (subs, sel, active) ->
     if btn == del
         return if #selected_chains == 0
         yes2 = "Yes"
-        return if _ac_aegisub.dialog.display({{class: "label", label: "Are you sure you want to delete #{#selected_chains} chain#{#selected_chains != 1 and "s" or ""}?", x: 0, y: 0, width: 1, height: 1}}, {yes2, cancel}, {"ok": yes2, "cancel": cancel}) != yes2
+        return if _ac_aegisub.dialog.display({{class: "label", label: "Are you sure you want to delete #{#selected_chains} chain#{if #selected_chains != 1 then "s" else ""}?", x: 0, y: 0, width: 1, height: 1}}, {yes2, cancel}, {"ok": yes2, "cancel": cancel}) != yes2
 
         for i, k in ipairs(selected_chains)
             _ac_config.c.chains[k] = nil
@@ -1322,7 +1322,7 @@ _ac_f.manage_chains = (subs, sel, active) ->
 
         _ac_aegisub.dialog.display({{
             class: "label",
-            label: "Exported #{#selected_chains} chain#{#selected_chains != 1 and "s" or ""}:                                                                       ",
+            label: "Exported #{#selected_chains} chain#{if #selected_chains != 1 then "s" else ""}:                                                                       ",
             x: 0, y: 0, width: 1, height: 1,
         }, {
             class: "textbox",
@@ -1352,7 +1352,7 @@ _ac_f.manage_chains = (subs, sel, active) ->
 
         if #will_replace > 0
             yes2 = "Yes"
-            return if _ac_aegisub.dialog.display({{class: "label", label: "This will override #{#will_replace} chain#{#will_replace != 1 and "s" or ""}. Are you sure?", x: 0, y: 0, width: 1, height: 1,}}, {yes2, cancel}, {"ok": yes2, "cancel": cancel}) != yes2
+            return if _ac_aegisub.dialog.display({{class: "label", label: "This will override #{#will_replace} chain#{if #will_replace != 1 then "s" else ""}. Are you sure?", x: 0, y: 0, width: 1, height: 1,}}, {yes2, cancel}, {"ok": yes2, "cancel": cancel}) != yes2
 
         for k,v in pairs(newchains)
             _ac_config.c.chains[k] = v

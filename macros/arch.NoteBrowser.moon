@@ -145,8 +145,8 @@ jump_to = (forward, same, subs, sel) ->
     -- yeeeeeah there are marginally faster algorithms, but that's not necessary at this scale. Let's keep it clean and simple.
     table.sort(lines_with_notes)
     for i=1,#lines_with_notes
-        ind = forward and i or #lines_with_notes + 1 - i
-        comp = forward and ((a,b) -> a > b) or ((a, b) -> a < b)
+        ind = if forward then i else #lines_with_notes + 1 - i
+        comp = if forward then ((a,b) -> a > b) else ((a, b) -> a < b)
         new_si = lines_with_notes[ind]
 
         if comp(new_si, si)
