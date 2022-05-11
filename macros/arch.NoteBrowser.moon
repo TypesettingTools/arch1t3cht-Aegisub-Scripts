@@ -4,6 +4,46 @@ export script_version = "0.1.0"
 export script_namespace = "arch.notebrowser"
 export script_author = "arch1t3cht"
 
+-- This script allows loading a collection of subtitle QC notes prefixed by timestamps,
+-- and allows navigation between mentioned lines in Aegisub.
+-- It doesn't add any functionality of showing the content of the notes, as that would
+-- likely take more time to set up properly than it would save. The script is mostly meant
+-- to save the effort of scrolling through subtitles trying to find the line that was mentioned in a note.
+--
+-- Note format:
+-- A note is any line starting with a timestamp of the form hh:mm:ss or mm:ss .
+-- (As a consequence, lines starting with timestamps like 00:01:02.34 including centiseconds
+-- will also be recognized as a note, however the centiseconds will be ignored.)
+--
+-- A file of notes can be organized into different sections (say, collecting notes on different
+-- topics or from different authors - the latter being the motivation for the macro names).
+-- A section is started by a line of the form [<section_name>], where the
+-- section's name <section_name> must not contain a closing bracket.
+--
+-- Any line not matching one of these two formats is skipped. Section names and timestamps are the only
+-- things that are parsed.
+--
+-- Example:
+--
+-- 0:01 - General note 1
+-- 1:50 - General note 2
+--
+-- [TLC]
+-- 3:24 - yabai should be translated as "terrible" instead.
+--
+-- [Timing]
+-- 1:55 - Scene bleed
+-- 2:10 - Flashing subs
+--
+-- Most of the script's functions should be self-explanatory with this.
+-- The one tricky element is "Jump to next/previous note by the same author":
+-- This will jump to the next note whose author is *the author of the last note
+-- the user jumped to using the ordinary "Jump to next/previous note" command.
+-- While this may seem counter-intuitive, this ensures that successively using
+-- "Jump to next/previous note by author" will indeed always jump to notes of the
+-- same author, even after arriving at a subtitle line with multiple notes on it.
+
+
 default_config = {
     mark: false,
 }
@@ -165,4 +205,4 @@ aegisub.register_macro("#{script_name}/Jump to next note", "Jump to the next not
 aegisub.register_macro("#{script_name}/Jump to previous note", "Jump to the previous note", (...) -> jump_to(false, false, ...))
 aegisub.register_macro("#{script_name}/Jump to next note by author", "Jump to the next note with the same author", (...) -> jump_to(true, true, ...))
 aegisub.register_macro("#{script_name}/Jump to previous note by author", "Jump to the previous note with the same author", (...) -> jump_to(false, true, ...))
-aegisub.register_macro("#{script_name}/Clear all markers", "Load QC notes", clear_markers)
+aegisub.register_macro("#{script_name}/Clear all markers", "Clear all the [QC-...] markers that were added when loading the notes", clear_markers)
