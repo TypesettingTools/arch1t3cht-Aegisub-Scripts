@@ -70,6 +70,7 @@ _ac_c.select_mode_options = {
 _ac_c.value_mode_options = {
     "Set in Dialog": "user",
     "Constant": "const",
+    "Exclude": "exclude",
 }
 
 _ac_c.button_mode_options = _ac_i.fun.table.merge({
@@ -971,10 +972,14 @@ to the user without any modifications or autofills.]],
 
 _ac_f.process_save_dialog_for_step = (results, y, stepi, step) ->
     step.dialogs = {}
+    excluded_dialogs = 0
     for i, capt_diag in ipairs(step.captured_dialogs)
         buttonmode = _ac_c.button_mode_options[results["s#{stepi}_d#{i}_mb"]]
+        if buttonmode == "exclude"
+            excluded_dialogs += 1
+            continue
         if buttonmode == "passthrough"
-            step.dialogs[i] = {
+            step.dialogs[i - excluded_dialogs] = {
                 button: {mode: buttonmode}
             }
             continue
@@ -995,6 +1000,7 @@ _ac_f.process_save_dialog_for_step = (results, y, stepi, step) ->
                 value: results["s#{stepi}_d#{i}_f_#{fname}"],
                 mode: _ac_c.value_mode_options[results["s#{stepi}_d#{i}_m_#{fname}"]],
             }
+            continue if fieldinfo.mode == "exclude"
 
             if fieldinfo.mode == "user"
                 fieldinfo.label = results["s#{stepi}_d#{i}_l_#{fname}"]
@@ -1030,7 +1036,7 @@ _ac_f.process_save_dialog_for_step = (results, y, stepi, step) ->
 
             fieldx += 1
 
-        step.dialogs[i] = {
+        step.dialogs[i - excluded_dialogs] = {
             button: button,
             values: values,
         }
