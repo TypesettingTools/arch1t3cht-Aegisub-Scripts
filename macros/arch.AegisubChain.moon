@@ -1,6 +1,6 @@
 export script_name = "AegisubChain"
 export script_description = "Compose macros out of existing automation scripts."
-export script_version = "0.2.0"
+export script_version = "0.3.0"
 export script_namespace = "arch.#{script_name}"
 export script_author = "arch1t3cht"
 
@@ -145,6 +145,11 @@ export _ac_script_aegisub = {}
 export aegisub = _ac_aegisub
 
 _ac_c.initial_globals = {k,true for k, v in pairs(_G)}
+_ac_c.initial_globals.script_name = nil
+_ac_c.initial_globals.script_description = nil
+_ac_c.initial_globals.script_version = nil
+_ac_c.initial_globals.script_namespace = nil
+_ac_c.initial_globals.script_author = nil
 
 
 -- There is some other global state we need to keep track of:
