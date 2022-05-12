@@ -1,6 +1,26 @@
 # Aegisub-Scripts
 My automation scripts for Aegisub. You're probably here for AegisubChain, but there are also some other useful scripts for editing and timing in here.
 
+- [Aegisub-Scripts](#aegisub-scripts)
+  - [AegisubChain](#aegisubchain)
+    - [Basic usage](#basic-usage)
+    - [Detailed Documentation](#detailed-documentation)
+      - [Script Registration and Execution](#script-registration-and-execution)
+      - [Recording Process](#recording-process)
+      - [Chain config format](#chain-config-format)
+    - [Limitations and Workarounds](#limitations-and-workarounds)
+    - [Compatibility](#compatibility)
+      - [API](#api)
+    - [Possible future features](#possible-future-features)
+  - [Scripts for Editing and QC](#scripts-for-editing-and-qc)
+    - [Rewriting Tools](#rewriting-tools)
+    - [Note Browser](#note-browser)
+  - [Scripts for Timing](#scripts-for-timing)
+    - [Timing Binds](#timing-binds)
+    - [Center Times](#center-times)
+  - [Other stuff I worked on that might be interesting](#other-stuff-i-worked-on-that-might-be-interesting)
+
+
 ## AegisubChain
 My biggest project. From a technical standpoint, [AegisubChain](macros/arch.AegisubChain.moon) is comparable to a virtual machine that can run (multiple) other automation scripts, while hooking into their API calls. In particular, it can intercept dialogs and prefill them with certain values, or suppress them entirely by immediately returning whaterver results it wants (which I'll call autofilling).
 
