@@ -596,9 +596,6 @@ _ac_f.run_script_macro = (macroname, _ac_subs, _ac_sel, _ac_active) ->
 
 
 _ac_f.record_run_macro = (_ac_subs, _ac_sel, _ac_active) ->
-    if not _ac_gs.recording
-        return
-
     macroname, dummy = _ac_f.select_macro()
     if macroname == nil
         return
@@ -607,6 +604,7 @@ _ac_f.record_run_macro = (_ac_subs, _ac_sel, _ac_active) ->
     _ac_gs.captured_dialogs = {}
     newsel, newactive, changed, updatesel, updateactive = _ac_f.run_script_macro(macroname, _ac_subs, _ac_sel, _ac_active)
 
+    _ac_gs.recording_chain or= {}
     table.insert(_ac_gs.recording_chain, {
             macro: macroname,
             captured_dialogs: _ac_gs.captured_dialogs
@@ -875,8 +873,8 @@ if the macro returns no selection.]],
         })
         -- Show form fields for those fields in the macro that were changed
         for fname, field in pairs(capt_diag.fields)
-            continue if field.class == "label"
-            continue if field.value == (field.descriptor[_ac_c.diag_default_names[field.descriptor.class]] or _ac_c.default_diag_values[field.descriptor.class])
+            continue if _ac_c.diag_default_names[field.descriptor.class] == nil
+            continue if field.value == (field.descriptor[_ac_c.diag_default_names[field.descriptor.class]] or field.descriptor["value"] or _ac_c.default_diag_values[field.descriptor.class])
 
             table.insert(diag, {
                 class: "label",
@@ -885,7 +883,7 @@ if the macro returns no selection.]],
             })
             patched_descriptor = _ac_i.fun.table.copy field.descriptor
             patched_descriptor.name = "s#{stepi}_d#{i}_f_#{fname}"
-            patched_descriptor.value = field.value
+            patched_descriptor[_ac_c.diag_default_names[patched_descriptor.class]] = field.value
             patched_descriptor.x = 2
             patched_descriptor.y = ypos
             patched_descriptor.width = 1
