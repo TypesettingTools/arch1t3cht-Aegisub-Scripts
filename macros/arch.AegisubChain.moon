@@ -59,7 +59,7 @@ _ac_c.init_dir = _ac_i.lfs.currentdir()    -- some script might change the worki
 
 _ac_c.depctrl = _ac_i.depctrl {}
 
-_ac_c.debug = false      -- whether we're debugging right now. This turns off all pcalls so error messages can propagate fully.
+_ac_c.debug = true      -- whether we're debugging right now. This turns off all pcalls so error messages can propagate fully.
 
 _ac_c.select_mode_options = {
     "Macro's Selection": "macro",
@@ -642,7 +642,7 @@ _ac_f.get_values_for_chain = (chain) ->
 
                 table.insert(user_diag, {
                     class: "label",
-                    label: field.label,
+                    label: field.flabel,
                     x: 2 * field.x, y: field.y, width: 1, height: field.height,
                 })
 
@@ -650,7 +650,11 @@ _ac_f.get_values_for_chain = (chain) ->
                     class: field.class,
                     value: field.value,
                     items: field.items,
-                    text: field.text
+                    text: field.text,
+                    hint: field.hint,
+                    min: field.min,
+                    max: field.max,
+                    step: field.step,
                     name: "s#{stepi}_d#{i}_f_#{fname}"
                     x: 2 * field.x + 1, y: field.y, width: 2 * field.width - 1, height: field.height,
                 })
@@ -664,7 +668,7 @@ _ac_f.get_values_for_chain = (chain) ->
 
                 table.insert(user_diag, {
                     class: "label",
-                    label: field.label,
+                    label: field.flabel,
                     x: 2 * field.x, y: field.y, width: 1, height: field.height,
                 })
 
@@ -998,20 +1002,27 @@ _ac_f.process_save_dialog_for_step = (results, y, stepi, step) ->
             }
             continue if fieldinfo.mode == "exclude"
 
+            -- I should clean this up someday...
             if fieldinfo.mode == "user"
-                fieldinfo.label = results["s#{stepi}_d#{i}_l_#{fname}"]
+                fieldinfo.flabel = results["s#{stepi}_d#{i}_l_#{fname}"]
                 fieldinfo.x = fieldx
                 fieldinfo.y = y
                 fieldinfo.width = 1
                 fieldinfo.height = 1
                 fieldinfo.class = field.descriptor.class
+                fieldinfo.hint = field.descriptor.hint
 
                 if fieldinfo.class == "edit" or fieldinfo.class == "textbox"
                     fieldinfo.text = fieldinfo.value
                     fieldinfo.value = nil
 
                 if fieldinfo.class == "dropdown"
-                    fieldinfo.items == field.descriptor.items
+                    fieldinfo.items = field.descriptor.items
+
+                if fieldinfo.class == "intedit" or field.class == "floatedit"
+                    fieldinfo.min = field.descriptor.min
+                    fieldinfo.max = field.descriptor.max
+                    fieldinfo.step = field.descriptor.step if field.class == "floatedit"
 
                 fieldx += 1
 
@@ -1022,7 +1033,7 @@ _ac_f.process_save_dialog_for_step = (results, y, stepi, step) ->
             mode: buttonmode,
         }
         if button.mode == "user"
-            button.label = results["s#{stepi}_d#{i}_lb"]
+            button.flabel = results["s#{stepi}_d#{i}_lb"]
             button.class = "dropdown"
             button.items = capt_diag.buttons
             button.x = fieldx
@@ -1389,7 +1400,7 @@ if not _ac_was_present
         for k, v in pairs(_ac_gs.captured_macros)
             runner = (...) ->
                 _ac_gs.selected_macro = k
-                _ac_f.record_run_macro()
+                _ac_f.record_run_macro(...)
 
             _ac_aegisub.register_macro("#{our_script_name}/Record next Macro/#{k}", "Run #{k} as the next step in the chain being recorded.", _ac_f.wrap(runner))
 
