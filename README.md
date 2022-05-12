@@ -28,6 +28,12 @@ From an end-user standpoint, AegisubChain allows you to record and play back "pi
 
 Consider the following example, which records a 4-step process to make text incrementally fade from top to bottom, and later plays it back using just one script and one dialog:
 
+https://user-images.githubusercontent.com/99741385/168145342-8e1daad6-8559-459c-9f0f-69e23e3541a1.mp4
+
+Here's a second, simpler example which adds colors to text and runs "Blur & Glow".
+
+https://user-images.githubusercontent.com/99741385/168145566-4ef2dbbd-8afe-4e6c-8055-ae0beb0c69b4.mp4
+
 ### Basic usage
 - Use "Record Next Macro in Chain" to begin recording a chain, and select what macro you'd like to run.
 - Use the macro's dialogs as you normally would, but pay attention to only change values in fields that are actually relevant
@@ -147,10 +153,14 @@ These scripts try to provide shortcuts for actions in editing or in applying QC 
 ### Rewriting Tools
 This script is for whenever you're editing subtitles but want to also preserve the original line in the same subtitle line. It wraps the previous line in braces, but also escapes any styling tags it contains. Conversely, it can revert to any of the deactivated lines with one hotkey.
 
+https://user-images.githubusercontent.com/99741385/168145699-4076a81f-81f7-4ce7-baf5-6ac06f4a6cdb.mp4
+
 [The script](macros/arch.rewriting_tools.lua) contains more detailed documentation.
 
 ### Note Browser
-Takes a list of subtitle QC notes, each starting with a timestamp, and provides shortcuts for jumping to lines with notes, as well as a way to mark lines containing notes. The notes themselves aren't shown.
+Takes a list of subtitle QC notes (or really any collection of timestamped notes), each starting with a timestamp, and provides shortcuts for jumping to lines with notes, as well as a way to mark lines containing notes. The notes themselves aren't shown.
+
+https://user-images.githubusercontent.com/99741385/168145809-91e5f1ba-2a12-4003-8366-1bf8def09ab3.mp4
 
 Documentation is included in [the script](macros/arch.notebrowser.moon).
 
