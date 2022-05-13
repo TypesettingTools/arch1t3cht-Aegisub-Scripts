@@ -24,7 +24,7 @@ My automation scripts for Aegisub. You're probably here for AegisubChain, but th
 ## AegisubChain
 My biggest project. From a technical standpoint, [AegisubChain](macros/arch.AegisubChain.moon) is comparable to a virtual machine that can run (multiple) other automation scripts, while hooking into their API calls. In particular, it can intercept dialogs and prefill them with certain values, or suppress them entirely by immediately returning whaterver results it wants (which I'll call autofilling).
 
-From an end-user standpoint, AegisubChain allows you to record and play back "pipelines" of macros (called *chains*), and only showing one dialog collecting all required values on playback.
+From an end-user standpoint, AegisubChain allows you to record and play back "pipelines" of macros (called *chains*), and only showing one dialog collecting all required values on playback. It can also create wrappers around macros that skip some dialogs or prefill some values, or turn virtually any macro action into a non-GUI macro.
 
 Consider the following example, which records a 4-step process to make text incrementally fade from top to bottom, and later plays it back using just one script and one dialog:
 
@@ -148,7 +148,7 @@ Some things I might implement in the future, if I have the time and am sufficien
 - Some online place to find or share recorded chains.
 
 ## Scripts for Editing and QC
-These scripts try to provide shortcuts for actions in editing or in applying QC notes. They're taylored to the processes and conventions in the group I'm working in, but maybe they'll also be useful for other people.
+These scripts try to provide shortcuts for actions in editing or in applying QC notes. They're tailored to the processes and conventions in the group I'm working in, but maybe they'll also be useful for other people.
 
 ### Rewriting Tools
 This script is for whenever you're editing subtitles but want to also preserve the original line in the same subtitle line. It wraps the previous line in braces, but also escapes any styling tags it contains. Conversely, it can revert to any of the deactivated lines with one hotkey.
