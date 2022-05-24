@@ -35,7 +35,7 @@ end
 -- This script automates the process of commenting and uncommenting subitle lines during rewrites,
 -- using conventions used in some of the groups I'm working in.
 --
--- Line format (formal-ish specification - scroll down for explicit examples):
+-- Line format (formal-ish specification - scroll down for the functions and explicit examples):
 -- Every line of a subtitle file is a sequence of sections of one of the following forms:
 -- - Global styling tags: A brace block whose content starts with a backslash and ends with a pipe ('|').
 --      These are styling overrides which should globally apply to any rewrite (e.g. position, alignment, font size, etc)
@@ -245,6 +245,7 @@ function switch_lines_proper(subs, sel, rewrite)
             if escaped_braceblock ~= nil or intext == "" then
                 if rewrite then
                     newline, out = stripstart(newline, out)
+                    newline = fix_text_checked(newline)
                     out = appendstripend(newline, out)
                 end
                 if (deactivated and not reactivated) or (rewrite and newline ~= "") then
