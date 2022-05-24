@@ -59,7 +59,7 @@ _ac_c.init_dir = _ac_i.lfs.currentdir()    -- some script might change the worki
 
 _ac_c.depctrl = _ac_i.depctrl {}
 
-_ac_c.debug = true      -- whether we're debugging right now. This turns off all pcalls so error messages can propagate fully.
+_ac_c.debug = false      -- whether we're debugging right now. This turns off all pcalls so error messages can propagate fully.
 
 _ac_c.select_mode_options = {
     "Macro's Selection": "macro",
