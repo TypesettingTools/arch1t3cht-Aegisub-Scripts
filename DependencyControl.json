@@ -24,7 +24,7 @@
             {
               "name": ".moon",
               "url": "@{fileBaseUrl}@{fileName}",
-              "sha1": ""
+              "sha1": "6e158cfdb53d8b39a525756ccc142011eb6f8057"
             }
           ]
         }
@@ -49,7 +49,7 @@
             {
               "name": ".lua",
               "url": "@{fileBaseUrl}@{fileName}",
-              "sha1": ""
+              "sha1": "4bef239e9d76d266e4440cd22f84c16829667213"
             }
           ]
         }
@@ -67,14 +67,14 @@
       "description": "Loads a set of timestamped notes and adds options to mark them or jump between them.",
       "channels": {
         "release": {
-          "version": "0.1.0",
+          "version": "1.0.0",
           "released": "2022-05-26",
           "default": true,
           "files": [
             {
               "name": ".moon",
               "url": "@{fileBaseUrl}@{fileName}",
-              "sha1": ""
+              "sha1": "7f075127c365af850f7bf1b991aede9cbea4b038"
             }
           ]
         }
