@@ -1,7 +1,7 @@
 export script_name = "Note Browser"
 export script_description = "Jump to lines mentioned in QC notes"
 export script_version = "0.1.0"
-export script_namespace = "arch.notebrowser"
+export script_namespace = "arch.NoteBrowser"
 export script_author = "arch1t3cht"
 
 -- This script allows loading a collection of subtitle QC notes prefixed by timestamps,

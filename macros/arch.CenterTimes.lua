@@ -1,7 +1,7 @@
 script_name = "Center Times"
 script_author = "arch1t3cht"
 script_version = "1.1"
-script_namespace = "arch.centertimes"
+script_namespace = "arch.CenterTimes"
 script_description = "Centering times of lines in frame ranges"
 
 ---------- Rationale behind this script: ----------

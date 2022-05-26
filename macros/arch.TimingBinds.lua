@@ -1,7 +1,7 @@
 script_name = "Timing Shortcuts"
 script_author = "arch1t3cht"
 script_version = "1.0.0"
-script_namespace = "arch.timingbinds"
+script_namespace = "arch.TimingBinds"
 script_description = "Some shorthands for timing"
 
 
