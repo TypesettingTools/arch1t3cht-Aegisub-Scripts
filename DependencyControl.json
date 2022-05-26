@@ -1,0 +1,89 @@
+{
+  "dependencyControlFeedFormatVersion": "0.3.0",
+  "name": "arch1t3cht's Aegisub Scripts",
+  "description": "Main repository for all of arch1t3cht's automation macros.",
+  "maintainer": "arch1t3cht",
+  "knownFeeds": {
+    "Functional": "https://raw.githubusercontent.com/TypesettingTools/Functional/master/DependencyControl.json"
+  },
+  "baseUrl": "https://github.com/arch1t3cht/Aegisub-Scripts",
+  "url": "@{baseUrl}",
+  "fileBaseUrl": "https://raw.githubusercontent.com/arch1t3cht/Aegisub-Scripts/@{namespace}-v@{version}/macros/@{namespace}",
+  "macros": {
+    "arch.AegisubChain": {
+      "url": "@{baseUrl}#@{namespace}",
+      "author": "arch1t3cht",
+      "name": "AegisubChain",
+      "description": "Compose chains out of existing automation macros, and play them back as non-GUI macros, or using only one dialog.",
+      "channels": {
+        "release": {
+          "version": "0.3.0",
+          "released": "2022-05-26",
+          "default": true,
+          "files": [
+            {
+              "name": ".moon",
+              "url": "@{fileBaseUrl}@{fileName}",
+              "sha1": ""
+            }
+          ]
+        }
+      },
+      "changelog": {
+        "0.3.0": [
+          "Initial Release"
+        ]
+      }
+    },
+    "arch.RWTools": {
+      "url": "@{baseUrl}#@{namespace}",
+      "author": "arch1t3cht",
+      "name": "Rewriting Tools",
+      "description": "Shortcuts for managing multiple rewrites of a line in one .ass event line.",
+      "channels": {
+        "release": {
+          "version": "1.0.0",
+          "released": "2022-05-26",
+          "default": true,
+          "files": [
+            {
+              "name": ".lua",
+              "url": "@{fileBaseUrl}@{fileName}",
+              "sha1": ""
+            }
+          ]
+        }
+      },
+      "changelog": {
+        "1.0.0": [
+          "Initial Release"
+        ]
+      }
+    },
+    "arch.NoteBrowser": {
+      "url": "@{baseUrl}#@{namespace}",
+      "author": "arch1t3cht",
+      "name": "Note Browser",
+      "description": "Loads a set of timestamped notes and adds options to mark them or jump between them.",
+      "channels": {
+        "release": {
+          "version": "0.1.0",
+          "released": "2022-05-26",
+          "default": true,
+          "files": [
+            {
+              "name": ".moon",
+              "url": "@{fileBaseUrl}@{fileName}",
+              "sha1": ""
+            }
+          ]
+        }
+      },
+      "changelog": {
+        "0.1.0": [
+          "Initial Release"
+        ]
+      }
+    }
+  }
+}

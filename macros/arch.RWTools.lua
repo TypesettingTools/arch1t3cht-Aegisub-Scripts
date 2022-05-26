@@ -1,8 +1,8 @@
 script_name = "Rewriting Tools"
 script_author = "arch1t3cht"
-script_version = "1.0.0"
+script_version = "1.0.0"    -- initial
 script_namespace = "arch.RWTools"
-script_description = "Deactivating the current line and escaping styling tags"
+script_description = "Shortcuts for managing multiple rewrites of a line in one .ass event line."
 
 switch_name = "Switch Active Lines"
 switch_description = "Deactivates the active line and activates any inactive lines marked with !- ."
@@ -25,7 +25,9 @@ default_config = {
 }
 
 if haveDepCtrl then
-    depctrl = DependencyControl({})
+    depctrl = DependencyControl({
+        feed = "https://raw.githubusercontent.com/arch1t3cht/Aegisub-Scripts/main/DependencyControl.json",
+    })
     config = depctrl:getConfigHandler(default_config, "config")
 else
     id = function() return nil end
@@ -423,7 +425,21 @@ function configure()
     return results
 end
 
-aegisub.register_macro(script_name .. "/" .. switch_name,switch_description,switch_lines,can_run)
-aegisub.register_macro(script_name .. "/" .. rewrite_name,rewrite_description,rewrite_line,can_run)
-aegisub.register_macro(script_name .. "/" .. clean_name,clean_description,clean_lines)
-aegisub.register_macro(script_name .. "/" .. "Configure","Configure Rewriting Tools",configure)
+local mymacros = {}
+
+function wrap_register_macro(name, ...)
+    if haveDepCtrl then
+        table.insert(mymacros, {name, ...})
+    else
+        aegisub.register_macro(script_name .. "/" .. name, ...)
+    end
+end
+
+wrap_register_macro(switch_name,switch_description,switch_lines,can_run)
+wrap_register_macro(rewrite_name,rewrite_description,rewrite_line,can_run)
+wrap_register_macro(clean_name,clean_description,clean_lines)
+wrap_register_macro("Configure","Configure Rewriting Tools",configure)
+
+if haveDepCtrl then
+    depctrl:registerMacros(mymacros)
+end

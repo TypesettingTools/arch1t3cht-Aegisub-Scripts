@@ -165,6 +165,8 @@ https://user-images.githubusercontent.com/99741385/168145809-91e5f1ba-2a12-4003-
 Documentation is included in [the script](macros/arch.notebrowser.moon).
 
 ## Scripts for Timing
+These scripts aren't in DependencyControl, since I can imagine that they'll mostly be useful to me.
+
 ### Timing Binds
 A couple of shortcuts I use for more efficient timing, especially when timing to video. None of this is groundbreaking, but most of these were things I didn't find elsewhere, at least in this exact form.
 - Snapping start or end to video **while keeping lines joined**

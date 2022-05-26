@@ -1,6 +1,6 @@
 export script_name = "Note Browser"
-export script_description = "Jump to lines mentioned in QC notes"
-export script_version = "0.1.0"
+export script_description = "Loads a set of timestamped notes and adds options to mark them or jump between them."
+export script_version = "0.1.0"     -- initial
 export script_namespace = "arch.NoteBrowser"
 export script_author = "arch1t3cht"
 
@@ -51,11 +51,18 @@ default_config = {
 haveDepCtrl, DependencyControl = pcall(require, "l0.DependencyControl")
 local config
 local fun
+local depctrl
 
 if haveDepCtrl
-    depctrl = DependencyControl({})
+    depctrl = DependencyControl({
+        feed: "https://raw.githubusercontent.com/arch1t3cht/Aegisub-Scripts/main/DependencyControl.json",
+        {
+            {"l0.Functional", version: "0.6.0", url: "https://github.com/TypesettingTools/Functional",
+              feed: "https://raw.githubusercontent.com/TypesettingTools/Functional/master/DependencyControl.json"},
+        }
+    })
     config = depctrl\getConfigHandler(default_config, "config", false)
-    fun = require "l0.Functional"
+    fun = depctrl\requireModules!
 else
     id = () -> nil
     config = {c: default_config, load: id, write: id}
@@ -200,9 +207,20 @@ jump_to = (forward, same, subs, sel) ->
             return {new_si}, new_si
 
 
-aegisub.register_macro("#{script_name}/Load notes", "Load QC notes", load_notes)
-aegisub.register_macro("#{script_name}/Jump to next note", "Jump to the next note", (...) -> jump_to(true, false, ...))
-aegisub.register_macro("#{script_name}/Jump to previous note", "Jump to the previous note", (...) -> jump_to(false, false, ...))
-aegisub.register_macro("#{script_name}/Jump to next note by author", "Jump to the next note with the same author", (...) -> jump_to(true, true, ...))
-aegisub.register_macro("#{script_name}/Jump to previous note by author", "Jump to the previous note with the same author", (...) -> jump_to(false, true, ...))
-aegisub.register_macro("#{script_name}/Clear all markers", "Clear all the [QC-...] markers that were added when loading the notes", clear_markers)
+mymacros = {}
+
+wrap_register_macro = (name, ...) ->
+    if haveDepCtrl
+        table.insert(mymacros, {name, ...})
+    else
+        aegisub.register_macro("#{script_name}/#{name}", ...)
+
+wrap_register_macro("Load notes", "Load QC notes", load_notes)
+wrap_register_macro("Jump to next note", "Jump to the next note", (...) -> jump_to(true, false, ...))
+wrap_register_macro("Jump to previous note", "Jump to the previous note", (...) -> jump_to(false, false, ...))
+wrap_register_macro("Jump to next note by author", "Jump to the next note with the same author", (...) -> jump_to(true, true, ...))
+wrap_register_macro("Jump to previous note by author", "Jump to the previous note with the same author", (...) -> jump_to(false, true, ...))
+wrap_register_macro("Clear all markers", "Clear all the [QC-...] markers that were added when loading the notes", clear_markers)
+
+if haveDepCtrl
+    depctrl\registerMacros(mymacros)

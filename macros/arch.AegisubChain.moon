@@ -1,7 +1,7 @@
 export script_name = "AegisubChain"
-export script_description = "Compose macros out of existing automation scripts."
-export script_version = "0.3.0"
-export script_namespace = "arch.#{script_name}"
+export script_description = "Compose chains out of existing automation macros, and play them back as non-GUI macros, or using only one dialog."
+export script_version = "0.3.0"     --initial
+export script_namespace = "arch.AegisubChain"
 export script_author = "arch1t3cht"
 
 
@@ -32,11 +32,20 @@ export _ac_aegisub = aegisub
 export aegisub = {k, v for k, v in pairs(_ac_aegisub)}
 
 -- IMPORTS
+
 _ac_i.depctrl = require'l0.DependencyControl'
-_ac_i.fun = require'l0.Functional'
-_ac_i.lfs = require'lfs'
-_ac_i.json = require'json'
-_ac_i.moonbase = require'moonscript.base'
+_ac_c.depctrl = _ac_i.depctrl {
+    feed: "https://raw.githubusercontent.com/arch1t3cht/Aegisub-Scripts/main/DependencyControl.json",
+    {
+        {"l0.Functional", version: "0.6.0", url: "https://github.com/TypesettingTools/Functional",
+          feed: "https://raw.githubusercontent.com/TypesettingTools/Functional/master/DependencyControl.json"},
+        "lfs",
+        "json",
+        "moonscript.base",
+    }
+}
+
+_ac_i.fun, _ac_i.lfs, _ac_i.json, _ac_i.moonbase = _ac_c.depctrl\requireModules!
 
 -- COMPATIBILITY IMPORTS
 -- This is ugly, but seems necessary: These imports aren't used by our script, but
@@ -56,8 +65,6 @@ _ac_c.myname = "arch.AegisubChain.moon"
 _ac_c.default_path = "?user/automation/autoload/|?data/automation/autoload/"    -- Will be read from aegisub config if it exists
 
 _ac_c.init_dir = _ac_i.lfs.currentdir()    -- some script might change the working directory, so we reset it each time
-
-_ac_c.depctrl = _ac_i.depctrl {}
 
 _ac_c.debug = false      -- whether we're debugging right now. This turns off all pcalls so error messages can propagate fully.
 
@@ -114,6 +121,8 @@ _ac_c.default_value_modes = {
     "checkbox": "Constant",
     "button": "Constant",
 }
+
+_ac_c.ourmacros = {}            -- macros to register with depctrl under a submenu
 
 -- CONFIG
 export _ac_config = _ac_c.depctrl\getConfigHandler(_ac_default_config, "config")
@@ -1386,27 +1395,36 @@ _ac_f.read_aegisub_path = () ->
     _ac_c.default_path = config["Path"]["Automation"]["Autoload"]
 
 
+_ac_f.wrap_register_group_macro = (...) ->
+    table.insert(_ac_c.ourmacros, {...})
+
+
+_ac_f.wrap_register_macro = (...) ->
+    _ac_c.depctrl\registerMacro(...)
+
+
 if not _ac_was_present
     _ac_f.read_aegisub_path()
 
-    aegisub.register_macro("#{script_name}/Record next Macro in Chain", "Run an automation script as the next step in the chain being recorded.", _ac_f.wrap(_ac_f.record_run_macro))
-    aegisub.register_macro("#{script_name}/Erase last Macro in Chain", "Erase the last macro you have recorded in the current chain", _ac_f.erase_last_macro, () -> _ac_gs.recording_chain != nil and #_ac_gs.recording_chain > 0)
-    aegisub.register_macro("#{script_name}/Save Chain", "Finalize and save the current chain", _ac_f.save_chain, () -> _ac_gs.recording_chain != nil and #_ac_gs.recording_chain > 0)
-    aegisub.register_macro("#{script_name}/Discard Chain", "Discard the current chain without saving", _ac_f.discard_chain, () -> _ac_gs.recording_chain != nil and #_ac_gs.recording_chain > 0)
-    aegisub.register_macro("#{script_name}/Configure", "Configure #{script_name}", _ac_f.configure)
-    aegisub.register_macro("#{script_name}/Manage Chains", "Manage your recorded chains", _ac_f.manage_chains)
+    _ac_f.wrap_register_group_macro("Record next Macro in Chain", "Run an automation script as the next step in the chain being recorded.", _ac_f.wrap(_ac_f.record_run_macro))
+    _ac_f.wrap_register_group_macro("Erase last Macro in Chain", "Erase the last macro you have recorded in the current chain", _ac_f.erase_last_macro, () -> _ac_gs.recording_chain != nil and #_ac_gs.recording_chain > 0)
+    _ac_f.wrap_register_group_macro("Save Chain", "Finalize and save the current chain", _ac_f.save_chain, () -> _ac_gs.recording_chain != nil and #_ac_gs.recording_chain > 0)
+    _ac_f.wrap_register_group_macro("Discard Chain", "Discard the current chain without saving", _ac_f.discard_chain, () -> _ac_gs.recording_chain != nil and #_ac_gs.recording_chain > 0)
+    _ac_f.wrap_register_group_macro("Configure", "Configure #{script_name}", _ac_f.configure)
+    _ac_f.wrap_register_group_macro("Manage Chains", "Manage your recorded chains", _ac_f.manage_chains)
 
     for k, v in pairs(_ac_config.c.chains)
-        aegisub.register_macro("#{_ac_config.c.chain_menu}#{k}", "A chain recorded by #{script_name}", _ac_f.wrap((...) -> _ac_f.run_chain(v, ...)))
+        _ac_f.wrap_register_macro("#{_ac_config.c.chain_menu}#{k}", "A chain recorded by #{script_name}", _ac_f.wrap((...) -> _ac_f.run_chain(v, ...)))
 
     if _ac_config.c.show_in_menu
-        our_script_name = script_name
         _ac_f.wrap(_ac_f.load_all_scripts)()
         for k, v in pairs(_ac_gs.captured_macros)
             runner = (...) ->
                 _ac_gs.selected_macro = k
                 _ac_f.record_run_macro(...)
 
-            _ac_aegisub.register_macro("#{our_script_name}/Record next Macro/#{k}", "Run #{k} as the next step in the chain being recorded.", _ac_f.wrap(runner))
+            _ac_f.wrap_register_group_macro("Record next Macro/#{k}", "Run #{k} as the next step in the chain being recorded.", _ac_f.wrap(runner))
+
+    _ac_c.depctrl\registerMacros(_ac_c.ourmacros)
 
 _ac_gs.initialized = true
