@@ -1,6 +1,6 @@
 export script_name = "Note Browser"
 export script_description = "Loads a set of timestamped notes and adds options to mark them or jump between them."
-export script_version = "0.1.0"     -- initial
+export script_version = "1.0.0"
 export script_namespace = "arch.NoteBrowser"
 export script_author = "arch1t3cht"
 

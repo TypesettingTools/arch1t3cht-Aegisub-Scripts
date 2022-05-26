@@ -1,0 +1,87 @@
+name: DepCtrl
+
+on:
+  push:
+    paths:
+      - 'macros/*.lua'
+      - 'macros/*.moon'
+    branches:
+      - main
+
+jobs:
+  # Modified version of PhosCity's workflow for depctrl which only runs when the script's version was changed
+  depctrl:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Update record for bumped versions
+        run: |
+          output_file=$(mktemp --suffix json)
+          lastcommit="${{ github.event.before }}"
+
+          echo "Previous commit was ${lastcommit}"
+
+          while IFS= read -r file; do
+            echo "Checking file ${file}..."
+
+            if [[ "${lastcommit}" == "0000000000000000000000000000000000000000" ]]; then
+              scriptver=$(grep -E '^(export\s)?script_version\s?=' "${file}")
+            else
+              # horrible hack but I couldn't get it working otherwise
+              scriptver=$(git diff --raw -p "${lastcommit}" "${file}" | grep -E '^\+(export\s)?script_version\s?=' || echo "__continue")
+              if [[ "${scriptver}" == "__continue" ]]; then
+                continue
+              fi
+            fi
+
+            echo "Version was changed with last push: ${scriptver}"
+
+            VERSION=$(echo "${scriptver}" | cut -d '"' -f 2)
+
+            # Uses sha1sum to find sha1. Outputs in `sha1 filename` format.
+            CHKSUM=$(sha1sum "${file}")
+            # Get current date in ISO 8601 format
+            DATE=$(date -I)
+            # Get actual sha1 of new file
+            SHA=$(echo "${CHKSUM}" | awk '{print $1}')
+            # Get the full filename of the Aegisub-scripts
+            FULL_FILE=$(echo "${CHKSUM}" | awk -F'/' '{print $NF}')
+            # Namespace is the filename stripped of their extension.
+            NAMESPACE=$(echo "${FULL_FILE}" | sed "s|.moon||g;s|.lua||g")
+
+            echo "Version of ${NAMESPACE} was changed to ${VERSION}"
+            echo "SHA: ${SHA}"
+            echo "Date: ${DATE}"
+            # Check if the file is added to DependencyControl or not and if version could be found or not
+            if grep -q "${NAMESPACE}" DependencyControl.json && [[ -n "${VERSION}" ]]; then
+              # Change sha1, date and version if the file was modified in last commit
+              jq ".macros.\"${NAMESPACE}\".channels.release.files[].sha1=\"${SHA}\" | .macros.\"${NAMESPACE}\".channels.release.version=\"${VERSION}\" | .macros.\"${NAMESPACE}\".channels.release.released=\"${DATE}\"" DependencyControl.json > "${output_file}"
+              # Catch jq outputting an empty file on error
+              if [[ -s "${output_file}" ]]; then
+                mv "${output_file}" DependencyControl.json
+                # Add new tag
+                git tag "${NAMESPACE}-v${VERSION}"
+                echo "Successfully updated Dependency Control and tags for version ${VERSION} of ${NAMESPACE}."
+              else
+                echo "Something went wrong while processing ${FULL_FILE}. The file is empty."
+              fi
+            else
+              echo "Either the file ${FULL_FILE} is not added to Dependency Control or version could not be found in the script. Skipping changing hashes."
+            fi
+
+          done < <(find ./macros -name "*lua" -o -name "*.moon" -type f)
+      - name: Commit changes
+        env:
+          COMMIT_MSG: |
+            Automatic update of hashes and script version
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add DependencyControl.json
+          # Only commit and push if we have changes
+          git diff --quiet && git diff --staged --quiet || git commit -m "${COMMIT_MSG}"
+          git push --all
+          git push --tags
