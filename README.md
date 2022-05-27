@@ -35,6 +35,8 @@ Here's a second, simpler example which adds colors to text and runs "Blur & Glow
 
 https://user-images.githubusercontent.com/99741385/168145566-4ef2dbbd-8afe-4e6c-8055-ae0beb0c69b4.mp4
 
+Other, simpler uses include turning simple actions like "Open a script; Click a button" into a non-GUI macro. For example, it could allow one to have (instant) key bindings for NecrosCopy's Copy Text or Copy Tags.
+
 ### Basic usage
 - Use "Record Next Macro in Chain" to begin recording a chain, and select what macro you'd like to run.
 - Use the macro's dialogs as you normally would, but pay attention to only change values in fields that are actually relevant
