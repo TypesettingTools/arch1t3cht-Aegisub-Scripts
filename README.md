@@ -15,6 +15,7 @@ My automation scripts for Aegisub. You're probably here for AegisubChain, but th
   - [Scripts for Editing and QC](#scripts-for-editing-and-qc)
     - [Rewriting Tools](#rewriting-tools)
     - [Note Browser](#note-browser)
+    - [Git Signs](#git-signs)
   - [Scripts for Timing](#scripts-for-timing)
     - [Timing Binds](#timing-binds)
     - [Center Times](#center-times)
@@ -163,6 +164,11 @@ Takes a list of subtitle QC notes (or really any collection of timestamped notes
 https://user-images.githubusercontent.com/99741385/168145809-91e5f1ba-2a12-4003-8366-1bf8def09ab3.mp4
 
 Documentation is included in [the script](macros/arch.notebrowser.moon).
+
+### Git Signs
+**This script is still work in progress. It's stable, but there are still some features to be added.**
+
+If the subtitle file is part of a git repository, this script can parse the git diff relative to some other commit (or any ref, really) and highlight the lines which were marked as changed. This can be useful when reviewing edits made by another member, or when proofreading one's edits before pushing.
 
 ## Scripts for Timing
 These scripts aren't in DependencyControl, since I can imagine that they'll mostly be useful to me.

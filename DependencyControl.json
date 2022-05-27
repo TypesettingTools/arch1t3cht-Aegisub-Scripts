@@ -84,6 +84,31 @@
           "Initial Release"
         ]
       }
+    },
+    "arch.GitSigns": {
+      "url": "@{baseUrl}#@{namespace}",
+      "author": "arch1t3cht",
+      "name": "Git Signs",
+      "description": "Displays git diffs in Aegisub",
+      "channels": {
+        "release": {
+          "version": "0.1.0",
+          "released": "2022-05-27",
+          "default": true,
+          "files": [
+            {
+              "name": ".moon",
+              "url": "@{fileBaseUrl}@{fileName}",
+              "sha1": ""
+            }
+          ]
+        }
+      },
+      "changelog": {
+        "0.1.0": [
+          "Initial Release"
+        ]
+      }
     }
   }
 }
