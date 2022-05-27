@@ -99,7 +99,7 @@
             {
               "name": ".moon",
               "url": "@{fileBaseUrl}@{fileName}",
-              "sha1": ""
+              "sha1": "55e101b7ef372bb284a733fed95e219e771638e7"
             }
           ]
         }
