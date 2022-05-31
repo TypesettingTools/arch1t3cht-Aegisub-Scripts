@@ -92,14 +92,14 @@
       "description": "Displays git diffs in Aegisub",
       "channels": {
         "release": {
-          "version": "0.1.0",
-          "released": "2022-05-27",
+          "version": "0.2.0",
+          "released": "2022-05-31",
           "default": true,
           "files": [
             {
               "name": ".moon",
               "url": "@{fileBaseUrl}@{fileName}",
-              "sha1": "55e101b7ef372bb284a733fed95e219e771638e7"
+              "sha1": "e2c870fd8627e1165c254bcded90e1552f26113a"
             }
           ]
         }
