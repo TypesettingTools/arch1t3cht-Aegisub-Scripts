@@ -1,6 +1,6 @@
 export script_name = "Git Signs"
 export script_description = "Displays git diffs in Aegisub"
-export script_version = "0.2.0"
+export script_version = "0.2.1"
 export script_namespace = "arch.GitSigns"
 export script_author = "arch1t3cht"
 
@@ -93,6 +93,7 @@ parse_ass_line = (str) ->
 
 
 show_diff_lines = (subs, diff, show_before) ->
+    clear_markers(subs)
     parts = fun.string.split diff, "@@"
     sections = {}
 
