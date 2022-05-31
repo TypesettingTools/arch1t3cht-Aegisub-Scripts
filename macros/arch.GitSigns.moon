@@ -1,6 +1,6 @@
 export script_name = "Git Signs"
 export script_description = "Displays git diffs in Aegisub"
-export script_version = "0.1.0"
+export script_version = "0.2.0"
 export script_namespace = "arch.GitSigns"
 export script_author = "arch1t3cht"
 
@@ -31,8 +31,10 @@ else
 local has_git
 local current_diff
 
+
 get_git = () ->
     if config.c.git_path != "" then config.c.git_path else "git"
+
 
 check_has_git = () ->
     return has_git if has_git != nil
@@ -54,13 +56,43 @@ get_git_diff = (ref) ->
 
 
 clear_markers = (subs) ->
+    lines_to_delete = {}
+
     for si, line in ipairs(subs)
         continue if line.class != "dialogue"
+        if line.effect\match("%[Git %-%]")
+            table.insert(lines_to_delete, si)
         line.effect = line.effect\gsub("%[Git [^%]]*%]", "")
         subs[si] = line
 
+    subs.delete(lines_to_delete)
 
-show_diff_lines = (subs, diff) ->
+
+string2time = (timecode) ->
+	timecode\gsub("(%d):(%d%d):(%d%d)%.(%d%d)", (a, b, c, d) -> d * 10 + c * 1000 + b * 60000 + a * 3600000)
+
+
+parse_ass_line = (str) ->
+	ltype, layer, s_time, e_time, style, actor, margin_l, margin_r, margin_t, effect, text = str\match(
+		"(%a+): (%d+),([^,]-),([^,]-),([^,]-),([^,]-),([^,]-),([^,]-),([^,]-),([^,]-),(.*)"
+	)
+	return {
+        class: "dialogue",
+        comment: ltype == "Comment",
+        start_time: string2time(s_time),
+        end_time: string2time(e_time),
+        :layer,
+        :style,
+        :margin_l,
+        :margin_r,
+        :margin_t,
+        :actor,
+        :effect,
+        :text,
+    }
+
+
+show_diff_lines = (subs, diff, show_before) ->
     parts = fun.string.split diff, "@@"
     sections = {}
 
@@ -80,6 +112,7 @@ show_diff_lines = (subs, diff) ->
 
     for i, section in ipairs(sections)
         newindex = 1
+        lines_inserted = 0
         for j, gline in ipairs(section.lines)
             if offset == nil and j > 1 and gline\match("^%+?Dialogue: ") or gline\match("^%+?Comment: ")
                 gl = gline\gsub("^%+", "")\gsub("\r$", "")
@@ -96,16 +129,25 @@ show_diff_lines = (subs, diff) ->
                     aegisub.log("Diff didn't match the subtitles! Make sure to save your file.\n")
                     aegisub.cancel()
 
+            ind = section.newfrom + newindex - 1 + (offset or 0) + lines_inserted
+
+            if show_before and (gline\match("^%-Dialogue: ") or gline\match("^%-Comment: "))
+                newline = parse_ass_line(gline\sub(1))
+                newline.comment = true
+                newline.effect = "[Git -]" .. newline.effect
+                subs.insert(ind, newline)
+                lines_inserted += 1
+
             if gline\match("^%+Dialogue: ") or gline\match("^%+Comment: ")
-                ind = section.newfrom + newindex - 1 + offset
                 line = subs[ind]
-                line.effect = "[Git ~]" .. line.effect
+                line.effect = "[Git #{if show_before then '+' else '~'}]" .. line.effect
                 subs[ind] = line
 
             newindex += 1 unless gline\match("^%-")
 
 
 show_diff_diag = (subs, sel) ->
+    config\load()
     if not check_has_git()
         aegisub.log("Git executable not found!")
         aegisub.cancel()
@@ -132,19 +174,32 @@ show_diff_diag = (subs, sel) ->
         class: "label",
         label: "Commits prior",
         x: 3, y: 0, width: 1, height: 1,
+    },{
+        class: "checkbox",
+        label: "Show before and after",
+        hint: "Add commented lines marked [Git -] showing how the line looked before the change.",
+        name: "show_before",
+        value: config.c.show_before
+        x: 2, y: 1, width: 2, height: 2,
     }})
 
     return if not btn
+
+    config.c.show_before = result.show_before if config.c.show_before != result.show_before
+    config\write()
 
     ref = "#{result.ref}~#{result.before}"
     diff = get_git_diff(ref)
 
     current_diff = diff
-    show_diff_lines(subs, diff)
+    show_diff_lines(subs, diff, result.show_before)
 
 
 configure = () ->
     config\load()
+
+    if not haveDepCtrl
+        aegisub.log("DependencyControl wasn't found! The config will not be persistent.\n")
 
     ok = "Save"
     cancel = "Cancel"

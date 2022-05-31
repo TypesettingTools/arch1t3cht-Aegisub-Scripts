@@ -107,6 +107,10 @@
       "changelog": {
         "0.1.0": [
           "Initial Release"
+        ],
+        "0.2.0": [
+          "Add an option to also show the previous versions of the lines. With this, the format is more or less a 1-to-1 copy of the git diff format (for dialogue class lines), but in .ass form.",
+          "Added a warning if DependencyControl isn't found."
         ]
       }
     }
