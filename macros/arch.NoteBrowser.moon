@@ -1,6 +1,6 @@
 export script_name = "Note Browser"
 export script_description = "Loads a set of timestamped notes and adds options to mark them or jump between them."
-export script_version = "1.0.0"
+export script_version = "1.1.0"
 export script_namespace = "arch.NoteBrowser"
 export script_author = "arch1t3cht"
 
@@ -96,6 +96,19 @@ index_of_closest = (times, ms) ->
     return closest
 
 
+parse_mpvqc = (notes) ->
+  return notes unless notes\match "mpvQC"
+  new_notes = ""
+  for line in notes\gmatch "[^\n]+"
+    if line\match "^%[[%d:]+%]"
+      section_header = line\match "^%[[^%]]+%] %[([^%]]+)%].*"
+      new_notes = "[#{section_header}]\n#{new_notes}" unless new_notes\match section_header
+      qc = line\gsub("#{section_header}", "")\gsub("[%[%]]", "")
+      new_notes = new_notes\gsub "%[#{section_header}%]", "[#{section_header}]\n#{qc}"
+
+  return new_notes
+
+
 load_notes = (subs) ->
     config\load()
     btn, result = aegisub.dialog.display({{
@@ -117,6 +130,7 @@ load_notes = (subs) ->
     return if not btn
 
     notes = result.notes\gsub("\r\n", "\n")
+    notes = parse_mpvqc notes
     notelines = fun.string.split notes, "\n"
 
     current_section = "N"
