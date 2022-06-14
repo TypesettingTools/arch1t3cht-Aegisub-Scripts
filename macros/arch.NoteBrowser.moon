@@ -96,17 +96,17 @@ index_of_closest = (times, ms) ->
     return closest
 
 
-parse_mpvqc = (notes) ->
-  return notes unless notes\match "mpvQC"
-  new_notes = ""
-  for line in notes\gmatch "[^\n]+"
-    if line\match "^%[[%d:]+%]"
-      section_header = line\match "^%[[^%]]+%] %[([^%]]+)%].*"
-      new_notes = "[#{section_header}]\n#{new_notes}" unless new_notes\match section_header
-      qc = line\gsub("#{section_header}", "")\gsub("[%[%]]", "")
-      new_notes = new_notes\gsub "%[#{section_header}%]", "[#{section_header}]\n#{qc}"
+patch_for_mpvqc = (lines) ->
+    return lines unless #[true for line in *lines when line\match "^generator.*mpvQC"] > 0
+    patched_lines = {}
+    for line in *lines
+        if line\match "^%[[%d:]+%]"
+            section_header = line\match "^%[[^%]]+%] %[([^%]]+)%].*"
+            qc = line\gsub("^%[([%d:]+)%] %[[^%]]-%](.*)$", "%1 -%2")
+            table.insert(patched_lines, "[#{section_header}]")
+            table.insert(patched_lines, qc)
 
-  return new_notes
+    return patched_lines
 
 
 load_notes = (subs) ->
@@ -130,8 +130,8 @@ load_notes = (subs) ->
     return if not btn
 
     notes = result.notes\gsub("\r\n", "\n")
-    notes = parse_mpvqc notes
     notelines = fun.string.split notes, "\n"
+    notelines = patch_for_mpvqc notelines
 
     current_section = "N"
     newnotes = {}
