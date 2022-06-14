@@ -55,6 +55,9 @@
         }
       },
       "changelog": {
+        "1.1.0": [
+          "Add transparent support for mpvqc's format, by PhosCity."
+        ],
         "1.0.0": [
           "Initial Release"
         ]
