@@ -1,6 +1,6 @@
 export script_name = "Note Browser"
 export script_description = "Loads a set of timestamped notes and adds options to mark them or jump between them."
-export script_version = "1.0.0"
+export script_version = "1.1.0"
 export script_namespace = "arch.NoteBrowser"
 export script_author = "arch1t3cht"
 
@@ -96,6 +96,19 @@ index_of_closest = (times, ms) ->
     return closest
 
 
+patch_for_mpvqc = (lines) ->
+    return lines unless #[true for line in *lines when line\match "^generator.*mpvQC"] > 0
+    patched_lines = {}
+    for line in *lines
+        if line\match "^%[[%d:]+%]"
+            section_header = line\match "^%[[^%]]+%] %[([^%]]+)%].*"
+            qc = line\gsub("^%[([%d:]+)%] %[[^%]]-%](.*)$", "%1 -%2")
+            table.insert(patched_lines, "[#{section_header}]")
+            table.insert(patched_lines, qc)
+
+    return patched_lines
+
+
 load_notes = (subs) ->
     config\load()
     btn, result = aegisub.dialog.display({{
@@ -118,6 +131,7 @@ load_notes = (subs) ->
 
     notes = result.notes\gsub("\r\n", "\n")
     notelines = fun.string.split notes, "\n"
+    notelines = patch_for_mpvqc notelines
 
     current_section = "N"
     newnotes = {}
