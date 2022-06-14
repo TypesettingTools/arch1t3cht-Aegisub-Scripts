@@ -18,9 +18,14 @@ jobs:
           fetch-depth: 0
 
       - name: Update record for bumped versions
+        env:
+          COMMIT_MSG: |
+            Automatic update of hashes and script version
         run: |
           output_file=$(mktemp --suffix json)
           lastcommit="${{ github.event.before }}"
+
+          tags=()
 
           echo "Previous commit was ${lastcommit}"
 
@@ -63,7 +68,7 @@ jobs:
               if [[ -s "${output_file}" ]]; then
                 mv "${output_file}" DependencyControl.json
                 # Add new tag
-                git tag "${NAMESPACE}-v${VERSION}"
+                tags+=("${NAMESPACE}-v${VERSION}")
                 echo "Successfully updated Dependency Control and tags for version ${VERSION} of ${NAMESPACE}."
               else
                 echo "Something went wrong while processing ${FULL_FILE}. The file is empty."
@@ -73,15 +78,18 @@ jobs:
             fi
 
           done < <(find ./macros -name "*lua" -o -name "*.moon" -type f)
-      - name: Commit changes
-        env:
-          COMMIT_MSG: |
-            Automatic update of hashes and script version
-        run: |
+
+          # Commit changes
           git config user.name github-actions
           git config user.email github-actions@github.com
           git add DependencyControl.json
           # Only commit and push if we have changes
           git diff --quiet && git diff --staged --quiet || git commit -m "${COMMIT_MSG}"
+
+          for tag in "${tags[@]}"; do
+            git tag "$tag"
+          done
+      - name: Push changes
+        run: |
           git push --all
           git push --tags
