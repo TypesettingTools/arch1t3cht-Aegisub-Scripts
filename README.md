@@ -158,14 +158,14 @@ This script is for whenever you're editing subtitles but want to also preserve t
 
 https://user-images.githubusercontent.com/99741385/168145699-4076a81f-81f7-4ce7-baf5-6ac06f4a6cdb.mp4
 
-[The script](macros/arch.rewriting_tools.lua) contains more detailed documentation.
+[The script](macros/arch.RWTools.lua) contains more detailed documentation.
 
 ### Note Browser
 Takes a list of subtitle QC notes (or really any collection of timestamped notes), each starting with a timestamp, and provides shortcuts for jumping to lines with notes, as well as a way to mark lines containing notes. The notes themselves aren't shown.
 
 https://user-images.githubusercontent.com/99741385/168145809-91e5f1ba-2a12-4003-8366-1bf8def09ab3.mp4
 
-Documentation is included in [the script](macros/arch.notebrowser.moon).
+Documentation is included in [the script](macros/arch.NoteBrowser.moon).
 
 ### Git Signs
 **This script is still work in progress. It's stable, but there are still some features to be added.**
@@ -184,7 +184,7 @@ A couple of shortcuts I use for more efficient timing, especially when timing to
 For reference, I usually time without TPP and without autocommit, but with "Go to next line on commit" on. I use this script together with [PhosCity's](https://github.com/PhosCity) Bidirectional Snapping
 
 ### Center Times
-Chooses the centisecond timings for subtitle lines in their frames in a way that prevents or minimizes frame timing errors (whenever possible) when shifting subtitles by time (e.g. when syncing files with [SubKt](https://github.com/Myaamori/SubKt)). The [script file](macros/arch.center_times.lua) has a very detailed explanation.
+Chooses the centisecond timings for subtitle lines in their frames in a way that prevents or minimizes frame timing errors (whenever possible) when shifting subtitles by time (e.g. when syncing files with [SubKt](https://github.com/Myaamori/SubKt)). The [script file](macros/arch.CenterTimes.lua) has a very detailed explanation.
 
 ## Other stuff I worked on that might be interesting
 - Zahuczky's [Aegisub-Perspective-Motion](https://github.com/Zahuczky/Zahuczkys-Aegisub-Scripts/tree/main) (worked on some of the math in this)
