@@ -1,6 +1,6 @@
 export script_name = "Note Browser"
 export script_description = "Loads a set of timestamped notes and adds options to mark them or jump between them."
-export script_version = "1.2.0"
+export script_version = "1.3.0"
 export script_namespace = "arch.NoteBrowser"
 export script_author = "arch1t3cht"
 
@@ -78,6 +78,7 @@ local current_author
 clear_markers = (subs) ->
     for si, line in ipairs(subs)
         continue if line.class != "dialogue"
+        line.text = line.text\gsub("{|QC|[^}]+}", "")\gsub("- |QC|[^|]+|", "")
         line.effect = line.effect\gsub("%[QC%-[^%]]*%]", "")
         subs[si] = line
 
@@ -94,6 +95,27 @@ index_of_closest = (times, ms) ->
             closest = si
 
     return closest
+
+
+note_cleanup = (notes) ->
+  note_tbl, timecode = {}, 0
+
+  -- Removes empty lines and space padding in notes
+  notes = notes\gsub("\n[%s]*\n", "\n")\gsub("\n[%s]+", "\n")
+  notelines = fun.string.split notes, "\n"
+  for line in *notelines
+    -- Add [author name] or lines before first timecode without any change
+    if timecode == 0 and not line\match("^%[?%d+:%d+:%d+") or line\match("^%[[^%]]+%]$")
+      table.insert(note_tbl, line)
+    else
+      timecode = 1
+      if line\match "^%[?%d+:%d+:%d+"
+        table.insert(note_tbl, line)
+      else
+        -- Convert multiline note to a single line seperated by line breaker
+        note_tbl[#note_tbl] ..= "\\N#{line}"
+
+  return note_tbl
 
 
 patch_for_mpvqc = (lines) ->
@@ -130,11 +152,12 @@ load_notes = (subs) ->
     return if not btn
 
     notes = result.notes\gsub("\r\n", "\n")
-    notelines = fun.string.split notes, "\n"
+    notelines = note_cleanup notes
     notelines = patch_for_mpvqc notelines
 
     current_section = "N"
     newnotes = {}
+    report = {}
 
     for i, line in ipairs(notelines)
         newsection = line\match("^%[([^%]]*)%]$")
@@ -156,6 +179,10 @@ load_notes = (subs) ->
 
         newnotes[current_section] or= {}
         table.insert(newnotes[current_section], ms)
+
+        qc_report = line\match("^[%d:%s%.%-]+(.*)")\gsub("{", "[")\gsub("}", "]")
+        report[ms] or= {}
+        report[ms] = qc_report
 
     for k, v in pairs(newnotes)
         table.sort(v)
@@ -184,6 +211,7 @@ load_notes = (subs) ->
                 si = index_of_closest({i,line.start_time for i, line in ipairs(subs) when line.class == "dialogue"}, ms)
                 continue unless si
                 line = subs[si]
+                line.text ..= "{|QC|#{report[ms]}|}"
                 line.effect ..= "[QC-#{section}]"
                 subs[si] = line
 
