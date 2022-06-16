@@ -70,14 +70,14 @@
       "description": "Loads a set of timestamped notes and adds options to mark them or jump between them.",
       "channels": {
         "release": {
-          "version": "1.1.0",
-          "released": "2022-06-14",
+          "version": "1.2.0",
+          "released": "2022-06-16",
           "default": true,
           "files": [
             {
               "name": ".moon",
               "url": "@{fileBaseUrl}@{fileName}",
-              "sha1": "faa7c824b4e7a2215749c22eb4aeb6add2c904b1"
+              "sha1": "8adc6f13532b1b763ff1ea41ebc80d8fb943b50e"
             }
           ]
         }
