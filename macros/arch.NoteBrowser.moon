@@ -1,6 +1,6 @@
 export script_name = "Note Browser"
 export script_description = "Loads a set of timestamped notes and adds options to mark them or jump between them."
-export script_version = "1.3.1"
+export script_version = "1.3.2"
 export script_namespace = "arch.NoteBrowser"
 export script_author = "arch1t3cht"
 
@@ -78,7 +78,7 @@ local current_author
 clear_markers = (subs) ->
     for si, line in ipairs(subs)
         continue if line.class != "dialogue"
-        line.text = line.text\gsub("{|QC|[^}]+}", "")\gsub("- |QC|[^|]+|", "")
+        line.text = line.text\gsub("{|QC|[^}]+}", "")\gsub("- |QC|[^|]+|", "- OG")
         line.effect = line.effect\gsub("%[QC%-[^%]]*%]", "")
         subs[si] = line
 
