@@ -1,6 +1,6 @@
 export script_name = "Note Browser"
 export script_description = "Loads a set of timestamped notes and adds options to mark them or jump between them."
-export script_version = "1.3.0"
+export script_version = "1.3.1"
 export script_namespace = "arch.NoteBrowser"
 export script_author = "arch1t3cht"
 
@@ -136,7 +136,7 @@ load_notes = (subs) ->
     btn, result = aegisub.dialog.display({{
         class: "label",
         label: "Paste your QC notes here:                                                                                                               ",
-        x: 0, y: 0, width: 1, height: 1,
+        x: 0, y: 0, width: 2, height: 1,
     },{
         class: "checkbox",
         name: "mark",
@@ -144,9 +144,15 @@ load_notes = (subs) ->
         label: "Mark lines with notes",
         x: 0, y: 1, width: 1, height: 1,
     },{
+        class: "checkbox",
+        name: "inline",
+        value: config.c.inline,
+        label: "Add qc notes to line",
+        x: 1, y: 1, width: 1, height: 1,
+    },{
         class: "textbox",
         name: "notes",
-        x: 0, y: 2, width: 1, height: 10,
+        x: 0, y: 2, width: 2, height: 10,
     }})
 
     return if not btn
@@ -202,6 +208,7 @@ load_notes = (subs) ->
     clear_markers(subs)
 
     config.c.mark = result.mark
+    config.c.inline = result.inline
     config\write()
     if result.mark
         sections = fun.table.keys(current_notes)
@@ -211,7 +218,7 @@ load_notes = (subs) ->
                 si = index_of_closest({i,line.start_time for i, line in ipairs(subs) when line.class == "dialogue"}, ms)
                 continue unless si
                 line = subs[si]
-                line.text ..= "{|QC|#{report[ms]}|}"
+                line.text ..= "{|QC|#{report[ms]}|}" if result.inline
                 line.effect ..= "[QC-#{section}]"
                 subs[si] = line
 
