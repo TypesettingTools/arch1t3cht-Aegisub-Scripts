@@ -1,6 +1,6 @@
 export script_name = "Note Browser"
 export script_description = "Loads a set of timestamped notes and adds options to mark them or jump between them."
-export script_version = "1.1.0"
+export script_version = "1.2.0"
 export script_namespace = "arch.NoteBrowser"
 export script_author = "arch1t3cht"
 
@@ -84,7 +84,7 @@ clear_markers = (subs) ->
 
 index_of_closest = (times, ms) ->
     local closest
-    mindist = math.huge
+    mindist = 15000
 
     for si, time in pairs(times)
         continue if time == nil
@@ -182,6 +182,7 @@ load_notes = (subs) ->
         for i, section in ipairs(sections)
             for ni, ms in ipairs(current_notes[section])
                 si = index_of_closest({i,line.start_time for i, line in ipairs(subs) when line.class == "dialogue"}, ms)
+                continue unless si
                 line = subs[si]
                 line.effect ..= "[QC-#{section}]"
                 subs[si] = line
@@ -200,7 +201,12 @@ jump_to = (forward, same, subs, sel) ->
 
     -- we do this dynamically, since lines might have changed of shifted since loading the notes.
     subtitle_times = {i,line.start_time for i, line in ipairs(subs) when line.class == "dialogue"}
-    lines_with_notes_rev = {index_of_closest(subtitle_times, n),n for i,n in ipairs(pool)}
+    lines_with_notes_rev = {}
+    for _, n in ipairs pool
+      closest_lines_with_notes = index_of_closest(subtitle_times, n)
+      continue unless closest_lines_with_notes
+      lines_with_notes_rev[closest_lines_with_notes] = n
+
     lines_with_notes = fun.table.keys lines_with_notes_rev
 
     -- yeeeeeah there are marginally faster algorithms, but that's not necessary at this scale. Let's keep it clean and simple.
