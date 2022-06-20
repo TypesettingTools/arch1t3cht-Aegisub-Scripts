@@ -1,31 +1,38 @@
 export script_name = "Note Browser"
 export script_description = "Loads a set of timestamped notes and adds options to mark them or jump between them."
-export script_version = "1.3.2"
+export script_version = "1.3.3"
 export script_namespace = "arch.NoteBrowser"
 export script_author = "arch1t3cht"
 
 -- This script allows loading a collection of subtitle QC notes prefixed by timestamps,
 -- and allows navigation between mentioned lines in Aegisub.
--- It doesn't add any functionality of showing the content of the notes, as that would
--- likely take more time to set up properly than it would save. The script is mostly meant
--- to save the effort of scrolling through subtitles trying to find the line that was mentioned in a note.
+-- It's able to add the notes themselves to the lines, but it can also simply highlight
+-- the notes mentioned in the timestamps. Depending on the format of the notes, it could
+-- either be helpful to see them directly in Aegisub, or it could be too hard to navigate.
+-- In the latter case, the script could still save the time required to switch back and
+-- forth between Aegisub and the notes file and scroll to the mentioned line.
 --
 -- Note format:
 -- A note is any line starting with a timestamp of the form hh:mm:ss or mm:ss .
 -- (As a consequence, lines starting with timestamps like 00:01:02.34 including centiseconds
 -- will also be recognized as a note, however the centiseconds will be ignored.)
+-- A note's text can be broken into multiple lines by indenting the following lines.
 --
 -- A file of notes can be organized into different sections (say, collecting notes on different
 -- topics or from different authors - the latter being the motivation for the macro names).
 -- A section is started by a line of the form [<section_name>], where the
 -- section's name <section_name> must not contain a closing bracket.
 --
--- Any line not matching one of these two formats is skipped. Section names and timestamps are the only
--- things that are parsed.
+-- Any text not matching one of these two formats is skipped.
+--
+-- Furthermore, mpvQC files are transparently converted to the above format, provided the header is also included.
 --
 -- Example:
 --
 -- 0:01 - General note 1
+--    More explanation for that note
+--
+--    Even more explanation
 -- 1:50 - General note 2
 --
 -- [TLC]
