@@ -97,25 +97,23 @@ index_of_closest = (times, ms) ->
     return closest
 
 
-note_cleanup = (notes) ->
-  note_tbl, timecode = {}, 0
+-- Joins lines with subsequent indented lines
+join_lines = (notelines) ->
+    joined_lines = {}
+    local currentline
+    for line in *notelines
+        if currentline == nil
+            currentline = line
+        else
+            if line\match("^[%s]+")
+                currentline ..= "\\N" .. line\gsub("^[%s]+", "")
+            elseif line != ""
+                table.insert(joined_lines, currentline)
+                currentline = line
 
-  -- Removes empty lines and space padding in notes
-  notes = notes\gsub("\n[%s]*\n", "\n")\gsub("\n[%s]+", "\n")
-  notelines = fun.string.split notes, "\n"
-  for line in *notelines
-    -- Add [author name] or lines before first timecode without any change
-    if timecode == 0 and not line\match("^%[?%d+:%d+:%d+") or line\match("^%[[^%]]+%]$")
-      table.insert(note_tbl, line)
-    else
-      timecode = 1
-      if line\match "^%[?%d+:%d+:%d+"
-        table.insert(note_tbl, line)
-      else
-        -- Convert multiline note to a single line seperated by line breaker
-        note_tbl[#note_tbl] ..= "\\N#{line}"
+    table.insert(joined_lines, currentline) unless currentline == nil
 
-  return note_tbl
+    return joined_lines
 
 
 patch_for_mpvqc = (lines) ->
@@ -147,7 +145,7 @@ load_notes = (subs) ->
         class: "checkbox",
         name: "inline",
         value: config.c.inline,
-        label: "Add qc notes to line",
+        label: "Show notes in line",
         x: 1, y: 1, width: 1, height: 1,
     },{
         class: "textbox",
@@ -158,8 +156,9 @@ load_notes = (subs) ->
     return if not btn
 
     notes = result.notes\gsub("\r\n", "\n")
-    notelines = note_cleanup notes
+    notelines = fun.string.split notes, "\n"
     notelines = patch_for_mpvqc notelines
+    notelines = join_lines notelines
 
     current_section = "N"
     newnotes = {}
@@ -188,7 +187,7 @@ load_notes = (subs) ->
 
         qc_report = line\match("^[%d:%s%.%-]+(.*)")\gsub("{", "[")\gsub("}", "]")
         report[ms] or= {}
-        report[ms] = qc_report
+        table.insert(report[ms], qc_report)
 
     for k, v in pairs(newnotes)
         table.sort(v)
@@ -210,17 +209,18 @@ load_notes = (subs) ->
     config.c.mark = result.mark
     config.c.inline = result.inline
     config\write()
-    if result.mark
-        sections = fun.table.keys(current_notes)
-        table.sort(sections)
-        for i, section in ipairs(sections)
-            for ni, ms in ipairs(current_notes[section])
-                si = index_of_closest({i,line.start_time for i, line in ipairs(subs) when line.class == "dialogue"}, ms)
-                continue unless si
-                line = subs[si]
-                line.text ..= "{|QC|#{report[ms]}|}" if result.inline
-                line.effect ..= "[QC-#{section}]"
-                subs[si] = line
+    sections = fun.table.keys(current_notes)
+    table.sort(sections)
+    for i, section in ipairs(sections)
+        for ni, ms in ipairs(current_notes[section])
+            si = index_of_closest({i,line.start_time for i, line in ipairs(subs) when line.class == "dialogue"}, ms)
+            continue if not si
+            line = subs[si]
+            if result.inline
+                for _, note in ipairs(report[ms])
+                    line.text ..= "{|QC|#{note}|}"
+            line.effect ..= "[QC-#{section}]" if result.mark
+            subs[si] = line
 
 
 jump_to = (forward, same, subs, sel) ->
@@ -238,9 +238,9 @@ jump_to = (forward, same, subs, sel) ->
     subtitle_times = {i,line.start_time for i, line in ipairs(subs) when line.class == "dialogue"}
     lines_with_notes_rev = {}
     for _, n in ipairs pool
-      closest_lines_with_notes = index_of_closest(subtitle_times, n)
-      continue unless closest_lines_with_notes
-      lines_with_notes_rev[closest_lines_with_notes] = n
+        closest_lines_with_notes = index_of_closest(subtitle_times, n)
+        continue unless closest_lines_with_notes
+        lines_with_notes_rev[closest_lines_with_notes] = n
 
     lines_with_notes = fun.table.keys lines_with_notes_rev
 
