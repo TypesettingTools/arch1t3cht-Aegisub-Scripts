@@ -1,31 +1,38 @@
 export script_name = "Note Browser"
 export script_description = "Loads a set of timestamped notes and adds options to mark them or jump between them."
-export script_version = "1.2.0"
+export script_version = "1.3.3"
 export script_namespace = "arch.NoteBrowser"
 export script_author = "arch1t3cht"
 
 -- This script allows loading a collection of subtitle QC notes prefixed by timestamps,
 -- and allows navigation between mentioned lines in Aegisub.
--- It doesn't add any functionality of showing the content of the notes, as that would
--- likely take more time to set up properly than it would save. The script is mostly meant
--- to save the effort of scrolling through subtitles trying to find the line that was mentioned in a note.
+-- It's able to add the notes themselves to the lines, but it can also simply highlight
+-- the notes mentioned in the timestamps. Depending on the format of the notes, it could
+-- either be helpful to see them directly in Aegisub, or it could be too hard to navigate.
+-- In the latter case, the script could still save the time required to switch back and
+-- forth between Aegisub and the notes file and scroll to the mentioned line.
 --
 -- Note format:
 -- A note is any line starting with a timestamp of the form hh:mm:ss or mm:ss .
 -- (As a consequence, lines starting with timestamps like 00:01:02.34 including centiseconds
 -- will also be recognized as a note, however the centiseconds will be ignored.)
+-- A note's text can be broken into multiple lines by indenting the following lines.
 --
 -- A file of notes can be organized into different sections (say, collecting notes on different
 -- topics or from different authors - the latter being the motivation for the macro names).
 -- A section is started by a line of the form [<section_name>], where the
 -- section's name <section_name> must not contain a closing bracket.
 --
--- Any line not matching one of these two formats is skipped. Section names and timestamps are the only
--- things that are parsed.
+-- Any text not matching one of these two formats is skipped.
+--
+-- Furthermore, mpvQC files are transparently converted to the above format, provided the header is also included.
 --
 -- Example:
 --
 -- 0:01 - General note 1
+--    More explanation for that note
+--
+--    Even more explanation
 -- 1:50 - General note 2
 --
 -- [TLC]
@@ -78,6 +85,7 @@ local current_author
 clear_markers = (subs) ->
     for si, line in ipairs(subs)
         continue if line.class != "dialogue"
+        line.text = line.text\gsub("{|QC|[^}]+}", "")\gsub("- |QC|[^|]+|", "- OG")
         line.effect = line.effect\gsub("%[QC%-[^%]]*%]", "")
         subs[si] = line
 
@@ -94,6 +102,25 @@ index_of_closest = (times, ms) ->
             closest = si
 
     return closest
+
+
+-- Joins lines with subsequent indented lines
+join_lines = (notelines) ->
+    joined_lines = {}
+    local currentline
+    for line in *notelines
+        if currentline == nil
+            currentline = line
+        else
+            if line\match("^[%s]+")
+                currentline ..= "\\N" .. line\gsub("^[%s]+", "")
+            elseif line != ""
+                table.insert(joined_lines, currentline)
+                currentline = line
+
+    table.insert(joined_lines, currentline) unless currentline == nil
+
+    return joined_lines
 
 
 patch_for_mpvqc = (lines) ->
@@ -114,7 +141,7 @@ load_notes = (subs) ->
     btn, result = aegisub.dialog.display({{
         class: "label",
         label: "Paste your QC notes here:                                                                                                               ",
-        x: 0, y: 0, width: 1, height: 1,
+        x: 0, y: 0, width: 2, height: 1,
     },{
         class: "checkbox",
         name: "mark",
@@ -122,9 +149,15 @@ load_notes = (subs) ->
         label: "Mark lines with notes",
         x: 0, y: 1, width: 1, height: 1,
     },{
+        class: "checkbox",
+        name: "inline",
+        value: config.c.inline,
+        label: "Show notes in line",
+        x: 1, y: 1, width: 1, height: 1,
+    },{
         class: "textbox",
         name: "notes",
-        x: 0, y: 2, width: 1, height: 10,
+        x: 0, y: 2, width: 2, height: 10,
     }})
 
     return if not btn
@@ -132,9 +165,11 @@ load_notes = (subs) ->
     notes = result.notes\gsub("\r\n", "\n")
     notelines = fun.string.split notes, "\n"
     notelines = patch_for_mpvqc notelines
+    notelines = join_lines notelines
 
     current_section = "N"
     newnotes = {}
+    report = {}
 
     for i, line in ipairs(notelines)
         newsection = line\match("^%[([^%]]*)%]$")
@@ -157,6 +192,10 @@ load_notes = (subs) ->
         newnotes[current_section] or= {}
         table.insert(newnotes[current_section], ms)
 
+        qc_report = line\match("^[%d:%s%.%-]+(.*)")\gsub("{", "[")\gsub("}", "]")
+        report[ms] or= {}
+        table.insert(report[ms], qc_report)
+
     for k, v in pairs(newnotes)
         table.sort(v)
 
@@ -175,17 +214,20 @@ load_notes = (subs) ->
     clear_markers(subs)
 
     config.c.mark = result.mark
+    config.c.inline = result.inline
     config\write()
-    if result.mark
-        sections = fun.table.keys(current_notes)
-        table.sort(sections)
-        for i, section in ipairs(sections)
-            for ni, ms in ipairs(current_notes[section])
-                si = index_of_closest({i,line.start_time for i, line in ipairs(subs) when line.class == "dialogue"}, ms)
-                continue unless si
-                line = subs[si]
-                line.effect ..= "[QC-#{section}]"
-                subs[si] = line
+    sections = fun.table.keys(current_notes)
+    table.sort(sections)
+    for i, section in ipairs(sections)
+        for ni, ms in ipairs(current_notes[section])
+            si = index_of_closest({i,line.start_time for i, line in ipairs(subs) when line.class == "dialogue"}, ms)
+            continue if not si
+            line = subs[si]
+            if result.inline
+                for _, note in ipairs(report[ms])
+                    line.text ..= "{|QC|#{note}|}"
+            line.effect ..= "[QC-#{section}]" if result.mark
+            subs[si] = line
 
 
 jump_to = (forward, same, subs, sel) ->
@@ -203,9 +245,9 @@ jump_to = (forward, same, subs, sel) ->
     subtitle_times = {i,line.start_time for i, line in ipairs(subs) when line.class == "dialogue"}
     lines_with_notes_rev = {}
     for _, n in ipairs pool
-      closest_lines_with_notes = index_of_closest(subtitle_times, n)
-      continue unless closest_lines_with_notes
-      lines_with_notes_rev[closest_lines_with_notes] = n
+        closest_lines_with_notes = index_of_closest(subtitle_times, n)
+        continue unless closest_lines_with_notes
+        lines_with_notes_rev[closest_lines_with_notes] = n
 
     lines_with_notes = fun.table.keys lines_with_notes_rev
 

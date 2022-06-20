@@ -161,7 +161,7 @@ https://user-images.githubusercontent.com/99741385/168145699-4076a81f-81f7-4ce7-
 [The script](macros/arch.RWTools.lua) contains more detailed documentation.
 
 ### Note Browser
-Takes a list of subtitle QC notes (or really any collection of timestamped notes), each starting with a timestamp, and provides shortcuts for jumping to lines with notes, as well as a way to mark lines containing notes. The notes themselves aren't shown.
+Takes a list of subtitle QC notes (or really any collection of timestamped notes), each starting with a timestamp, and provides shortcuts for jumping to lines with notes, as well as a way to mark lines containing notes. If configured to, it will also show the notes themselves in Aegisub.
 
 https://user-images.githubusercontent.com/99741385/168145809-91e5f1ba-2a12-4003-8366-1bf8def09ab3.mp4
 
