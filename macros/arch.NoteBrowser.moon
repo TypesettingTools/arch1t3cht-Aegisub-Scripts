@@ -1,6 +1,6 @@
 export script_name = "Note Browser"
 export script_description = "Loads a set of timestamped notes and adds options to mark them or jump between them."
-export script_version = "1.3.3"
+export script_version = "1.3.4"
 export script_namespace = "arch.NoteBrowser"
 export script_author = "arch1t3cht"
 
@@ -17,6 +17,9 @@ export script_author = "arch1t3cht"
 -- (As a consequence, lines starting with timestamps like 00:01:02.34 including centiseconds
 -- will also be recognized as a note, however the centiseconds will be ignored.)
 -- A note's text can be broken into multiple lines by indenting the following lines.
+--
+-- More precisely, a note's text consists of all the following lines up until the first blank line
+-- with the property that the previous line is not indented.
 --
 -- A file of notes can be organized into different sections (say, collecting notes on different
 -- topics or from different authors - the latter being the motivation for the macro names).
@@ -104,19 +107,23 @@ index_of_closest = (times, ms) ->
     return closest
 
 
--- Joins lines with subsequent indented lines
+-- Joins lines with subsequent lines, until encountering a new line following an unindented line
 join_lines = (notelines) ->
     joined_lines = {}
     local currentline
+    local lastindent
     for line in *notelines
         if currentline == nil
             currentline = line
+            lastindent = ""
         else
-            if line\match("^[%s]+")
-                currentline ..= "\\N" .. line\gsub("^[%s]+", "")
-            elseif line != ""
+            if line\match("^[%d]+:[%d]+") or line\match("^%[") or (line\match("^[%s]*$") and lastindent == "")
                 table.insert(joined_lines, currentline)
                 currentline = line
+                lastindent = ""
+            elseif not currentline\match("^[%s]*$")
+                currentline ..= "\\N" .. line\gsub("^[%s]*", "")
+                lastindent = currentline\match("^[%s]*")
 
     table.insert(joined_lines, currentline) unless currentline == nil
 

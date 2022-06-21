@@ -158,7 +158,7 @@ This script is for whenever you're editing subtitles but want to also preserve t
 
 https://user-images.githubusercontent.com/99741385/168145699-4076a81f-81f7-4ce7-baf5-6ac06f4a6cdb.mp4
 
-[The script](macros/arch.RWTools.lua) contains more detailed documentation.
+[The script](macros/arch.RWTools.lua) contains more detailed documentation. Note, however, that this script is intended to be used more as a companion for working with the note file, instead of to replace it. Any text not matching the format of a timestamped note is skipped, so users should always double-check with the original note document.
 
 ### Note Browser
 Takes a list of subtitle QC notes (or really any collection of timestamped notes), each starting with a timestamp, and provides shortcuts for jumping to lines with notes, as well as a way to mark lines containing notes. If configured to, it will also show the notes themselves in Aegisub.
