@@ -199,7 +199,7 @@ load_notes = (subs) ->
         newnotes[current_section] or= {}
         table.insert(newnotes[current_section], ms)
 
-        qc_report = line\match("^[%d:%s%.%-]+(.*)")\gsub("{", "[")\gsub("}", "]")
+        qc_report = line\match("^[%d:%s%.%-]+(.*)")\gsub("{", "[")\gsub("}", "]")\gsub("\\([^N])", "/%1")
         report[ms] or= {}
         table.insert(report[ms], qc_report)
 
