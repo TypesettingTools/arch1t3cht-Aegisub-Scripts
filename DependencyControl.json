@@ -80,6 +80,10 @@
         }
       },
       "changelog": {
+        "1.3.4": [
+          "Update parsing logic for note texts to recognize more lines as continuation of the text.",
+          "Replace backslashes in note texts to not change the formatting."
+        ],
         "1.3.3": [
           "Add an option to show text of the notes in Aegisub, by PhosCity."
         ],
