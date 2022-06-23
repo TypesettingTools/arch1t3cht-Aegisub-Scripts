@@ -191,7 +191,7 @@ Chooses the centisecond timings for subtitle lines in their frames in a way that
 ## Other Scripts
 
 ### Blender Export Script for After Effects Power Pin Data
-This script (download it [here](https://raw.githubusercontent.com/arch1t3cht/Aegisub-Scripts/main/scripts/powerpin_export.py)) exports Blender plane tracks in After Effects Power Pin format, in the same way as Mocha does for its perspective tracks. This allows using Blender plane tracks with [Aegisub-Perspective-Motion](https://github.com/Zahuczky/Zahuczkys-Aegisub-Scripts/tree/main). Exporting individual tracking markers in Power Pin format (this can be useful when using Perspective-Motion for ordinary position tracking) might be added at some point in the future.
+This script (download it [here](https://raw.githubusercontent.com/arch1t3cht/Aegisub-Scripts/main/scripts/powerpin_export.py), see the first guide linked below for how to install and use it) exports Blender plane tracks in After Effects Power Pin format, in the same way as Mocha does for its perspective tracks. This allows using Blender plane tracks with [Aegisub-Perspective-Motion](https://github.com/Zahuczky/Zahuczkys-Aegisub-Scripts/tree/main). Exporting individual tracking markers in Power Pin format (this can be useful when using Perspective-Motion for ordinary position tracking) might be added at some point in the future.
 
 For a guide on how to use this script and planar tracking in Blender, see
 - [The tutorial for ordinary tracking in Blender](https://subarashii-no-fansub.github.io/Subbing-Tutorial/Tracking-Motion/). This script is installed and used in exactly the same way.
