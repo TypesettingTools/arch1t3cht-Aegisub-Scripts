@@ -9,17 +9,25 @@ bl_info = {
     "category": "Import-Export",
 }
 
+import itertools
 import bpy
 
 dataname = bl_info["location"].split(" > ")[2]
+
+def corners_from_marker(marker):
+    if marker.__class__.__name__ == "MovieTrackingPlaneMarker":
+        return [list(c) for c in marker.corners]
+    elif marker.__class__.__name__ == "MovieTrackingMarker":
+        return [[marker.co[i] + cv for i, cv in enumerate(c)] for c in marker.pattern_corners]
+
 
 def write_files(prefix, context):
     scene = context.scene
     fps = scene.render.fps / scene.render.fps_base
 
     for clipno, clip in enumerate(bpy.data.movieclips):
-        for trackno, track in enumerate(clip.tracking.plane_tracks):
-            with open("{0}_c{1:02d}_t{2:02d}.txt".format(prefix, clipno, trackno), "w") as f:
+        for trackno, track in enumerate(itertools.chain(clip.tracking.tracks, clip.tracking.plane_tracks)):
+            with open("{0}_c{1:02d}_{2}{3:02d}_{4}.txt".format(prefix, clipno, "planetrack" if track.__class__.__name__ == "MovieTrackingPlaneTrack" else "track", trackno, track.name.lower().replace(" ", "_")), "w") as f:
                 f.write("Adobe After Effects 6.0 Keyframe Data\n\n")
                 f.write("\tUnits Per Second\t{0:.3f}\n".format(fps))
                 f.write("\tSource Width\t{0}\n".format(clip.size[0]))
@@ -27,7 +35,7 @@ def write_files(prefix, context):
                 f.write("\tSource Pixel Aspect Ratio\t1\n")
                 f.write("\tComp Pixel Aspect Ratio\t1\n")
 
-                corners = [[list(c) for c in track.markers.find_frame(frameno).corners] for frameno in range(clip.frame_start, clip.frame_start + clip.frame_duration)]
+                corners = [corners_from_marker(track.markers.find_frame(frameno)) for frameno in range(clip.frame_start, clip.frame_start + clip.frame_duration)]
 
                 for pini, corneri in [(2, 3), (3, 2), (4, 0), (5, 1)]:
                     f.write(f"\nEffects\tCC Power Pin #1\tCC Power Pin-000{pini}\n")
