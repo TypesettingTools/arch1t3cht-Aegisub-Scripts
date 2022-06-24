@@ -26,8 +26,8 @@ def write_files(prefix, context):
     fps = scene.render.fps / scene.render.fps_base
 
     for clipno, clip in enumerate(bpy.data.movieclips):
-        for trackno, track in enumerate(itertools.chain(clip.tracking.tracks, clip.tracking.plane_tracks)):
-            with open("{0}_c{1:02d}_{2}{3:02d}_{4}.txt".format(prefix, clipno, "planetrack" if track.__class__.__name__ == "MovieTrackingPlaneTrack" else "track", trackno, track.name.lower().replace(" ", "_")), "w") as f:
+        for trackno, track in itertools.chain(enumerate(clip.tracking.tracks), enumerate(clip.tracking.plane_tracks)):
+            with open("{0}_c{1:02d}_{3}{2:02d}_{4}.txt".format(prefix, clipno, trackno, "planetrack" if track.__class__.__name__ == "MovieTrackingPlaneTrack" else "track", track.name.lower().replace(" ", "_")), "w") as f:
                 f.write("Adobe After Effects 6.0 Keyframe Data\n\n")
                 f.write("\tUnits Per Second\t{0:.3f}\n".format(fps))
                 f.write("\tSource Width\t{0}\n".format(clip.size[0]))
