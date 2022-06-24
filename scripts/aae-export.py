@@ -16,26 +16,32 @@ bl_info = {
     "name": "Export: Adobe After Effects 6.0 Keyframe Data",
     "description": "Export motion tracking markers to Adobe After Effects 6.0 compatible files",
     "author": "Martin Herkt",
-    "version": (0, 1, 4),
+    "version": (0, 1, 5),
     "blender": (2, 80, 0),
     "location": "File > Export > Adobe After Effects 6.0 Keyframe Data",
     "warning": "",
     "category": "Import-Export",
     }
 
+import itertools
 import bpy, mathutils, math
+
+def coords_corners_from_marker(marker):
+    if marker.__class__.__name__ == "MovieTrackingMarker":
+        return marker.co, marker.pattern_corners
+    elif marker.__class__.__name__ == "MovieTrackingPlaneMarker":
+        c = marker.corners
+        center = mathutils.geometry.intersect_line_line_2d(c[0], c[2], c[1], c[3])
+        return center, [mathutils.Vector(p) - center for p in c]
+
 
 def write_files(prefix, context):
     scene = context.scene
     fps = scene.render.fps / scene.render.fps_base
 
-    clipno = 0
-
-    for clip in bpy.data.movieclips:
-        trackno = 0
-
-        for track in clip.tracking.tracks:
-            with open("{0}_c{1:02d}_t{2:02d}.txt".format(prefix, clipno, trackno), "w") as f:
+    for clipno, clip in enumerate(bpy.data.movieclips):
+        for trackno, track in itertools.chain(enumerate(clip.tracking.tracks), enumerate(clip.tracking.plane_tracks)):
+            with open("{0}_c{1:02d}_{3}{2:02d}.txt".format(prefix, clipno, trackno, "planetrack" if track.__class__.__name__ == "MovieTrackingPlaneTrack" else "t"), "w") as f:
 
                 frameno = clip.frame_start
                 startarea = None
@@ -59,8 +65,7 @@ def write_files(prefix, context):
                     if not marker or marker.mute:
                         continue
 
-                    coords = marker.co
-                    corners = marker.pattern_corners
+                    coords, corners = coords_corners_from_marker(marker)
 
                     area = 0
                     width = math.sqrt((corners[1][0] - corners[0][0]) * (corners[1][0] - corners[0][0]) + (corners[1][1] - corners[0][1]) * (corners[1][1] - corners[0][1]))
@@ -76,14 +81,14 @@ def write_files(prefix, context):
 
                     if startarea == None:
                         startarea = area
-                        
+
                     if startwidth == None:
                         startwidth = width
                     if startheight == None:
                         startheight = height
 
                     zoom = math.sqrt(area / startarea) * 100
-                    
+
                     xscale = width / startwidth * 100
                     yscale = height / startheight * 100
 
@@ -131,9 +136,6 @@ def write_files(prefix, context):
 
                 f.write("End of Keyframe Data\r\n")
 
-                trackno += 1
-
-            clipno += 1
     return {'FINISHED'}
 
 from bpy_extras.io_utils import ExportHelper
