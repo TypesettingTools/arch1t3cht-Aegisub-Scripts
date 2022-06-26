@@ -299,13 +299,20 @@ This is not a complete list. Check the documentation for all possible modifiers.
 ||||
 | `loop n` | `loop n` | `loop <loopname> n` |
 
-### Inline variables
-- Throughout all templaters, `orgline`, `syl`, `char`, and `word` (where applicable) refer to the *original* objects, while `line` refers to the line that will be generated.
-- In the stock templater and KaraOK, `syl` exists in `template char` lines. In The0x's templater, it's accessible via `char.syl` instead.
-- The expressions in the following table are analogues of each other, but they might not be exactly equal. In particular, some values are rounded in the stock templater.
-- Many of the expressions listed below for The0x's templater also work for the stock templater and KarOK.
+### Tables in tenv
+- Throughout all templaters, `orgline`, `syl`, `char`, and `word` (where present and applicable) refer to *original* objects, while `line` refers to the `fx` line that will be generated.
+- In the stock templater and KaraOK, `syl` is the current syllable for `template syl` lines, but it's the current *character* for `template char` lines. In fact, `template char` just translates to a `template syl` with a per-char flag internally.
+- The newer templaters add tables describing the current word or syllable for `template char` lines:
+    - In the stock templater, `word` and `char` don't exist.
+    - KaraOK adds tables `char`, `word`, and `syll` (the latter two are also accessible via `char.word` and `char.syll` in `template char`) referencing the current character, word, and syllable in `template char`.
+    - In The0x's templater, however, `syl`, `char` and `word` exist only for `template syl`, `template char`, and `template word` respectively, and refer to the respective object. The current syllable or word can be accessed with `char.syl` and `char.word` respectively.
 
-The following list is complete with respect to the inline variables in the stock templater and KaraOK. The0x's templater contains additional inline variables for working with loops, as well as the `$env_*` variables - see the source code for these.
+### Inline variables
+- The following list is complete with respect to the inline variables in the stock templater and KaraOK. It's in the same order as the [documentation for inline variables in the stock templater](https://aeg-dev.github.io/AegiSite/docs/3.2/automation/karaoke_templater/inline_variables/), so refer to that for the explanations of these variables.
+    - The0x's templater contains additional inline variables for working with loops, as well as the `$env_*` variables - see the source code for these.
+- The expressions in the following table are analogues of each other, but they might not be exactly equal. In particular, some values are rounded in the stock templater.
+- Many of the expressions listed below for The0x's templater also work for the stock templater and KaraOK.
+
 
 | Stock Templater & KaraOK | The0x's Templater |
 | ------------------ | -------------------- |
