@@ -16,7 +16,7 @@ At the time of writing (2022), there are three major karaoke templaters around:
 2. [KaraOK](https://github.com/logarrhythmic/karaOK), a modified version of the stock templater together with a utility library. It's also shipped by default with some newer Aegisub versions like [AegisubDC](https://github.com/Ristellise/AegisubDC).
 3. [The0x539's Templater](https://github.com/The0x539/Aegisub-Scripts/blob/trunk/src/0x.KaraTemplater.moon), documented [here](https://github.com/The0x539/Aegisub-Scripts/blob/trunk/doc/0x.KaraTemplater.md) in its repository. This is a fully rewritten templater with more powerful execution logic (mixins, stronger conditionals, nested loops, etc) and more sensibly organized variables.
 
-Except for furigana and other uses of `multi` templates, there isn't really anything the stock templater or KaraOK can do that cannot be easily ported to The0x's templater.
+Except for furigana and other uses of `furi` or `multi` templates, there isn't really anything the stock templater or KaraOK can do that cannot be easily ported to The0x's templater.
 As long as it's installed, The0x's templater also contains drop-in support for KaraOK's utility library.
 That's why it will be the default templater for this guide, together with notes on how the equivalent concepts work in other templaters.
 Even if you'll never write templates in other templaters, the latter can still be useful for understanding *existing* templates.
@@ -256,6 +256,16 @@ Mixins also support loops in The0x's templater.
 *to make the line smoothly move from side to side.*
 
 For frame-by-frame effects not using positioning, you might also be interested in [KaraOK's wave functions](https://github.com/logarrhythmic/karaOK#wave-table---pushing-the-limits-of-ass), which are also available in The0x's templater.
+
+### Other
+Some things I haven't mentioned here are:
+- Actors: Making effects behave differently (say, have different colors) depending on the Actor fields of the `kara` lines
+- Inline FX: Using markers in the `kara` lines to have different effects for individual syllables
+- The other very powerful conditional execution features of mixins, particularly `if` and `unless`
+- Gradients using the utility library of The0x's templater, as well as the color library
+- Furigana styling.
+
+Again, read the documentation to see what is possible there.
 
 ## Comparison
 
