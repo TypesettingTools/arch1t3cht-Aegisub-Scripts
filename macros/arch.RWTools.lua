@@ -128,10 +128,6 @@ end
 -- Acknowledgements:
 -- - Config code was blatantly stolen from Clipper.
 
--------------------
--- GENERAL UTILS (from Clipper) --
--------------------
-
 
 function unreachable()
     if not val then
