@@ -2,6 +2,7 @@
 My automation scripts for Aegisub. You're probably here for AegisubChain, but there are also some other useful scripts for editing and timing in here.
 
 - [Aegisub-Scripts](#aegisub-scripts)
+  - [Guides](#guides)
   - [AegisubChain](#aegisubchain)
     - [Basic usage](#basic-usage)
     - [Detailed Documentation](#detailed-documentation)
@@ -24,6 +25,8 @@ My automation scripts for Aegisub. You're probably here for AegisubChain, but th
     - [Modified Export Script for After Effects Transform Data](#modified-export-script-for-after-effects-transform-data)
   - [See also](#see-also)
 
+## Guides
+I wrote a [guide](doc/templaters.md) or primer on karaoke templates that aims to get people far enough to start reading documentation without too much pain. It also contains a few tables for converting templates between the three major templaters.
 
 ## AegisubChain
 My biggest project. From a technical standpoint, [AegisubChain](macros/arch.AegisubChain.moon) is comparable to a virtual machine that can run (multiple) other automation scripts, while hooking into their API calls. In particular, it can intercept dialogs and prefill them with certain values, or suppress them entirely by immediately returning whaterver results it wants (which I'll call autofilling).
