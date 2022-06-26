@@ -14,7 +14,7 @@ If you're looking for actual guides on KFX, here are some links:
 At the time of writing (2022), there are three major karaoke templaters around:
 1. The stock templater shipped with Aegisub, documented [here](https://aeg-dev.github.io/AegiSite/docs/3.2/automation/karaoke_templater/) as part of the Aegisub documentation. The documentation is very detailed, but rather technical.
 2. [KaraOK](https://github.com/logarrhythmic/karaOK), a modified version of the stock templater together with a utility library. It's also shipped by default with some newer Aegisub versions like [AegisubDC](https://github.com/Ristellise/AegisubDC).
-3. [The0x539's Templater](https://github.com/The0x539/Aegisub-Scripts/blob/trunk/src/0x.KaraTemplater.moon), documented [here](https://github.com/The0x539/Aegisub-Scripts/blob/trunk/doc/0x.KaraTemplater.md) in the same repository. This is a fully rewritten templater with more powerful execution logic (mixins, stronger conditionals, nested loops, etc) and more sensibly organized variables.
+3. [The0x539's Templater](https://github.com/The0x539/Aegisub-Scripts/blob/trunk/src/0x.KaraTemplater.moon), documented [here](https://github.com/The0x539/Aegisub-Scripts/blob/trunk/doc/0x.KaraTemplater.md) in its repository. This is a fully rewritten templater with more powerful execution logic (mixins, stronger conditionals, nested loops, etc) and more sensibly organized variables.
 
 Except for furigana and other uses of `multi` templates, there isn't really anything the stock templater or KaraOK can do that cannot be easily ported to The0x's templater.
 As long as it's installed, The0x's templater also contains drop-in support for KaraOK's utility library.
@@ -251,8 +251,7 @@ Mixins also support loops in The0x's templater.
 *to make something like a solid shadow. Or you could have a simple `template line` with the text*
 ```
 {!util.fbf("line")!\an5
-\pos(!line.center + 100 * math.sin(2 * (line.start_time - orgline.start_time) / 1000)!,
-!line.middle!)}
+\pos(!line.center + 100 * math.sin(2 * (line.start_time - orgline.start_time) / 1000)!, !line.middle!)}
 ```
 *to make the line smoothly move from side to side.*
 
