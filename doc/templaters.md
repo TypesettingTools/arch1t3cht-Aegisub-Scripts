@@ -297,7 +297,7 @@ This is not a complete list. Check the documentation for all possible modifiers.
 | not present | `code word` | `code word` |
 | `code furi` | `code furi` | not present |
 ||||
-| `loop n` | `loop n` | `loop n <loopname>` |
+| `loop n` | `loop n` | `loop <loopname> n` |
 
 ### Inline variables
 - Throughout all templaters, `orgline`, `syl`, `char`, and `word` (where applicable) refer to the *original* objects, while `line` refers to the line that will be generated.
