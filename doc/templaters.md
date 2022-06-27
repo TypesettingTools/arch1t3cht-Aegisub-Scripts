@@ -269,6 +269,16 @@ Again, read the documentation to see what is possible there.
 
 ## Comparison
 
+The main differences between the stock or KaraOK templaters and The0x's one are:
+
+- The `mixin` component and `word` class
+- Lack of the `multi`/`furi` classes/modifiers
+- Most dollar-variables need to instead be accessed through the `tenv` tables in inline lua
+- Named and nestable loops
+- Conditional execution (applicable to all components, not just `mixin`)
+
+A more complete listing can be found below.
+
 ### Line markers
 This is not a complete list. Check the documentation for all possible modifiers.
 | Stock Templater | KaraOK | The0x's Templater |
