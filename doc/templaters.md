@@ -279,11 +279,11 @@ This is not a complete list. Check the documentation for all possible modifiers.
 | `template syl` | `template syl` | `template syl` |
 | `template char` or `template syl char` | `template char` | `template char` |
 | not present | `template word` | `template word` |
-| `template line` | `template lsyl` | `mixin line` with a conditional |
+| `template line` | `template lsyl` | `template line` + `mixin syl` |
 | `template furi` | `template furi` | not present |
 | not present | `template furichar` | not present |
-| not present | `template lchar` | `mixin char` with a conditional |
-| not present | `template lword` | `mixin word` with a conditional |
+| not present | `template lchar` | `template line` + `mixin char` |
+| not present | `template lword` | `template line` + `mixin word` |
 ||||
 | not present | not present | general `mixin line` |
 | not present | not present | general `mixin syl` |
