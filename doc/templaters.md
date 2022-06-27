@@ -76,7 +76,7 @@ This will give every generated `fx` line these fade tags. So we've already built
 What's happening here is that before turning a `kara` line into an `fx` line using a `template line`, the templater will add whatever the `template line` line contains in front of the `kara` line's (stripped) text.
 Now, the interesting part is that this can't only contain static text, but also Lua expressions. These are wrapped in exclamation marks.
 
-For example, if you change the template line line's text to `{\fad(!2*50!, 150)}`, you'll get a bunch of lines with `\fad(100,150)` tags, because what was in the exclamation marks was evaluated to 100 using Lua.
+*For example, if you change the template line line's text to `{\fad(!2*50!, 150)}`, you'll get a bunch of lines with `\fad(100,150)` tags, because what was in the exclamation marks was evaluated to 100 using Lua.*
 
 Furthermore, in this Lua environment, the templater gives you access to all necessary information about your `kara` line.
 This is stored in the `orgline` table, which has the format of the standard table describing an `.ass` line, but also contains lots of additional fields added by karaskel or by The0x's templater.
@@ -106,31 +106,31 @@ Up to now, we've just added some tags to every k-timed `kara` line, without ever
 But now that we've introduced Lua eval and inline variables, we're ready to make sensible syllable-based effects.
 
 *If we replace the effect of our `template line` line with `template syl` and apply the template again, the templater will suddenly generate multiple `fx` lines for each `kara` line - one `fx` line for each k-timed syllable of the `kara` line.
-If you didn't remove the scaling effect we made before, they'll all be stacked on top of each other at the top of the screen. 
+If you didn't remove the scaling effect we made before, they'll all be stacked on top of each other at the top of the screen.
 If you did remove it, they'll be moved successively further down until they cover the whole screen.*
 
-This is because, by default, the generated syllable `fx` lines don't have any formatting whatsoever, so naturally they'll just follow the alignment dictated by their style. 
-To position them correctly, we need to use `\an` and `\pos` tags together with some of the variables the templater gives us. 
-We've used `orgline` before, and `orgline.left` gives us the x position of the left edge of the `kara` line, when formatting it with whatever style it has. 
+This is because, by default, the generated syllable `fx` lines don't have any formatting whatsoever, so naturally they'll just follow the alignment dictated by their style.
+To position them correctly, we need to use `\an` and `\pos` tags together with some of the variables the templater gives us.
+We've used `orgline` before, and `orgline.left` gives us the x position of the left edge of the `kara` line, when formatting it with whatever style it has.
 Similarly, `orgline.top` gives us the y coordinate of the top edge.
 
-To put each individual syllable where it needs to go, we can use the analogous `syl` table, which (obviously) contains similar information about the syllable. 
-Most importantly, `orgsyl.left` contains the x position of the syllable's left edge, *relative to the line it's in*. 
+To put each individual syllable where it needs to go, we can use the analogous `syl` table, which (obviously) contains similar information about the syllable.
+Most importantly, `syl.left` contains the x position of the syllable's left edge, *relative to the line it's in*.
 
-*With this in mind, we can write the following into our `template syl`: `{\an7\pos(!orgline.left+syl.left!,!orgline.top!)}`. 
+*With this in mind, we can write the following into our `template syl`: `{\an7\pos(!orgline.left+syl.left!,!orgline.top!)}`.
 If we now reapply our template, all the syllables will be at the correct position.*
 
-*Now, while `\an7` was the easiest example, but it's rarely convenient for any actual effects. 
-So let's instead use, `{\an5\pos(!orgline.left+syl.center!,!orgline.middle!)}` which uses the analogous variables for the x and y positions of the middle of the line or syllable. 
+*Now, while `\an7` was the easiest example, but it's rarely convenient for any actual effects.
+So let's instead use, `{\an5\pos(!orgline.left+syl.center!,!orgline.middle!)}` which uses the analogous variables for the x and y positions of the middle of the line or syllable.
 This doesn't change the positioning, but uses `\an5` instead, which is more useful in almost all cases.*
 
 On the stock templater or KaraOK you might also find inline variables like `$scenter` and `$lmiddle` used for these[^2].
-We don't need `syl` for the y position, since the syllable's y position isn't dependent on the line with normal formatting. 
+We don't need `syl` for the y position, since the syllable's y position isn't dependent on the line with normal formatting.
 In fact `syl.middle` doesn't even exist.
 [^2]: I am aware that `$smiddle` also exists, but I'm trying to highlight the `$s[var]` and `$l[var]` pattern.
 
-*With everything we know now, we can already make a simple template[^3]. 
-The only remaining pieces we need are the variables `syl.duration`, `syl.start_time`, and `syl.end_time`, which are the syllable's duration and start and end times in milliseconds respectively, with the latter two again being relative to the current line's start time. 
+*With everything we know now, we can already make a simple template[^3].
+The only remaining pieces we need are the variables `syl.duration`, `syl.start_time`, and `syl.end_time`, which are the syllable's duration and start and end times in milliseconds respectively, with the latter two again being relative to the current line's start time.
 With this, we can make a simple template*
 ```
 {\an5\pos(!orgline.left+syl.center!,!orgline.middle!)
@@ -146,10 +146,10 @@ With this, we can make a simple template*
 Our `template syl` generates one `fx` line for each input syllable.
 If we want to make an effect that generates multiple lines for each syllable we can add more `template syl` line. (For more complex effects, we can also use loops.)
 
-*For example, let's add a blue-ish glow effect to our karaoke lines. 
-Take the `template syl` line we've made before, and duplicate it. 
-Increase the second one's layer by one, and add `\3c&HFFCCCC&\bord5\blur5` to the first one. 
-If you now apply the template, there will be two `fx` lines generated for each syllable - one for each `template syl`. 
+*For example, let's add a blue-ish glow effect to our karaoke lines.
+Take the `template syl` line we've made before, and duplicate it.
+Increase the second one's layer by one, and add `\3c&HFFCCCC&\bord5\blur5` to the first one.
+If you now apply the template, there will be two `fx` lines generated for each syllable - one for each `template syl`.
 The `fx` lines will also have the same layers as their respective `template syl` lines.*
 
 But if we're not careful (as happened in this example), this now duplicates a lot of our template code. If we want to change some element of the highlight effect, we'd need to change both `template syl` lines. This is where mixins are very helpful.
@@ -222,28 +222,28 @@ Simple uses include defining constants or functions which compute values you nee
 
 ### Functions
 The templaters provide various useful functions to further modify the current line.
-They're all documented in the respective templater's documentations. 
+They're all documented in the respective templater's documentations.
 I just want to highlight the arguably most important one, called `retime`.
 
-The `retime` function allows you to change the timing of the output line. 
-There isn't any magic involved here - the `line` table always contains the fields of the line currently being currently generated and can be changed by anyone, so nobody is stopping you from writing `!(function() line.start_time = 1234 end)()!` to set the generated `fx` line's start time to `1:23`. 
+The `retime` function allows you to change the timing of the output line.
+There isn't any magic involved here - the `line` table always contains the fields of the line currently being currently generated and can be changed by anyone, so nobody is stopping you from writing `!(function() line.start_time = 1234 end)()!` to set the generated `fx` line's start time to `1:23`.
 The `retime` function just makes this much more convenient.
 
-*For example, even with `template syl`, the generated line uses the timing of the original `kara` line by default. 
-If you instead want it to only appear when the syllable is being highlighted, you could add `!retime("syl")!` to your template to set its start and end time to the (absolute) start and end time of the syllable, respectively. 
-If you want a lead-in and lead-out of 150 and 300 milliseconds respecively, you can write `!retime("syl", -150, 300)!`. 
-If you instead want the syllable to disappear right when it should start getting highlighted, you can use `!retime("start2syl")` instead. 
+*For example, even with `template syl`, the generated line uses the timing of the original `kara` line by default.
+If you instead want it to only appear when the syllable is being highlighted, you could add `!retime("syl")!` to your template to set its start and end time to the (absolute) start and end time of the syllable, respectively.
+If you want a lead-in and lead-out of 150 and 300 milliseconds respecively, you can write `!retime("syl", -150, 300)!`.
+If you instead want the syllable to disappear right when it should start getting highlighted, you can use `!retime("start2syl")!` instead.
 Check the documentation for all the possible modes.*
 
 ### Loops
 Finally, let's talk about loops.
-You can use loops in templates to create more complex effects, like generating multiple lines from each application of any one `template` line. 
-You can also set the number of iterations during runtime. 
-With The0x's templater, you can even use multiple nested loops. 
-Using the `util.fbf` function, you can also easily set up a loop generating one output line for each frame. 
+You can use loops in templates to create more complex effects, like generating multiple lines from each application of any one `template` line.
+You can also set the number of iterations during runtime.
+With The0x's templater, you can even use multiple nested loops.
+Using the `util.fbf` function, you can also easily set up a loop generating one output line for each frame.
 Mixins also support loops in The0x's templater.
 
-*For example, consider a line with the Effect `template line loop 5 i` and the text*
+*For example, consider a line with the Effect `template line loop myloop 5` and the text*
 ```
 {!relayer($maxloop_myloop - $loop_myloop)!
 \an5\pos(!line.center - $loop_myloop - 1!,!line.middle + $loop_myloop - 1!)}
@@ -345,9 +345,9 @@ This is not a complete list. Check the documentation for all possible modifiers.
 | `$send` | `$sylend` or `syl.end_time` |
 | `$smid` | `syl.start + 0.5 * syl.duration` |
 | `$sdur` | `$syldur` or `syl.duration` |
-| `$si` | `$si` or `(orgsyl or orgchar or orgline).si` |
-| `$ci` (KaraOK only) | `$ci` or `(orgchar or orgsyl or orgword or orgline).ci` |
-| not present | `$wi` or `(tenv.orgword or tenv.orgchar or tenv.orgline).wi` |
+| `$si` | `$si` or `(syl or char or orgline).si` |
+| `$ci` (KaraOK only) | `$ci` or `(char or syl or word or orgline).ci` |
+| not present | `$wi` or `(word or char or orgline).wi` |
 | not present | `$cxf` |
 | not present | `$sxf` |
 | not present | `$wxf` |
