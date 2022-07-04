@@ -1,6 +1,6 @@
 export script_name = "AegisubChain"
 export script_description = "Compose chains out of existing automation macros, and play them back as non-GUI macros, or using only one dialog."
-export script_version = "0.3.0"
+export script_version = "0.3.1"
 export script_namespace = "arch.AegisubChain"
 export script_author = "arch1t3cht"
 
@@ -1387,6 +1387,7 @@ _ac_f.read_aegisub_path = () ->
     f = io.open(_ac_aegisub.decode_path("?user/config.json"))
     return if f == nil
     content = f\read("a")
+    f\close()
     config = _ac_i.json.decode(content)
     return if config == nil
     return if config["Path"] == nil
