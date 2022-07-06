@@ -58,6 +58,12 @@
         }
       },
       "changelog": {
+        "1.2.0": [
+          "When shifting line breaks, insert a line break if none is present, and remove it when it's been shifted to one of the ends."
+        ],
+        "1.1.0": [
+          "Add macros to shift the line break in the active line forward or backward by one word."
+        ],
         "1.0.0": [
           "Initial Release"
         ]

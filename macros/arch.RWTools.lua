@@ -310,11 +310,28 @@ function switch_lines_proper(subs, sel, rewrite, shift, shift_dir)
                         if not shift then
                             linetext = linetext .. cleartext
                         else
+                            ctext = cleartext
                             if shift_dir then
-                                linetext = linetext .. cleartext:gsub("([^ ]+) *\\N *([^ ]+) *", "%1 %2\\N"):gsub("^ *\\N *([^ ]+) *", "%1\\N")
+                                if not ctext:match("\\N") then
+                                    ctext = "\\N" .. ctext
+                                end
+                                ctext = ctext
+                                    -- Shift a newline forward that's in somewhere in the middle of the line. Won't shift a new line to the very left.
+                                    :gsub("([^ ]+) *\\N *([^ ]+) *", "%1 %2\\N")
+                                    -- Shift a newline forward that's to the very left of the line.
+                                    :gsub("^ *\\N *([^ ]+) *", "%1\\N")
+                                    -- Remove a newline to the very right of the line.
+                                    :gsub(" *\\N *$", "")
                             else
-                                linetext = linetext .. cleartext:gsub(" *([^ ]+) *\\N *([^ ]+)", "\\N%1 %2"):gsub(" *([^ ]+) *\\N *$", "\\N%1")
+                                if not ctext:match("\\N") then
+                                    ctext = ctext .. "\\N"
+                                end
+                                ctext = ctext
+                                    :gsub(" *([^ ]+) *\\N *([^ ]+)", "\\N%1 %2")
+                                    :gsub(" *([^ ]+) *\\N *$", "\\N%1")
+                                    :gsub("^ *\\N *", "")
                             end
+                            linetext = linetext .. ctext
                         end
                         intext = intext:sub(#cleartext + 1)
                     elseif signature ~= nil then
