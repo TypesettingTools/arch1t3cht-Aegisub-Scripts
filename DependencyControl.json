@@ -45,22 +45,19 @@
       "description": "Shortcuts for managing multiple rewrites of a line in one .ass event line.",
       "channels": {
         "release": {
-          "version": "1.0.0",
-          "released": "2022-05-26",
+          "version": "1.1.0",
+          "released": "2022-07-06",
           "default": true,
           "files": [
             {
               "name": ".lua",
               "url": "@{fileBaseUrl}@{fileName}",
-              "sha1": "4bef239e9d76d266e4440cd22f84c16829667213"
+              "sha1": "11b4122e7dada46847039cc286dee519d4787ce2"
             }
           ]
         }
       },
       "changelog": {
-        "1.0.0": [
-          "Add macros to shift the line break in the active line forward or backward by one word."
-        ],
         "1.0.0": [
           "Initial Release"
         ]
