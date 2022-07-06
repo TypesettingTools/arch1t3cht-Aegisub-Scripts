@@ -59,6 +59,9 @@
       },
       "changelog": {
         "1.0.0": [
+          "Add macros to shift the line break in the active line forward or backward by one word."
+        ],
+        "1.0.0": [
           "Initial Release"
         ]
       }

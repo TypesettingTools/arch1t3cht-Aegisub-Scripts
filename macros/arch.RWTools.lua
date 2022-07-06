@@ -1,19 +1,8 @@
 script_name = "Rewriting Tools"
 script_author = "arch1t3cht"
-script_version = "1.0.0"
+script_version = "1.1.0"
 script_namespace = "arch.RWTools"
 script_description = "Shortcuts for managing multiple rewrites of a line in one .ass event line."
-
-switch_name = "Switch Active Lines"
-switch_description = "Deactivates the active line and activates any inactive lines marked with !- ."
-
-rewrite_name = "Prepare Rewrite"
-rewrite_description = "Deactivates the active line and copies it to a new line for rewriting."
-
-clean_name = "Clean Up Styling Tag Escapes"
-clean_description = "Removes all pipe ('|') characters from the end of styling blocks."
-
-CONFIG_PATH = aegisub.decode_path('?user/arch_scripts.conf')
 
 haveDepCtrl, DependencyControl = pcall(require, "l0.DependencyControl")
 
@@ -79,6 +68,9 @@ end
 --   That way, the user can quickly propose a small change in the line.
 -- - Always add a signature, as long as one is configured.
 --
+-- The functions "Shift Line Break Forward" and "Shift Line Break Backward" will shift the line break in the currently active line(s)
+-- forward or backward respectively, by one word (i.e. one contiguous sequence of non-space characters).
+--
 -- The function "Clean Up Styling Tag Escapes" will simply remove all the pipe ('|') characters from global styling tags.
 --
 -- Examples:
@@ -123,10 +115,9 @@ end
 --      {- foo!\N - OG}- foo2!{me}\N{\|}- bar!{OG}
 --   This specific application is very tedious for small rewrites, but can still greatly speed up the process for longer sections with formatting.
 --
--- It is strongly recommended to bind both of the rewriting macros to keybinds (e.g. Ctrl+K and Ctrl+Shift+K respectively).
---
--- Acknowledgements:
--- - Config code was blatantly stolen from Clipper.
+-- It is strongly recommended to bind the macros for rewriting and shifting line breaks to keybinds.
+-- I use Ctrl+K and Ctrl+Shift+K respectively for "Switch Active Lines" and "Prepare Rewrite",
+-- as well as Ctrl+, and Ctrl+. respectively for "Shift Line Break Backward" and "Shift Line Break Forward".
 
 
 function unreachable()
@@ -213,7 +204,11 @@ function get_signature(sign)
     return ""
 end
 
-function switch_lines_proper(subs, sel, rewrite)
+-- Arguments
+-- shift: True if shifting line breaks, false otherwise
+-- shift_dir: If shifting line breaks, true if shifting forward, else false
+-- rewrite: If not shifting line breaks, true if the line being deactivated should be copied for a rewrite.
+function switch_lines_proper(subs, sel, rewrite, shift, shift_dir)
     for _, i in ipairs(sel) do
         local line = subs[i]
 
@@ -259,7 +254,7 @@ function switch_lines_proper(subs, sel, rewrite)
                 reactivated = false
                 newline = ""
             elseif deactive_line ~= nil then
-                if deactive_line:match(" !%- ") == nil then
+                if shift or deactive_line:match(" !%- ") == nil then
                     out = out .. deactive_line
                 else
                     local reactivate_line = deactive_line
@@ -304,18 +299,35 @@ function switch_lines_proper(subs, sel, rewrite)
                         break
                     elseif styling_braceblock ~= nil then
                         newline = newline .. styling_braceblock
-                        linetext = linetext .. styling_braceblock:gsub("{", "["):gsub("}", "]"):gsub("\\", "/")
+                        if not shift then
+                            linetext = linetext .. styling_braceblock:gsub("{", "["):gsub("}", "]"):gsub("\\", "/")
+                        else
+                            linetext = linetext .. styling_braceblock
+                        end
                         intext = intext:sub(#styling_braceblock + 1)
                     elseif cleartext ~= nil then
                         newline = newline .. cleartext
-                        linetext = linetext .. cleartext
+                        if not shift then
+                            linetext = linetext .. cleartext
+                        else
+                            if shift_dir then
+                                linetext = linetext .. cleartext:gsub("([^ ]+) *\\N *([^ ]+) *", "%1 %2\\N"):gsub("^ *\\N *([^ ]+) *", "%1\\N")
+                            else
+                                linetext = linetext .. cleartext:gsub(" *([^ ]+) *\\N *([^ ]+)", "\\N%1 %2"):gsub(" *([^ ]+) *\\N *$", "\\N%1")
+                            end
+                        end
                         intext = intext:sub(#cleartext + 1)
                     elseif signature ~= nil then
                         if #signature >= 2 then
                             assert(signature[2] ~= "|" and signature[2] ~= "\\")
                         end
 
-                        linesignature = signature:gsub("[{}]", "")
+                        if not shift then
+                            linesignature = signature:gsub("[{}]", "")
+                        else
+                            linetext = linetext .. signature
+                        end
+
                         intext = intext:sub(#signature + 1)
                         break
                     else
@@ -323,13 +335,17 @@ function switch_lines_proper(subs, sel, rewrite)
                     end
                 end
 
-                out = out .. "{" .. fix_text_checked(linetext)
-                if linesignature ~= "" then
-                    out = out .. " - " .. linesignature
+                if not shift then
+                    out = out .. "{" .. fix_text_checked(linetext)
+                    if linesignature ~= "" then
+                        out = out .. " - " .. linesignature
+                    end
+                    out = out .. "}"
+                else
+                    out = out .. linetext
                 end
-                out = out .. "}"
 
-                deactivated = true
+                deactivated = not shift
             end 
         end
 
@@ -363,6 +379,14 @@ end
 
 function rewrite_line(subs, sel)
     switch_lines_proper(subs, sel, true)
+end
+
+function shift_forward(subs, sel)
+    switch_lines_proper(subs, sel, false, true, true)
+end
+
+function shift_backward(subs, sel)
+    switch_lines_proper(subs, sel, false, true, false)
 end
 
 function can_run(subs, sel)
@@ -431,10 +455,13 @@ function wrap_register_macro(name, ...)
     end
 end
 
-wrap_register_macro(switch_name,switch_description,switch_lines,can_run)
-wrap_register_macro(rewrite_name,rewrite_description,rewrite_line,can_run)
-wrap_register_macro(clean_name,clean_description,clean_lines)
-wrap_register_macro("Configure","Configure Rewriting Tools",configure)
+wrap_register_macro("Switch Active Lines", "Deactivates the active line and activates any inactive lines marked with !- .", switch_lines, can_run)
+wrap_register_macro("Prepare Rewrite", "Deactivates the active line and copies it to a new line for rewriting.", rewrite_line, can_run)
+wrap_register_macro("Shift Line Break Forward", "Shifts the line break in the currently active line forward by one word.", shift_forward, can_run)
+wrap_register_macro("Shift Line Break Backward", "Shifts the line break in the currently active line backward by one word.", shift_backward, can_run)
+wrap_register_macro("Clean Up Styling Tag Escapes", "Removes all pipe ('|') characters from the end of styling blocks.", clean_lines)
+wrap_register_macro("Configure", "Configure Rewriting Tools", configure)
+
 
 if haveDepCtrl then
     depctrl:registerMacros(mymacros)
