@@ -1,6 +1,6 @@
 export script_name = "Git Signs"
 export script_description = "Displays git diffs in Aegisub"
-export script_version = "0.2.1"
+export script_version = "0.2.2"
 export script_namespace = "arch.GitSigns"
 export script_author = "arch1t3cht"
 
@@ -92,6 +92,19 @@ parse_ass_line = (str) ->
     }
 
 
+-- Returns a table (because I didn't want to figure out lua iterators)
+-- of index-line pairs, where the indexing skips lines marked as removed
+iterate_diff_section = (lines) ->
+    reindexed = {}
+
+    newindex = 1
+    for gline in *lines
+        table.insert(reindexed, {:newindex, :gline})
+        newindex += 1 unless gline\match("^%-")
+
+    return reindexed
+
+
 show_diff_lines = (subs, diff, show_before) ->
     clear_markers(subs)
     parts = fun.string.split diff, "@@"
@@ -108,29 +121,36 @@ show_diff_lines = (subs, diff, show_before) ->
 
         table.insert(sections, {:oldfrom, :oldto, :newfrom, :newto, :lines})
         i += 2
-    
-    local offset
 
+    local offset
     for i, section in ipairs(sections)
-        newindex = 1
-        lines_inserted = 0
-        for j, gline in ipairs(section.lines)
-            if offset == nil and j > 1 and gline\match("^%+?Dialogue: ") or gline\match("^%+?Comment: ")
-                gl = gline\gsub("^%+", "")\gsub("\r$", "")
+        for {:newindex, :gline} in *iterate_diff_section(section.lines)
+            if newindex > 1 and gline\match("^%+?Dialogue: ") or gline\match("^%+?Comment: ")
+                rl = gline\gsub("^%+", "")\gsub("\r$", "")
 
                 aegisub.log(5, "Trying to find anchor line #{gl}\n")
 
                 for si, s in ipairs(subs)
-                    if s.raw == gl
+                    if s.raw == rl
                         offset = si - (section.newfrom + newindex - 1)
                         aegisub.log(5, "Found offset #{offset}")
                         break
-                
+
                 if offset == nil
                     aegisub.log("Diff didn't match the subtitles! Make sure to save your file.\n")
                     aegisub.cancel()
 
-            ind = section.newfrom + newindex - 1 + (offset or 0) + lines_inserted
+            break unless offset == nil
+        break unless offset == nil
+
+    if offset == nil
+        aegisub.log("Either the diff didn't match the subtitles (save your file if so), or no dialogue lines were changed.\n")
+        aegisub.cancel()
+
+    lines_inserted = 0
+    for i, section in ipairs(sections)
+        for {:newindex, :gline} in *iterate_diff_section(section.lines)
+            ind = section.newfrom + newindex - 1 + offset + lines_inserted
 
             if show_before and (gline\match("^%-Dialogue: ") or gline\match("^%-Comment: "))
                 newline = parse_ass_line(gline\sub(1))
@@ -143,8 +163,6 @@ show_diff_lines = (subs, diff, show_before) ->
                 line = subs[ind]
                 line.effect = "[Git #{if show_before then '+' else '~'}]" .. line.effect
                 subs[ind] = line
-
-            newindex += 1 unless gline\match("^%-")
 
 
 show_diff_diag = (subs, sel) ->

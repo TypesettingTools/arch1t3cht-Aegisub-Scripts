@@ -136,6 +136,9 @@
         ],
         "0.2.1": [
           "Clear existing markers before showing a diff to ensure idempotency."
+        ],
+        "0.2.2": [
+          "Rewrite line index logic to fix various bugs with displaying deleted lines."
         ]
       }
     }
