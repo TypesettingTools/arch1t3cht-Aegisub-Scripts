@@ -30,11 +30,11 @@
         }
       },
       "changelog": {
-        "0.3.1": [
-          "Close Aegisub's config file after reading it, so writes to it won't be blocked"
-        ],
         "0.3.0": [
           "Initial Release"
+        ],
+        "0.3.1": [
+          "Close Aegisub's config file after reading it, so writes to it won't be blocked"
         ]
       }
     },
@@ -58,14 +58,14 @@
         }
       },
       "changelog": {
-        "1.2.0": [
-          "When shifting line breaks, insert a line break if none is present, and remove it when it's been shifted to one of the ends."
+        "1.0.0": [
+          "Initial Release"
         ],
         "1.1.0": [
           "Add macros to shift the line break in the active line forward or backward by one word."
         ],
-        "1.0.0": [
-          "Initial Release"
+        "1.2.0": [
+          "When shifting line breaks, insert a line break if none is present, and remove it when it's been shifted to one of the ends."
         ]
       }
     },
@@ -89,21 +89,21 @@
         }
       },
       "changelog": {
-        "1.3.4": [
-          "Update parsing logic for note texts to recognize more lines as continuation of the text.",
-          "Replace backslashes in note texts to not change the formatting."
-        ],
-        "1.3.3": [
-          "Add an option to show text of the notes in Aegisub, by PhosCity."
-        ],
-        "1.2.0": [
-          "Skip notes more than 15 seconds away from any existing line, by PhosCity."
+        "1.0.0": [
+          "Initial Release"
         ],
         "1.1.0": [
           "Add transparent support for mpvqc's format, by PhosCity."
         ],
-        "1.0.0": [
-          "Initial Release"
+        "1.2.0": [
+          "Skip notes more than 15 seconds away from any existing line, by PhosCity."
+        ],
+        "1.3.3": [
+          "Add an option to show text of the notes in Aegisub, by PhosCity."
+        ],
+        "1.3.4": [
+          "Update parsing logic for note texts to recognize more lines as continuation of the text.",
+          "Replace backslashes in note texts to not change the formatting."
         ]
       }
     },
