@@ -36,6 +36,9 @@ Other, simpler uses include turning simple actions like "Open a script; Click a 
 
 Detailed documentation is [here](doc/aegisubchain.md).
 
+## Perspective (WIP)
+This is still very work in progress, but I started working on extracting the math I used in [Aegisub-Perspective-Motion](https://github.com/Zahuczky/Zahuczkys-Aegisub-Scripts/tree/main) into Lua libraries and an improved perspective script. The core functions are implemented [here](modules/arch/Perspective.moon) already, together with some general-purpose [linear algebra functions](modules/arch/Math.moon).
+
 ## Scripts for Editing and QC
 These scripts try to provide shortcuts for actions in editing or in applying QC notes. They're tailored to the processes and conventions in the group I'm working in, but maybe they'll also be useful for other people.
 
@@ -91,7 +94,7 @@ The [scripts](scripts/) folder also contains a [modified version](https://raw.gi
 
 ## See also
 Or "Other Stuff I Worked on that Might be Interesting".
-- Zahuczky's [Aegisub-Perspective-Motion](https://github.com/Zahuczky/Zahuczkys-Aegisub-Scripts/tree/main) (worked on some of the math in this)
+- Zahuczky's [Aegisub-Perspective-Motion](https://github.com/Zahuczky/Zahuczkys-Aegisub-Scripts/tree/main) (worked on sthe tracking math in this)
 - [ass.nvim](https://github.com/arch1t3cht/ass.nvim): A neovim 5.0 plugin for `.ass` subtitles. Its most important feature is a split window editing mode to efficiently copy new dialog (say, a translation) to a timed subtitle file.
 
 ---
