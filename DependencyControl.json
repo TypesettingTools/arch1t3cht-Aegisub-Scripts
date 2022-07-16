@@ -139,6 +139,9 @@
         ],
         "0.2.2": [
           "Rewrite line index logic to fix various bugs with displaying deleted lines."
+        ],
+        "0.2.3": [
+          "Add empty extradata to newly inserted lines - this fixes a crash on Aegisub 3.2 and older versions."
         ]
       }
     }

@@ -1,6 +1,6 @@
 export script_name = "Git Signs"
 export script_description = "Displays git diffs in Aegisub"
-export script_version = "0.2.2"
+export script_version = "0.2.3"
 export script_namespace = "arch.GitSigns"
 export script_author = "arch1t3cht"
 
@@ -89,6 +89,7 @@ parse_ass_line = (str) ->
         :actor,
         :effect,
         :text,
+        extra: {},
     }
 
 
