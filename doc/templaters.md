@@ -279,6 +279,8 @@ The main differences between the stock or KaraOK templaters and The0x's one are:
 
 A more complete listing can be found below.
 
+**Note that all links to code sections in the various templaters are permalinks and might be outdated.**
+
 ### Line markers
 This is not a complete list. Check the documentation for all possible modifiers.
 | Stock Templater | KaraOK | The0x's Templater |
@@ -316,6 +318,16 @@ This is not a complete list. Check the documentation for all possible modifiers.
     - In the stock templater, `word` and `char` don't exist.
     - KaraOK adds tables `char`, `word`, and `syll` (the latter two are also accessible via `char.word` and `char.syll` in `template char`) referencing the current character, word, and syllable in `template char`.
     - In The0x's templater, however, `syl`, `char` and `word` exist only for `template syl`, `template char`, and `template word` respectively, and refer to the respective object. The current syllable or word can be accessed with `char.syl` and `char.word` respectively.
+
+### Other members of tenv
+Apart from the various line tables, utility functions, and loop variables, the templaters expose various different libraries and data in `tenv`, to be accessed directly from Lua eval fields:
+
+- All three templaters provide the global environment `_G` of the calling templater to `tenv`, through which all other global variables can be accessed. For example, on the stock templater or KaraOK, Aegisub's `unicode` library can be accessed via `_G.unicode`.
+- The stock templater exposed only the `string` and `math` libraries, as seen [here](https://github.com/Aegisub/Aegisub/blob/6f546951b4f004da16ce19ba638bf3eedefb9f31/automation/autoload/kara-templater.lua#L294-L300). The final member `meta` is the map of script metadata fields in the subtitle file's `[Script Info]` section, as [collected by karaskel](https://aeg-dev.github.io/AegiSite/docs/3.2/automation/lua/modules/karaskel.lua/#karaskelcollect_head).
+- In addition to this, KaraOK exposes the `math` libarary, as well as the subtitles object `subs` and various utility functions such as `ipairs` and `tostring`. The full list is [here](https://github.com/logarrhythmic/karaOK/blob/dc26cf017809b3d6ee2fabf01b454b09a6d1413a/autoload/ln.kara-templater-mod.lua#L336-L349).
+- The0x's templater exposes all of the libraries that KaraOK does, together with Aegisub's libraries `unicode` and `karaskel`. When available, it also exposes KaraOK's library as `ln` (which is automatically initialized), and The0x's color library as `colorlib`.
+The0x's templater does not expose all of the utility functions KaraOK does (`ipairs` being the most notable one), but exposes some other functions such as `require`. See [here](https://github.com/The0x539/Aegisub-Scripts/blob/3cd439b9d2bef2307a1c5725deb03206383b8ad3/src/0x.KaraTemplater.moon#L181) for a full list.
+The templater also exposes the `subs`, `meta`, and `styles` objects, and its own utility library [here](https://github.com/The0x539/Aegisub-Scripts/blob/3cd439b9d2bef2307a1c5725deb03206383b8ad3/src/0x.KaraTemplater.moon#L240).
 
 ### Inline variables
 - The following list is complete with respect to the inline variables in the stock templater and KaraOK. It's in the same order as the [documentation for inline variables in the stock templater](https://aeg-dev.github.io/AegiSite/docs/3.2/automation/karaoke_templater/inline_variables/), so refer to that for the explanations of these variables.
