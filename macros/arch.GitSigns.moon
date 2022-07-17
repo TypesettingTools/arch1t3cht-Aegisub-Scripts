@@ -69,14 +69,14 @@ clear_markers = (subs) ->
 
 
 string2time = (timecode) ->
-	timecode\gsub("(%d):(%d%d):(%d%d)%.(%d%d)", (a, b, c, d) -> d * 10 + c * 1000 + b * 60000 + a * 3600000)
+    timecode\gsub("(%d):(%d%d):(%d%d)%.(%d%d)", (a, b, c, d) -> d * 10 + c * 1000 + b * 60000 + a * 3600000)
 
 
 parse_ass_line = (str) ->
-	ltype, layer, s_time, e_time, style, actor, margin_l, margin_r, margin_t, effect, text = str\match(
-		"(%a+): (%d+),([^,]-),([^,]-),([^,]-),([^,]-),([^,]-),([^,]-),([^,]-),([^,]-),(.*)"
-	)
-	return {
+    ltype, layer, s_time, e_time, style, actor, margin_l, margin_r, margin_t, effect, text = str\match(
+        "(%a+): (%d+),([^,]-),([^,]-),([^,]-),([^,]-),([^,]-),([^,]-),([^,]-),([^,]-),(.*)"
+    )
+    return {
         class: "dialogue",
         comment: ltype == "Comment",
         start_time: string2time(s_time),
