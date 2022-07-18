@@ -1,6 +1,6 @@
 script_name = "Timing Shortcuts"
 script_author = "arch1t3cht"
-script_version = "1.0.0"
+script_version = "1.1.0"
 script_namespace = "arch.TimingBinds"
 script_description = "Some shorthands for timing"
 
@@ -57,7 +57,7 @@ function has_video(subs, sel)
     return true
 end
 
-function shift_frames_to_video(subs, sel, active_line)
+function shift_frames_to_video(subs, sel, active_line, after)
     active_line_frame = aegisub.frame_from_ms(subs[active_line].start_time)
     video_frame = aegisub.project_properties().video_position
     if video_frame == nil then
@@ -65,6 +65,25 @@ function shift_frames_to_video(subs, sel, active_line)
     end
 
     frame_diff = video_frame - active_line_frame
+
+    if after then
+        newsel = {}
+        -- Some ugly code to make sure sel stays sorted and unique. This doesn't currently use depctrl,
+        -- so I don't want to depend on Functional
+        for i, line in ipairs(subs) do
+            if line.class == "dialogue" and line.start_time >= subs[active_line].start_time then
+                table.insert(newsel, i)
+            else
+                for _, si in ipairs(sel) do
+                    if si == i then
+                        table.insert(newsel, i)
+                        break
+                    end
+                end
+            end
+        end
+        sel = newsel
+    end
 
     for i, s in ipairs(sel) do
         line = subs[s]
@@ -74,6 +93,15 @@ function shift_frames_to_video(subs, sel, active_line)
 
         subs[s] = line
     end
+end
+
+-- Lua (or is it Aegisub?) is being stupid, so no I can't use vararg for this
+function shift_frames_sel(a, b, c)
+    return shift_frames_to_video(a, b, c, false)
+end
+
+function shift_frames_after(a, b, c)
+    return shift_frames_to_video(a, b, c, true)
 end
 
 function join_previous(subs, sel, active_line)
@@ -94,4 +122,5 @@ end
 aegisub.register_macro("Timing Binds/Snap Beginning to Frame","Snap the current line's beginning to the current frame, but also snap the previous line's end, if the lines were joined.",snap_beginning_to_video, has_video)
 aegisub.register_macro("Timing Binds/Snap End to Frame","Snap the current line's end to the current frame, but also snap the following line's end, if the lines were joined.",snap_end_to_video, has_video)
 aegisub.register_macro("Timing Binds/Join Previous Line","Joins the previous line's end to the current line's beginning.", join_previous)
-aegisub.register_macro("Timing Binds/Shift by Frames to Video Position","Shifts the selection such that the active line starts at the video position, but shifts by frames instead of by milliseconds.", shift_frames_to_video)
+aegisub.register_macro("Timing Binds/Shift by Frames to Video Position","Shifts the selection such that the active line starts at the video position, but shifts by frames instead of by milliseconds.", shift_frames_sel, has_video)
+aegisub.register_macro("Timing Binds/Shift all following lines by Frames to Video Position","Shifts all following lines such that the active line starts at the video position, but shifts by frames instead of by milliseconds.", shift_frames_after, has_video)

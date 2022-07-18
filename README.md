@@ -4,6 +4,7 @@ My automation scripts for Aegisub. You're probably here for AegisubChain, but th
 - [Aegisub-Scripts](#aegisub-scripts)
   - [Guides](#guides)
   - [AegisubChain](#aegisubchain)
+  - [Perspective (WIP)](#perspective-wip)
   - [Scripts for Editing and QC](#scripts-for-editing-and-qc)
     - [Rewriting Tools](#rewriting-tools)
     - [Note Browser](#note-browser)
@@ -66,9 +67,10 @@ These scripts aren't in DependencyControl, since I can imagine that they'll most
 
 ### Timing Binds
 A couple of shortcuts I use for more efficient timing, especially when timing to video. None of this is groundbreaking, but most of these were things I didn't find elsewhere, at least in this exact form.
-- Snapping start or end to video **while keeping lines joined**
-- A version of [The0x539's JoinPrevious](https://github.com/The0x539/Aegisub-Scripts) that uses the current audio selection instead of the line's time
+- Snapping start or end to video **while keeping lines joined**.
+- A version of [The0x539's JoinPrevious](https://github.com/The0x539/Aegisub-Scripts) that uses the current audio selection instead of the line's commited time. That is, it works without needing to commit the change if autocommit is disabled.
 - A version of Aegisub's "Shift selection so that the active line starts at the video frame" that shifts by frames instead of by milliseconds.
+- A version of the above macro that shifts all lines whose starting time is larger than or equal to the current line together with the selection. This is useful when retiming subtitles after scenes have been cut out of or added to the video.
 
 For reference, I usually time without TPP and without autocommit, but with "Go to next line on commit" on. I use this script together with [PhosCity's](https://github.com/PhosCity) Bidirectional Snapping
 
@@ -94,7 +96,7 @@ The [scripts](scripts/) folder also contains a [modified version](https://raw.gi
 
 ## See also
 Or "Other Stuff I Worked on that Might be Interesting".
-- Zahuczky's [Aegisub-Perspective-Motion](https://github.com/Zahuczky/Zahuczkys-Aegisub-Scripts/tree/main) (worked on sthe tracking math in this)
+- Zahuczky's [Aegisub-Perspective-Motion](https://github.com/Zahuczky/Zahuczkys-Aegisub-Scripts/tree/main) (worked on the tracking math in this)
 - [ass.nvim](https://github.com/arch1t3cht/ass.nvim): A neovim 5.0 plugin for `.ass` subtitles. Its most important feature is a split window editing mode to efficiently copy new dialog (say, a translation) to a timed subtitle file.
 
 ---
