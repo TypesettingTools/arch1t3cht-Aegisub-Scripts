@@ -1,6 +1,6 @@
 export script_name = "AegisubChain"
 export script_description = "Compose chains out of existing automation macros, and play them back as non-GUI macros, or using only one dialog."
-export script_version = "0.3.1"
+export script_version = "0.3.2"
 export script_namespace = "arch.AegisubChain"
 export script_author = "arch1t3cht"
 
@@ -212,7 +212,12 @@ _ac_f.dialog_open_hook = (dialog, buttons, button_ids) ->
 
         for i, field in pairs(dialog)
             if field.name != nil and fields[field.name] != nil
-                fields[field.name].descriptor = field
+                savefield = _ac_i.fun.table.copy field
+
+                if savefield.value != nil and (savefield.class == "intedit" or savefield.class == "floatedit")
+                    savefield.value = tonumber(savefield.value)
+
+                fields[field.name].descriptor = savefield
 
         table.insert(_ac_gs.captured_dialogs, {
             buttons: buttons,

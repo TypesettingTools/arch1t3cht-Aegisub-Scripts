@@ -35,6 +35,9 @@
         ],
         "0.3.1": [
           "Close Aegisub's config file after reading it, so writes to it won't be blocked"
+        ],
+        "0.3.2": [
+          "Fix bug where dialog fields would falsely be detected as changed"
         ]
       }
     },
