@@ -59,6 +59,14 @@
               "url": "@{fileBaseUrl}@{fileName}",
               "sha1": "3b099cb3a395db928e16c5ae405eee212cf295eb"
             }
+          ],
+          "requiredModules": [
+            {
+              "moduleName": "arch.Math",
+              "name": "ArchMath",
+              "url": "https://github.com/arch1t3cht/Aegisub-Scripts",
+              "version": "0.1.0"
+            }
           ]
         }
       },
