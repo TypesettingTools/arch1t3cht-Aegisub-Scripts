@@ -44,6 +44,8 @@ Detailed documentation is [here](doc/aegisubchain.md).
 ### Focus Lines
 A script that generates moving focus lines, tweakable with a few parameters.
 
+https://user-images.githubusercontent.com/99741385/180628464-2f970f02-b134-474b-b4b6-a998c22fcf75.mp4
+
 ### Perspective (WIP)
 This is still very work in progress, but I started working on extracting the math I used in [Aegisub-Perspective-Motion](https://github.com/Zahuczky/Zahuczkys-Aegisub-Scripts/tree/main) into Lua libraries and an improved perspective script. The core functions are implemented [here](modules/arch/Perspective.moon) already, together with some general-purpose [linear algebra functions](modules/arch/Math.moon).
 
