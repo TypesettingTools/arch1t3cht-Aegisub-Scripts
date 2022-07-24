@@ -42,6 +42,32 @@
         ]
       }
     },
+    "arch.FocusLines": {
+      "fileBaseUrl": "@{fileBaseUrl}/macros/@{namespace}",
+      "url": "@{baseUrl}#@{namespace}",
+      "author": "arch1t3cht",
+      "name": "Focus Lines",
+      "description": "Draws moving focus lines.",
+      "channels": {
+        "release": {
+          "version": "1.0.0",
+          "released": "2022-07-23",
+          "default": true,
+          "files": [
+            {
+              "name": ".moon",
+              "url": "@{fileBaseUrl}@{fileName}",
+              "sha1": ""
+            }
+          ]
+        }
+      },
+      "changelog": {
+        "1.0.0": [
+          "Initial Release"
+        ]
+      }
+    },
     "arch.RWTools": {
       "fileBaseUrl": "@{fileBaseUrl}/macros/@{namespace}",
       "url": "@{baseUrl}#@{namespace}",

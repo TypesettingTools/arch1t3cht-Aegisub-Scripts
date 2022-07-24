@@ -4,7 +4,9 @@ My automation scripts for Aegisub. You're probably here for AegisubChain, but th
 - [Aegisub-Scripts](#aegisub-scripts)
   - [Guides](#guides)
   - [AegisubChain](#aegisubchain)
-  - [Perspective (WIP)](#perspective-wip)
+  - [Scripts for Typesetting](#scripts-for-typesetting)
+    - [Focus Lines](#focus-lines)
+    - [Perspective (WIP)](#perspective-wip)
   - [Scripts for Editing and QC](#scripts-for-editing-and-qc)
     - [Rewriting Tools](#rewriting-tools)
     - [Note Browser](#note-browser)
@@ -37,7 +39,12 @@ Other, simpler uses include turning simple actions like "Open a script; Click a 
 
 Detailed documentation is [here](doc/aegisubchain.md).
 
-## Perspective (WIP)
+## Scripts for Typesetting
+
+### Focus Lines
+A script that generates moving focus lines, tweakable with a few parameters.
+
+### Perspective (WIP)
 This is still very work in progress, but I started working on extracting the math I used in [Aegisub-Perspective-Motion](https://github.com/Zahuczky/Zahuczkys-Aegisub-Scripts/tree/main) into Lua libraries and an improved perspective script. The core functions are implemented [here](modules/arch/Perspective.moon) already, together with some general-purpose [linear algebra functions](modules/arch/Math.moon).
 
 ## Scripts for Editing and QC
