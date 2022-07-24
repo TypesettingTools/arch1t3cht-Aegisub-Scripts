@@ -3,7 +3,7 @@ haveDepCtrl, DependencyControl, depctrl = pcall require, 'l0.DependencyControl'
 if haveDepCtrl
     depctrl = DependencyControl {
         name: "ArchMath",
-        version: "0.1.0",
+        version: "0.1.1",
         description: [[General-purpose linear algebra functions, approximately matching the patterns of Matlab or numpy]],
         author: "arch1t3cht",
         url: "https://github.com/arch1t3cht/Aegisub-Scripts",
@@ -103,6 +103,10 @@ class Point extends ClassFix
             return q\map((a) -> p + a)
         elseif type(q) == "number"
             return p\map((a) -> a + q)
+
+        if not q.size
+            return getmetatable(q).__add(p, q)
+
         return p\zipWith(((a, b) -> a + b), q)
 
     __unm: => @map((a) -> -a)
@@ -117,6 +121,18 @@ class Point extends ClassFix
         return p\dot(q)
 
     __div: (q) => @ * (1/q)
+
+    __concat: (q) =>
+        p = @
+        if type(p) == "number"
+            p = @@ p
+        elseif type(q) == "number"
+            q = @@ q
+
+        if not q.size
+            return getmetatable(q).__concat(p, q)
+
+        return @@ [(if i <= p.size then p[i] else q[i-p.size]) for i=1,(p.size+q.size)]
 
     __tostring: =>
         s = "#{@@__name}("
@@ -158,7 +174,9 @@ class Matrix extends ClassFix
     -- Points will be copied first.
     new: (entries, ...) =>
         local rows
-        if entries.__class == Point
+        if type(entries[1]) == "number"
+            rows = [Point(e) for e in *{entries, ...}]
+        elseif entries.__class == Point
             rows = {entries, ...}
         elseif entries[1].__class == Point
             rows = entries
@@ -197,13 +215,16 @@ class Matrix extends ClassFix
 
     __len: () => @height
 
-    __add: (p, q) ->
+    __add: (q) =>
+        p = @
         if type(p) == "number"
             return q\map((a) -> p + a)
         if type(q) == "number"
             return p\map((a) -> a + q)
+        if p.__class == Point
+            p = q.__class ([p for i=1,q.height])
         if q.__class == Point
-            q = Matrix([q for i=1,p.height])
+            q = p.__class ([q for i=1,p.height])
         return p\zipWith(((a, b) -> a + b), q)
 
     __unm: => @map((a) -> -a)
@@ -220,6 +241,20 @@ class Matrix extends ClassFix
         return p\prod(q)
 
     __div: (q) => @ * (1/q)
+
+    __concat: (q) =>
+        p = @
+        if type(p) == "number"
+            p = Point(p)
+        if type(q) == "number"
+            q = Point(q)
+
+        if p.__class == Point
+            p = q.__class [p for i=1,q.height]
+        if q.__class == Point
+            q = p.__class [q for i=1,p.height]
+
+        return q.__class [p[i] .. q[i] for i=1,p.height]
 
     __tostring: =>
         s = "#{@@__name}(\n"
