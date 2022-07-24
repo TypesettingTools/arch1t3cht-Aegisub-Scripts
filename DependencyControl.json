@@ -8,9 +8,10 @@
   },
   "baseUrl": "https://github.com/arch1t3cht/Aegisub-Scripts",
   "url": "@{baseUrl}",
-  "fileBaseUrl": "https://raw.githubusercontent.com/arch1t3cht/Aegisub-Scripts/@{namespace}-v@{version}/macros/@{namespace}",
+  "fileBaseUrl": "https://raw.githubusercontent.com/arch1t3cht/Aegisub-Scripts}-v@{version}",
   "macros": {
     "arch.AegisubChain": {
+      "fileBaseUrl": "@{fileBaseUrl}/macros/@{namespace}",
       "url": "@{baseUrl}#@{namespace}",
       "author": "arch1t3cht",
       "name": "AegisubChain",
@@ -42,6 +43,7 @@
       }
     },
     "arch.RWTools": {
+      "fileBaseUrl": "@{fileBaseUrl}/macros/@{namespace}",
       "url": "@{baseUrl}#@{namespace}",
       "author": "arch1t3cht",
       "name": "Rewriting Tools",
@@ -73,6 +75,7 @@
       }
     },
     "arch.NoteBrowser": {
+      "fileBaseUrl": "@{fileBaseUrl}/macros/@{namespace}",
       "url": "@{baseUrl}#@{namespace}",
       "author": "arch1t3cht",
       "name": "Note Browser",
@@ -111,6 +114,7 @@
       }
     },
     "arch.GitSigns": {
+      "fileBaseUrl": "@{fileBaseUrl}/macros/@{namespace}",
       "url": "@{baseUrl}#@{namespace}",
       "author": "arch1t3cht",
       "name": "Git Signs",
@@ -145,6 +149,34 @@
         ],
         "0.2.3": [
           "Add empty extradata to newly inserted lines - this fixes a crash on Aegisub 3.2 and older versions."
+        ]
+      }
+    }
+  },
+  "modules": {
+    "arch.Math": {
+      "fileBaseUrl": "@{fileBaseUrl}/modules/@{namespacePath}",
+      "url": "@{baseUrl}#@{namespace}",
+      "author": "arch1t3cht",
+      "name": "ArchMath",
+      "description": "General-purpose linear algebra functions, approximately matching the patterns of Matlab or numpy",
+      "channels": {
+        "release": {
+          "version": "0.1.0",
+          "released": "2022-07-23",
+          "default": true,
+          "files": [
+            {
+              "name": ".moon",
+              "url": "@{fileBaseUrl}@{fileName}",
+              "sha1": "18990a2c2f91e14cc0414006d81899e689d35ed6"
+            }
+          ]
+        }
+      },
+      "changelog": {
+        "0.1.0": [
+          "Initial Release"
         ]
       }
     }

@@ -5,6 +5,8 @@ on:
     paths:
       - 'macros/*.lua'
       - 'macros/*.moon'
+      - 'modules/*/*.lua'
+      - 'modules/*/*.moon'
     branches:
       - main
 
@@ -32,11 +34,19 @@ jobs:
           while IFS= read -r file; do
             echo "Checking file ${file}..."
 
+            version_pattern='(export\s)?script_version\s?='
+            ftype='macros'
+            if [[ "${file}" == ./modules* ]]; then
+              echo "File is a module."
+              version_pattern='\s*version\s?[:=]'
+              ftype='modules'
+            fi
+
             if [[ "${lastcommit}" == "0000000000000000000000000000000000000000" ]]; then
-              scriptver=$(grep -E '^(export\s)?script_version\s?=' "${file}")
+              scriptver=$(grep -E "^${version_pattern}" "${file}")
             else
               # horrible hack but I couldn't get it working otherwise
-              scriptver=$(git diff --raw -p "${lastcommit}" "${file}" | grep -E '^\+(export\s)?script_version\s?=' || echo "__continue")
+              scriptver=$(git diff --raw -p "${lastcommit}" "${file}" | grep -E "^\+${version_pattern}" || echo "__continue")
               if [[ "${scriptver}" == "__continue" ]]; then
                 continue
               fi
@@ -54,6 +64,9 @@ jobs:
             SHA=$(echo "${CHKSUM}" | awk '{print $1}')
             # Get the full filename of the Aegisub-scripts
             FULL_FILE=$(echo "${CHKSUM}" | awk -F'/' '{print $NF}')
+            if [[ "${file}" == ./modules* ]]; then
+              FULL_FILE=$(echo "${CHKSUM}" | awk -F'/' '{print $(NF-1)"."$NF}')
+            fi
             # Namespace is the filename stripped of their extension.
             NAMESPACE=$(echo "${FULL_FILE}" | sed "s|.moon||g;s|.lua||g")
 
@@ -63,7 +76,7 @@ jobs:
             # Check if the file is added to DependencyControl or not and if version could be found or not
             if grep -q "${NAMESPACE}" DependencyControl.json && [[ -n "${VERSION}" ]]; then
               # Change sha1, date and version if the file was modified in last commit
-              jq ".macros.\"${NAMESPACE}\".channels.release.files[].sha1=\"${SHA}\" | .macros.\"${NAMESPACE}\".channels.release.version=\"${VERSION}\" | .macros.\"${NAMESPACE}\".channels.release.released=\"${DATE}\"" DependencyControl.json > "${output_file}"
+              jq ".${ftype}.\"${NAMESPACE}\".channels.release.files[].sha1=\"${SHA}\" | .${ftype}.\"${NAMESPACE}\".channels.release.version=\"${VERSION}\" | .${ftype}.\"${NAMESPACE}\".channels.release.released=\"${DATE}\"" DependencyControl.json > "${output_file}"
               # Catch jq outputting an empty file on error
               if [[ -s "${output_file}" ]]; then
                 mv "${output_file}" DependencyControl.json
@@ -77,7 +90,7 @@ jobs:
               echo "Either the file ${FULL_FILE} is not added to Dependency Control or version could not be found in the script. Skipping changing hashes."
             fi
 
-          done < <(find ./macros -name "*lua" -o -name "*.moon" -type f)
+          done < <(find ./macros ./modules/arch -name "*lua" -o -name "*.moon" -type f)
 
           # Commit changes
           git config user.name github-actions

@@ -2,12 +2,13 @@ haveDepCtrl, DependencyControl, depctrl = pcall require, 'l0.DependencyControl'
 
 if haveDepCtrl
     depctrl = DependencyControl {
-        name: 'Math',
-        version: '0.1.0',
-        description: [[General purpose math functions, used mostly for Perspective.moon]],
+        name: "ArchMath",
+        version: "0.1.0",
+        description: [[General-purpose linear algebra functions, approximately matching the patterns of Matlab or numpy]],
         author: "arch1t3cht",
         url: "https://github.com/arch1t3cht/Aegisub-Scripts",
         moduleName: 'arch.Math',
+        {}
     }
 
 -- This is a collection of functions I needed for Perspective.moon, and some infrastructure around them:
@@ -345,7 +346,13 @@ class Matrix extends ClassFix
         }
 
 
-return {
+lib = {
     :Point,
     :Matrix,
 }
+
+if haveDepCtrl
+    lib.version = depctrl
+    return depctrl\register lib
+else
+    return lib
