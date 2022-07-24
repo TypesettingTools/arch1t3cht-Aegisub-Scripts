@@ -27,6 +27,15 @@
               "url": "@{fileBaseUrl}@{fileName}",
               "sha1": "7f819e77316120f21cc6c8f367591a94bae501af"
             }
+          ],
+          "requiredModules": [
+            {
+              "moduleName": "l0.Functional",
+              "name": "(Almost) Functional Suite",
+              "url": "https://github.com/TypesettingTools/ASSFoundation",
+              "version": "0.6.0",
+              "feed": "https://raw.githubusercontent.com/TypesettingTools/ASSFoundation/master/DependencyControl.json"
+            }
           ]
         }
       },
