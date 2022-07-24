@@ -8,7 +8,7 @@
   },
   "baseUrl": "https://github.com/arch1t3cht/Aegisub-Scripts",
   "url": "@{baseUrl}",
-  "fileBaseUrl": "https://raw.githubusercontent.com/arch1t3cht/Aegisub-Scripts}-v@{version}",
+  "fileBaseUrl": "https://raw.githubusercontent.com/arch1t3cht/Aegisub-Scripts/@{namespace}-v@{version}",
   "macros": {
     "arch.AegisubChain": {
       "fileBaseUrl": "@{fileBaseUrl}/macros/@{namespace}",
