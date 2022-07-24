@@ -1,5 +1,6 @@
 # AegisubChain
 - [AegisubChain](#aegisubchain)
+  - [Introduction](#introduction)
   - [Basic usage](#basic-usage)
   - [Detailed Documentation](#detailed-documentation)
     - [Script Registration and Execution](#script-registration-and-execution)
@@ -9,6 +10,22 @@
   - [Compatibility](#compatibility)
     - [API](#api)
   - [Possible future features](#possible-future-features)
+
+## Introduction
+From a technical standpoint, [AegisubChain](macros/arch.AegisubChain.moon) is comparable to a virtual machine that can run (multiple) other automation scripts, while hooking into their API calls. In particular, it can intercept dialogs and prefill them with certain values, or suppress them entirely by immediately returning whatever results it wants (which I'll call autofilling).
+
+From an end-user standpoint, AegisubChain allows you to record and play back "pipelines" of macros (called *chains*), and only showing one dialog collecting all required values on playback. It can also create wrappers around macros that skip some dialogs or prefill some values, or turn virtually any macro action into a non-GUI macro.
+
+Consider the following example, which records a 4-step process to make text incrementally fade from top to bottom, and later plays it back using just one script and one dialog:
+
+https://user-images.githubusercontent.com/99741385/168145342-8e1daad6-8559-459c-9f0f-69e23e3541a1.mp4
+
+Here's a second, simpler example which adds colors to text and runs "Blur & Glow".
+
+https://user-images.githubusercontent.com/99741385/168145566-4ef2dbbd-8afe-4e6c-8055-ae0beb0c69b4.mp4
+
+Other, simpler uses include turning simple actions like "Open a script; Click a button" into a non-GUI macro. For example, it could allow one to have (instant) key bindings for NecrosCopy's Copy Text or Copy Tags.
+
 ## Basic usage
 - Use "Record Next Macro in Chain" to begin recording a chain, and select what macro you'd like to run.
 - Use the macro's dialogs as you normally would, but pay attention to only change values in fields that are actually relevant

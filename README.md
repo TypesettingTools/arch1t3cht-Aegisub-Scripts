@@ -1,5 +1,5 @@
 # Aegisub-Scripts
-My automation scripts for Aegisub. You're probably here for AegisubChain, but there are also some other useful scripts for editing and timing in here.
+My automation scripts for Aegisub. In my opinion, the coolest thing here is AegisubChain, but I also have some other useful scripts for editing and timing.
 
 - [Aegisub-Scripts](#aegisub-scripts)
   - [Guides](#guides)
@@ -23,7 +23,7 @@ My automation scripts for Aegisub. You're probably here for AegisubChain, but th
 I wrote a [guide](doc/templaters.md) or primer on karaoke templates that aims to get people far enough to start reading documentation without too much pain. It also contains a few tables for converting templates between the three major templaters.
 
 ## AegisubChain
-My biggest project. From a technical standpoint, [AegisubChain](macros/arch.AegisubChain.moon) is comparable to a virtual machine that can run (multiple) other automation scripts, while hooking into their API calls. In particular, it can intercept dialogs and prefill them with certain values, or suppress them entirely by immediately returning whaterver results it wants (which I'll call autofilling).
+My biggest project. From a technical standpoint, [AegisubChain](macros/arch.AegisubChain.moon) is comparable to a virtual machine that can run (multiple) other automation scripts, while hooking into their API calls. In particular, it can intercept dialogs and prefill them with certain values, or suppress them entirely by immediately returning whatever results it wants.
 
 From an end-user standpoint, AegisubChain allows you to record and play back "pipelines" of macros (called *chains*), and only showing one dialog collecting all required values on playback. It can also create wrappers around macros that skip some dialogs or prefill some values, or turn virtually any macro action into a non-GUI macro.
 
@@ -65,8 +65,6 @@ https://user-images.githubusercontent.com/99741385/168145809-91e5f1ba-2a12-4003-
 Documentation is included in [the script](macros/arch.NoteBrowser.moon).
 
 ### Git Signs
-**This script is still work in progress. It's stable, but there are still some features to be added.**
-
 If the subtitle file is part of a git repository, this script can parse the git diff relative to some other commit (or any ref, really) and highlight the lines which were marked as changed. This can be useful when reviewing edits made by another member, or when proofreading one's edits before pushing.
 
 ## Scripts for Timing
