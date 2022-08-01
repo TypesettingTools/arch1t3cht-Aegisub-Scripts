@@ -114,6 +114,9 @@
         ],
         "1.2.0": [
           "When shifting line breaks, insert a line break if none is present, and remove it when it's been shifted to one of the ends."
+        ],
+        "1.3.0": [
+          "Put the text cursor into the new active line, provided the Aegisub build supports it."
         ]
       }
     },

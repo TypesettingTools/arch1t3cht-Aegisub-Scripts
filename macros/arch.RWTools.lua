@@ -1,6 +1,6 @@
 script_name = "Rewriting Tools"
 script_author = "arch1t3cht"
-script_version = "1.2.0"
+script_version = "1.3.0"
 script_namespace = "arch.RWTools"
 script_description = "Shortcuts for managing multiple rewrites of a line in one .ass event line."
 
@@ -209,6 +209,8 @@ end
 -- shift_dir: If shifting line breaks, true if shifting forward, else false
 -- rewrite: If not shifting line breaks, true if the line being deactivated should be copied for a rewrite.
 function switch_lines_proper(subs, sel, rewrite, shift, shift_dir)
+    local insertion_point_marker = "{/|\\}"
+    local new_insertion_point = nil
     for _, i in ipairs(sel) do
         local line = subs[i]
 
@@ -241,6 +243,7 @@ function switch_lines_proper(subs, sel, rewrite, shift, shift_dir)
                     newline = fix_text_checked(newline)
                     out = appendstripend(newline, out)
                 end
+                out = out .. insertion_point_marker
                 if (deactivated and not reactivated) or (rewrite and newline ~= "") then
                     out = out .. get_signature(config.c.personal_signature)
                 end
@@ -366,8 +369,17 @@ function switch_lines_proper(subs, sel, rewrite, shift, shift_dir)
             end 
         end
 
-        line.text = fix_line_format_checked(out)
+        out = fix_line_format_checked(out)
+        new_insertion_point = out:find(insertion_point_marker)
+        out = out:gsub(insertion_point_marker, "")
+
+        line.text = out
+
         subs[i] = line
+    end
+
+    if new_insertion_point ~= nil and aegisub.gui ~= nil then
+        aegisub.gui.set_cursor(new_insertion_point)
     end
 end
 
