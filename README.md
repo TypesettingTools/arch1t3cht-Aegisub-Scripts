@@ -22,6 +22,8 @@ My automation scripts for Aegisub. In my opinion, the coolest thing here is Aegi
 ## Guides
 I wrote a [guide](doc/templaters.md) or primer on karaoke templates that aims to get people far enough to start reading documentation without too much pain. It also contains a few tables for converting templates between the three major templaters.
 
+I also wrote up the mathematics involved in the various perspective scripts [here](doc/perspective_math.md).
+
 ## AegisubChain
 My biggest project. From a technical standpoint, [AegisubChain](macros/arch.AegisubChain.moon) is comparable to a virtual machine that can run (multiple) other automation scripts, while hooking into their API calls. In particular, it can intercept dialogs and prefill them with certain values, or suppress them entirely by immediately returning whatever results it wants.
 
@@ -48,6 +50,8 @@ https://user-images.githubusercontent.com/99741385/180628464-2f970f02-b134-474b-
 
 ### Perspective (WIP)
 This is still very work in progress, but I started working on extracting the math I used in [Aegisub-Perspective-Motion](https://github.com/Zahuczky/Zahuczkys-Aegisub-Scripts/tree/main) into Lua libraries and an improved perspective script. The core functions are implemented [here](modules/arch/Perspective.moon) already, together with some general-purpose [linear algebra functions](modules/arch/Math.moon).
+
+For the math involved and how these functions fit into the picture, see [this write-up](doc/perspective_math.md).
 
 ## Scripts for Editing and QC
 These scripts try to provide shortcuts for actions in editing or in applying QC notes. They're tailored to the processes and conventions in the group I'm working in, but maybe they'll also be useful for other people.
@@ -103,8 +107,9 @@ The [scripts](scripts/) folder also contains a [modified version](https://raw.gi
 
 ## See also
 Or "Other Stuff I Worked on that Might be Interesting".
-- Zahuczky's [Aegisub-Perspective-Motion](https://github.com/Zahuczky/Zahuczkys-Aegisub-Scripts/tree/main) (worked on the tracking math in this)
+- Zahuczky's [Aegisub-Perspective-Motion](https://github.com/Zahuczky/Zahuczkys-Aegisub-Scripts/tree/main) (worked on the [tracking math]() in this)
 - [ass.nvim](https://github.com/arch1t3cht/ass.nvim): A neovim 5.0 plugin for `.ass` subtitles. Its most important feature is a split window editing mode to efficiently copy new dialog (say, a translation) to a timed subtitle file.
+- My [Aegisub fork](https://github.com/arch1t3cht/Aegisub) with some new features like folding and other audio/video sources.
 
 ---
 Thanks to [PhosCity](https://github.com/PhosCity) for testing almost all of these scripts.
