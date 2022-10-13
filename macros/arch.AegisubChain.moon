@@ -1,6 +1,6 @@
 export script_name = "AegisubChain"
 export script_description = "Compose chains out of existing automation macros, and play them back as non-GUI macros, or using only one dialog."
-export script_version = "0.3.2"
+export script_version = "0.3.3"
 export script_namespace = "arch.AegisubChain"
 export script_author = "arch1t3cht"
 
@@ -745,10 +745,28 @@ _ac_f.run_chain = (chain, _ac_subs, _ac_sel, _ac_active) ->
             _ac_sel = updatesel
             _ac_active = updateactive
         elseif step.select == "macro" or true   -- default
-            _ac_sel = newsel
-            _ac_active = newactive
-            _ac_sel = updatesel if _ac_sel == nil
-            _ac_active = updateactive if _ac_active == nil
+            -- emulate the behavior of aegisub's automation engine, but assume that the script
+            -- outputs correct values (i.e. that aegisub wouldn't throw errors)
+            newactive or= updateactive
+
+            if newsel != nil
+                _ac_sel = newsel
+
+                local future_active
+                for s in *_ac_sel
+                    future_active = s if active == nil or s == newactive
+
+                if future_active != nil and (newactive > 0 or _ac_i.fun.list.indexOf(newsel, future_active) == nil)
+                    _ac_active = future_active
+                else
+                    _ac_active = updateactive
+
+                if #_ac_sel == 0
+                    ac_sel = { _ac_active }
+            else
+                _ac_sel = updatesel
+                _ac_active = updateactive
+                _ac_active = _ac_sel[1] if _ac_i.fun.list.indexOf(_ac_sel, _ac_active) == nil
 
         _ac_gs.current_step_dialog_index = nil
         _ac_gs.current_step_index = nil

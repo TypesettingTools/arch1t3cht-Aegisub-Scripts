@@ -48,6 +48,9 @@
         ],
         "0.3.2": [
           "Fix bug where dialog fields would falsely be detected as changed"
+        ],
+        "0.3.3": [
+          "Fix emulation of updates to active line"
         ]
       }
     },
