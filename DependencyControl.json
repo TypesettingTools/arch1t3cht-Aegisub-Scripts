@@ -18,14 +18,14 @@
       "description": "Compose chains out of existing automation macros, and play them back as non-GUI macros, or using only one dialog.",
       "channels": {
         "release": {
-          "version": "0.3.3",
-          "released": "2022-10-13",
+          "version": "0.4.0",
+          "released": "2022-10-14",
           "default": true,
           "files": [
             {
               "name": ".moon",
               "url": "@{fileBaseUrl}@{fileName}",
-              "sha1": "df3a1aff0a4c691be99c2f7e5f502fa23b5770fe"
+              "sha1": "52ed0868240b75daf690301da5a7873e908f9106"
             }
           ],
           "requiredModules": [
