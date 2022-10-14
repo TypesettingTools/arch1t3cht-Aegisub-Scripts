@@ -1,6 +1,6 @@
 export script_name = "AegisubChain"
 export script_description = "Compose chains out of existing automation macros, and play them back as non-GUI macros, or using only one dialog."
-export script_version = "0.3.3"
+export script_version = "0.4.0"
 export script_namespace = "arch.AegisubChain"
 export script_author = "arch1t3cht"
 
@@ -21,6 +21,9 @@ export _ac_default_config = {
     chains: {}                          -- Defined chains
     blacklist: {}                       -- List of lua patterns to apply to paths of scripts being loaded. Scripts matching any of them will be skipped.
     show_in_menu: false                 -- Whether to show scripts to record directly in the automation menu
+    num_chain_slots: 5                  -- Number of slots
+    num_prev_chains: 2                  -- Number of macros of the form "repeat n-th last chains"
+    chain_slots: {"", "", "", "", ""}   -- Configured slots
 }
 
 -- Aegisub gives us its api in the aegisub object. Even though debug prints didn't show any differences,
@@ -147,6 +150,9 @@ _ac_gs.current_step_index = nil -- index of the current step in the chain being 
 _ac_gs.current_step_dialog_index = nil  -- index of the dialog for the current step of the chain being executed
 
 _ac_gs.our_globals = {}
+
+-- global state transcending script runs
+_ac_gs.past_chains = {}         -- Previously executed chains
 
 -- more juggling
 export _ac_depctrl_aegisub = aegisub
@@ -728,7 +734,7 @@ _ac_f.get_values_for_chain = (chain) ->
 _ac_f.run_chain = (chain, _ac_subs, _ac_sel, _ac_active) ->
     _ac_gs.current_chain = chain
 
-    _ac_gs.values_for_chain = _ac_f.get_values_for_chain(chain)
+    _ac_gs.values_for_chain = _ac_f.get_values_for_chain(chain) if _ac_gs.values_for_chain == nil
     return if _ac_gs.values_for_chain == nil
 
     for i, step in ipairs(chain)
@@ -771,10 +777,39 @@ _ac_f.run_chain = (chain, _ac_subs, _ac_sel, _ac_active) ->
         _ac_gs.current_step_dialog_index = nil
         _ac_gs.current_step_index = nil
 
+    table.insert(_ac_gs.past_chains, 1, {"chain": chain, "values": _ac_gs.values_for_chain})
+    _ac_gs.past_chains[_ac_config.c.num_prev_chains + 1] = nil
+
     _ac_gs.current_chain = nil
     _ac_gs.values_for_chain = nil
 
     return _ac_sel, _ac_active
+
+
+_ac_f.run_chain_slot = (slot, subs, sel, active) ->
+    chainname = _ac_config.c.chain_slots[slot]
+    if chainname == nil or chain == ""
+        _ac_aegisub.log("No chain in slot #{slot}. Configure one in AegisubChain's settings.")
+        return
+
+    chain = _ac_config.c.chains[chainname]
+    if chain == nil
+        _ac_aegisub.log("Unkown chain #{chain} configured in slot #{slot}.")
+        return
+
+    return _ac_f.run_chain(chain, subs, sel, active)
+
+
+_ac_f.repeat_last_chain = (index, samevals, subs, sel, active) ->
+    lastchain = _ac_gs.past_chains[index]
+
+    if lastchain == nil
+        _ac_aegisub.log("No #{_ac_f.format_ordinal(index)} last chain exists yet!")
+        return
+
+    _ac_gs.values_for_chain = lastchain.values if samevals
+
+    return _ac_f.run_chain(lastchain.chain, subs, sel, active)
 
 
 -- This was the attempt to wrap a function in a try-finally block - If our script crashes we still try to restore the environment to something usable.
@@ -1189,6 +1224,7 @@ _ac_f.discard_chain = (_ac_subs, _ac_sel, _ac_active) ->
 _ac_f.configure = (subs, sel, active_line) ->
     yes = "Save"
     cancel = "Cancel"
+    setslots = "Configure Slots"
 
     _ac_config\load()
 
@@ -1237,8 +1273,32 @@ Off by default, as it will slow down Aegisub's startup.]],
             },
             {
                 class: "label",
+                label: "Number of chain slots:",
+                x: 0, y: 3, width: 1, height: 1,
+            },
+            {
+                class: "intedit",
+                name: "num_chain_slots",
+                value: _ac_config.c.num_chain_slots,
+                min: 0, max: 100,
+                x: 1, y: 3, width: 1, height: 1,
+            },
+            {
+                class: "label",
+                label: "Number of \"previous chain\" actions:",
+                x: 0, y: 4, width: 1, height: 1,
+            },
+            {
+                class: "intedit",
+                name: "num_prev_chains",
+                value: _ac_config.c.num_prev_chains,
+                min: 0, max: 100,
+                x: 1, y: 4, width: 1, height: 1,
+            },
+            {
+                class: "label",
                 label: "Script Blacklist:",
-                x: 0, y: 3, width: 4, height: 1,
+                x: 0, y: 5, width: 4, height: 1,
             },
             {
                 class: "textbox",
@@ -1251,21 +1311,63 @@ Scripts matching one of the patterns will be skipped.
 Example:
 [/\]l0%.DependencyControl%.Toolbox%.moon$
 ]],
-                x: 0, y: 4, width: 4, height: 5,
+                x: 0, y: 6, width: 4, height: 5,
             },
         },
-        {yes, cancel},
+        {yes, cancel, setslots},
         {"ok": yes, "cancel": cancel})
 
-    return if btn != yes
+    return if btn != yes and btn != setslots
+
+    if result.num_chain_slots != _ac_config.c.num_chain_slots
+        _ac_config.c.chain_slots = [(if i <= result.num_chain_slots then _ac_config.c.chain_slots[i] else "") for i=1,result.num_chain_slots]
 
     -- do checks for all of these so that config merging works better
-    for i, f in ipairs({"chain_menu", "path", "show_in_menu"})
+    for i, f in ipairs({"chain_menu", "path", "show_in_menu", "num_chain_slots", "num_prev_chains"})
         _ac_config.c[f] = result[f] if _ac_config.c[f] != result[f]
 
     if result.blacklist != blacklist_default
        ds, dn  = _ac_i.fun.string.split result.blacklist, "\n"
        _ac_config.c.blacklist = [p for p in *ds when p != ""]
+
+    _ac_f.save_config()
+
+    _ac_f.configure_slots() if btn == setslots
+
+
+_ac_f.configure_slots = () ->
+    if _ac_config.c.num_chain_slots <= 0
+        _ac_aegisub.log("No slots to configure! Increase the number of slots in the configuration.")
+        _ac_aegisub.cancel()
+    yes = "Save"
+    cancel = "Cancel"
+
+    allchains = _ac_i.fun.table.keys _ac_config.c.chains
+    table.insert(allchains, 1, "")
+    diag = {}
+    for i=1,_ac_config.c.num_chain_slots
+        table.insert(diag, {
+            class: "label",
+            label: "Slot #{i}:",
+            x: 0, y: i - 1, width: 1, height: 1,
+        })
+
+        table.insert(diag, {
+            class: "dropdown",
+            name: "slot#{i}",
+            value: _ac_config.c.chain_slots[i]
+            items: allchains,
+            x: 1, y: i - 1, width: 1, height: 1,
+        })
+
+    btn, result = _ac_aegisub.dialog.display(diag,
+        {yes, cancel, setslots},
+        {"ok": yes, "cancel": cancel})
+
+    return if btn != yes
+
+    for i=1,_ac_config.c.num_chain_slots
+        _ac_config.c.chain_slots[i] = result["slot#{i}"]
 
     _ac_f.save_config()
 
@@ -1406,6 +1508,13 @@ _ac_f.manage_chains = (subs, sel, active) ->
         _ac_f.save_config()
 
 
+_ac_f.format_ordinal = (i) ->
+    return "1st" if i == 1
+    return "2nd" if i == 2
+    return "3rd" if i == 3
+    return "#{i}th"
+
+
 _ac_f.read_aegisub_path = () ->
     f = io.open(_ac_aegisub.decode_path("?user/config.json"))
     return if f == nil
@@ -1436,6 +1545,13 @@ if not _ac_was_present
     _ac_f.wrap_register_group_macro("Discard Chain", "Discard the current chain without saving", _ac_f.discard_chain, () -> _ac_gs.recording_chain != nil and #_ac_gs.recording_chain > 0)
     _ac_f.wrap_register_group_macro("Configure", "Configure #{script_name}", _ac_f.configure)
     _ac_f.wrap_register_group_macro("Manage Chains", "Manage your recorded chains", _ac_f.manage_chains)
+
+    for i=1,_ac_config.c.num_chain_slots
+        _ac_f.wrap_register_group_macro("Actions/Chain Slot #{i}", "The #{_ac_f.format_ordinal(i)} configurable chain slot.", _ac_f.wrap((...) -> _ac_f.run_chain_slot(i, ...)))
+
+    for i=1,_ac_config.c.num_prev_chains
+        _ac_f.wrap_register_group_macro("Actions/Repeat #{_ac_f.format_ordinal(i)} Last Chain", "Repeat a previously executed chain", _ac_f.wrap((...) -> _ac_f.repeat_last_chain(i, false, ...)))
+        _ac_f.wrap_register_group_macro("Actions/Repeat #{_ac_f.format_ordinal(i)} Last Chain with Same Settings", "Repeat a previously executed chain with the same values set", _ac_f.wrap((...) -> _ac_f.repeat_last_chain(i, true, ...)))
 
     for k, v in pairs(_ac_config.c.chains)
         _ac_f.wrap_register_macro("#{_ac_config.c.chain_menu}#{k}", "A chain recorded by #{script_name}", _ac_f.wrap((...) -> _ac_f.run_chain(v, ...)))

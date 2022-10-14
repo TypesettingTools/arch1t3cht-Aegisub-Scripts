@@ -51,6 +51,10 @@
         ],
         "0.3.3": [
           "Fix emulation of updates to active line"
+        ],
+        "0.4.0": [
+          "Add commands to repeat the last chain or other chains before it",
+          "Add chain slots that will execute a given chain and can be reconfigured without reloading automation scripts."
         ]
       }
     },
