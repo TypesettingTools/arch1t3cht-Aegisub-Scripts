@@ -64,11 +64,13 @@ It contains
 For every line marked `kara` with the same style as this line, it will generate a line with the text of the kara line, without the k-timing tags.
 These outputted lines will be marked `fx` so that they can be deleted or replaced later.*
 
-This already highlights some differences between templaters:
+Note that different templaters use slightly different keywords for some of these markers:
 | Concept | In Stock Templater | In KaraOK | In The0x's Templater |
 | ---- | ------------------ | --------- | -------------------- |
 | Karaoke line marker | `karaoke` | `karaoke` | `kara` or `karaoke` |
 | Template applying tags once to each line | `template pre-line` | `template line` | `template line` |
+
+This is the beginning of a larger list of differences between templaters. The [tables](#comparison) at the bottom of this guide show the full list of differences.
 
 *Next, try to write `{\fad(150,150)}` into the text of the `template line` line, and apply the template.
 This will give every generated `fx` line these fade tags. So we've already built a worse version of HYDRA using karaoke templates.*
