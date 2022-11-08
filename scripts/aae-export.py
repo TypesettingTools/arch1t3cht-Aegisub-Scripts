@@ -265,6 +265,10 @@ class AAEExport(bpy.types.Panel):
     def draw(self, context):
         pass
 
+    @classmethod
+    def poll(cls, context):
+        return context.edit_movieclip is not None
+
 class AAEExportSelectedTrack(bpy.types.Panel):
     bl_label = "Selected track"
     bl_idname = "SOLVE_PT_aae_export_selected"
@@ -301,6 +305,10 @@ class AAEExportSelectedTrack(bpy.types.Panel):
         row.enabled = selected_plane_tracks == 1
         row.operator("movieclip.aae_export_copy_plane_track")
 
+    @classmethod
+    def poll(cls, context):
+        return context.edit_movieclip is not None
+
 class AAEExportAllTracks(bpy.types.Panel):
     bl_label = "All tracks"
     bl_idname = "SOLVE_PT_aae_export_all"
@@ -325,6 +333,10 @@ class AAEExportAllTracks(bpy.types.Panel):
         row.scale_y = 2
         row.enabled = len(context.edit_movieclip.tracking.tracks) >= 1
         row.operator("movieclip.aae_export_export_all")
+
+    @classmethod
+    def poll(cls, context):
+        return context.edit_movieclip is not None
 
 class AAEExportLegacy(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
     """Export motion tracking markers to Adobe After Effects 6.0 compatible files"""

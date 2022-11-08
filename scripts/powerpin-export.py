@@ -222,6 +222,10 @@ class PowerPinExport(bpy.types.Panel):
             row.enabled = True
         row.operator("movieclip.power_pin_export_export")
 
+    @classmethod
+    def poll(cls, context):
+        return context.edit_movieclip is not None
+
 class PowerPinExportLegacy(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
     """Export a plane track to Adobe After Effects 6.0 compatible files"""
     bl_label = "Export to Adobe After Effects 6.0 Keyframe Data (Power Pin)"
