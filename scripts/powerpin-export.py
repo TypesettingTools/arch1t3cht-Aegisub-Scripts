@@ -49,7 +49,7 @@ class PowerPinExportSettings(bpy.types.PropertyGroup):
                                                 description="Generate unique files every time",
                                                 default=False)
     do_copy_to_clipboard: bpy.props.BoolProperty(name="Copy to clipboard",
-                                                 description="Copy the Power Pin data to clipboard.\nThis will only work either when there is only one plane track on the clip, or there is only one plane track selected",
+                                                 description="Copy the Power Pin data to clipboard.\nThis option will only work either when there is only one plane track on the clip, or there is only one plane track selected",
                                                  default=True)
 
 class PowerPinExportExport(bpy.types.Operator):
