@@ -175,7 +175,7 @@ class PowerPinExportExport(bpy.types.Operator):
         context.window_manager.clipboard = power_pin
 
 class PowerPinExport(bpy.types.Panel):
-    bl_label = "AAE Export (PowerPin)"
+    bl_label = "AAE Export (Power Pin)"
     bl_idname = "SOLVE_PT_power_pin_export"
     bl_space_type = "CLIP_EDITOR"
     bl_region_type = "TOOLS"
