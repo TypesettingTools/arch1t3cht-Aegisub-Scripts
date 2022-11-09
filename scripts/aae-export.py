@@ -58,7 +58,7 @@ class AAEExportExportAll(bpy.types.Operator):
         for plane_track in clip.tracking.plane_tracks:
             AAEExportExportAll._export_to_file(clip, plane_track, AAEExportExportAll._generate(clip, plane_track), None, settings.do_do_not_overwrite)
         
-        return {'FINISHED'}
+        return {"FINISHED"}
 
     @staticmethod
     def _generate(clip, track):
@@ -236,7 +236,7 @@ class AAEExportCopySingleTrack(bpy.types.Operator):
         if settings.do_also_export:
             AAEExportExportAll._export_to_file(clip, context.selected_movieclip_tracks[0], aae, None, settings.do_do_not_overwrite)
         
-        return {'FINISHED'}
+        return {"FINISHED"}
 
 class AAEExportCopyPlaneTrack(bpy.types.Operator):
     bl_label = "Copy"
@@ -253,7 +253,7 @@ class AAEExportCopyPlaneTrack(bpy.types.Operator):
         if settings.do_also_export:
             AAEExportExportAll._export_to_file(clip, clip.tracking.plane_tracks[0], aae, None, settings.do_do_not_overwrite)
         
-        return {'FINISHED'}
+        return {"FINISHED"}
     
 class AAEExport(bpy.types.Panel):
     bl_label = "AAE Export"
@@ -331,7 +331,8 @@ class AAEExportAllTracks(bpy.types.Panel):
         
         row = layout.row()
         row.scale_y = 2
-        row.enabled = len(context.edit_movieclip.tracking.tracks) >= 1
+        row.enabled = len(context.edit_movieclip.tracking.tracks) >= 1 or \
+                      len(context.edit_movieclip.tracking.plane_tracks) >= 1
         row.operator("movieclip.aae_export_export_all")
 
     @classmethod
@@ -343,7 +344,7 @@ class AAEExportLegacy(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
     bl_label = "Export to Adobe After Effects 6.0 Keyframe Data"
     bl_idname = "export.aae_export_legacy"
     filename_ext = ""
-    filter_glob = bpy.props.StringProperty(default="*", options={'HIDDEN'})
+    filter_glob = bpy.props.StringProperty(default="*", options={"HIDDEN"})
 
     def execute(self, context):
         # This is broken but I don't want to fix...

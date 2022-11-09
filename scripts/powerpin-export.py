@@ -85,7 +85,7 @@ class PowerPinExportExport(bpy.types.Operator):
                 PowerPinExportExport._copy_to_clipboard(context, power_pin)
             PowerPinExportExport._export_to_file(clip, plane_track, power_pin, None, settings.do_do_not_overwrite)
         
-        return {'FINISHED'}
+        return {"FINISHED"}
 
     @staticmethod
     def _generate(clip, track):
@@ -231,7 +231,7 @@ class PowerPinExportLegacy(bpy.types.Operator, bpy_extras.io_utils.ExportHelper)
     bl_label = "Export to Adobe After Effects 6.0 Keyframe Data (Power Pin)"
     bl_idname = "export.power_pin_export_legacy"
     filename_ext = ""
-    filter_glob = bpy.props.StringProperty(default="*", options={'HIDDEN'})
+    filter_glob = bpy.props.StringProperty(default="*", options={"HIDDEN"})
 
     def execute(self, context):
         # This is broken but I don't want to fix...
@@ -270,6 +270,3 @@ def unregister():
 if __name__ == "__main__":
     register()
 #    unregister() 
-
-
-
