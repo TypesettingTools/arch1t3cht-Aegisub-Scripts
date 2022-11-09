@@ -73,10 +73,10 @@ class PowerPinExportExport(bpy.types.Operator):
         else:
             do_copy_to_clipboard = settings.do_copy_to_clipboard
 
-        if plane_tracks > 1 and len(selected_plane_tracks) != plane_tracks and len(selected_plane_tracks) != 0:
-            plane_tracks = selected_plane_tracks # Same as above
+        if plane_tracks > 1 and len(selected_plane_tracks) != 0:
+            plane_tracks = selected_plane_tracks # Confusion
         else:
-            plane_tracks = clip.tracking.plane_tracks # Same ww
+            plane_tracks = clip.tracking.plane_tracks
 
         for plane_track in plane_tracks:
             power_pin = PowerPinExportExport._generate(clip, plane_track)
