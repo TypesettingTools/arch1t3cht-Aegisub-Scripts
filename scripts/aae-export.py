@@ -29,7 +29,7 @@ bl_info = {
 import bpy
 import bpy_extras.io_utils
 from datetime import datetime
-import math, mathutils
+import math
 from pathlib import Path
 
 class AAEExportSettings(bpy.types.PropertyGroup):
@@ -47,6 +47,51 @@ class AAEExportExportAll(bpy.types.Operator):
     bl_label = "Export"
     bl_description = "Export all tracking markers and plane tracks to AAE files next to the original movie clip"
     bl_idname = "movieclip.aae_export_export_all"
+
+    @staticmethod
+    def _plane_track_center(l, m, n, o):
+        """
+        Parameters
+        ----------
+        l : list[float]
+        m : list[float]
+        n : list[float]
+        o : list[float]
+            The four points of a plane track in either clockwise or
+            counterwise order before multiplying with clip.size.
+
+        Returns
+        -------
+        i : list[float]
+            The centre of plane track. NEVER None. NEVER None.
+
+        """
+        # https://stackoverflow.com/questions/563198
+        px = l[0]
+        py = l[1]
+        rx = n[0] - l[0]
+        ry = n[1] - l[1]
+        qx = m[0]
+        qy = m[1]
+        sx = o[0] - m[0]
+        sy = o[1] - m[1]
+
+        j = rx * sy - ry * sx
+        k = (qx - px) * ry - (qy - py) * rx
+
+        if j == 0 and k == 0:
+            # The points are collinear
+            return [(px * 2 + rx + qx * 2 + sx) / 4, (py * 2 + ry + qy * 2 + sy) / 4]
+        elif j == 0 and k != 0:
+            # The two lines are parallel
+            # It could return AAEExportExportAll._plane_track_center(l, n, m, o)
+            # but that will give a false sense of security as if this
+            # function can deal with hourglass-shaped input.
+            return [(px * 2 + rx + qx * 2 + sx) / 4, (py * 2 + ry + qy * 2 + sy) / 4]
+        else: # j != 0
+            # The two lines intersects
+            t = k / j
+            return [px + t * rx, py + t * ry]
 
     def execute(self, context):
         clip = context.edit_movieclip
@@ -87,7 +132,7 @@ class AAEExportExportAll(bpy.types.Operator):
         aae += "\tSource Pixel Aspect Ratio\t1\n"
         aae += "\tComp Pixel Aspect Ratio\t1\n\n"
 
-        for marker in track.markers:
+        for marker in track.markers[1:] if track.markers[0].__class__.__name__ == "MovieTrackingMarker" else track.markers[1:-1]:
             if not 0 < marker.frame <= clip.frame_duration:
                 continue
             if marker.mute:
@@ -97,9 +142,8 @@ class AAEExportExportAll(bpy.types.Operator):
                 coords = marker.co
                 corners = marker.pattern_corners
             else: # "MovieTrackingPlaneMarker"
-                c = marker.corners
-                coords = mathutils.geometry.intersect_line_line_2d(c[0], c[2], c[1], c[3])
-                corners = [mathutils.Vector(p) - coords for p in c]
+                coords = AAEExportExportAll._plane_track_center(marker.corners[0], marker.corners[1], marker.corners[2], marker.corners[3])
+                corners = [[p[0] - coords[0], p[1] - coords[1]] for p in marker.corners]
             
             area = 0
             width = math.sqrt((corners[1][0] - corners[0][0]) * (corners[1][0] - corners[0][0]) + (corners[1][1] - corners[0][1]) * (corners[1][1] - corners[0][1]))
@@ -126,10 +170,7 @@ class AAEExportExportAll(bpy.types.Operator):
             xscale = width / startwidth * 100
             yscale = height / startheight * 100
 
-            p1 = mathutils.Vector(corners[0])
-            p2 = mathutils.Vector(corners[1])
-            mid = (p1 + p2) / 2
-            diff = mid - mathutils.Vector((0,0))
+            diff = [(corners[0][0] + corners[1][0]) / 2, (corners[0][1] + corners[1][1]) / 2]
 
             rotation = math.atan2(diff[0], diff[1]) * 180 / math.pi
 
@@ -195,7 +236,7 @@ class AAEExportExportAll(bpy.types.Operator):
         else: # "MovieTrackingPlaneMarker"
             for marker in track.markers:
                 if not marker.mute:
-                    coords = mathutils.geometry.intersect_line_line_2d(marker.corners[0], marker.corners[2], marker.corners[1], marker.corners[3])
+                    coords = AAEExportExportAll._plane_track_center(marker.corners[0], marker.corners[1], marker.corners[2], marker.corners[3])
                     coords = (coords[0] * clip.size[0], (1 - coords[1]) * clip.size[1])
                     break
 
@@ -247,7 +288,11 @@ class AAEExportCopyPlaneTrack(bpy.types.Operator):
         clip = context.edit_movieclip
         settings = context.screen.AAEExportSettings
 
-        aae = AAEExportExportAll._generate(clip, clip.tracking.plane_tracks[0])
+        aae = None
+        for plane_track in context.edit_movieclip.tracking.plane_tracks:
+            if plane_track.select == True:
+                aae = AAEExportExportAll._generate(clip, plane_track)
+                break
 
         AAEExportExportAll._copy_to_clipboard(context, aae)
         if settings.do_also_export:

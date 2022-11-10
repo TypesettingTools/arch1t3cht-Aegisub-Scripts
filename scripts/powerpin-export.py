@@ -38,7 +38,6 @@ import itertools
 import bpy
 import bpy_extras.io_utils
 from datetime import datetime
-import mathutils.geometry
 from pathlib import Path
 
 class PowerPinExportSettings(bpy.types.PropertyGroup):
@@ -56,6 +55,51 @@ class PowerPinExportExport(bpy.types.Operator):
     bl_label = "Export"
     bl_description = "Export plane track to Power Pin AAE files next to the original movie clip"
     bl_idname = "movieclip.power_pin_export_export"
+
+    @staticmethod
+    def _plane_track_center(l, m, n, o):
+        """
+        Parameters
+        ----------
+        l : list[float]
+        m : list[float]
+        n : list[float]
+        o : list[float]
+            The four points of a plane track in either clockwise or
+            counterwise order.
+
+        Returns
+        -------
+        i : list[float]
+            The centre of plane track. NEVER None. NEVER None.
+
+        """
+        # https://stackoverflow.com/questions/563198
+        px = l[0]
+        py = l[1]
+        rx = n[0] - l[0]
+        ry = n[1] - l[1]
+        qx = m[0]
+        qy = m[1]
+        sx = o[0] - m[0]
+        sy = o[1] - m[1]
+
+        j = rx * sy - ry * sx
+        k = (qx - px) * ry - (qy - py) * rx
+
+        if j == 0 and k == 0:
+            # The points are collinear
+            return [(px * 2 + rx + qx * 2 + sx) / 4, (py * 2 + ry + qy * 2 + sy) / 4]
+        elif j == 0 and k != 0:
+            # The two lines are parallel
+            # It could return PowerPinExportExport._plane_track_center(l, n, m, o)
+            # but that will give a false sense of security as if this
+            # function can deal with hourglass-shaped input.
+            return [(px * 2 + rx + qx * 2 + sx) / 4, (py * 2 + ry + qy * 2 + sy) / 4]
+        else: # j != 0
+            # The two lines intersects
+            t = k / j
+            return [px + t * rx, py + t * ry]
 
     def execute(self, context):
         clip = context.edit_movieclip
@@ -108,7 +152,7 @@ class PowerPinExportExport(bpy.types.Operator):
 
         frames = []
         corners = []
-        for marker in track.markers:
+        for marker in track.markers[1:-1]:
             if not 0 < marker.frame <= clip.frame_duration:
                 continue
             if marker.mute:
@@ -148,7 +192,7 @@ class PowerPinExportExport(bpy.types.Operator):
         coords = None
         for marker in track.markers:
             if not marker.mute:
-                coords = mathutils.geometry.intersect_line_line_2d(marker.corners[0], marker.corners[2], marker.corners[1], marker.corners[3])
+                coords = PowerPinExportExport._plane_track_center(marker.corners[0], marker.corners[1], marker.corners[2], marker.corners[3])
                 coords = (coords[0] * clip.size[0], (1 - coords[1]) * clip.size[1])
                 break
 
