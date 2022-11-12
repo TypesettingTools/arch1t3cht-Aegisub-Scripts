@@ -39,6 +39,9 @@ class AAEExportSettings(bpy.types.PropertyGroup):
     do_also_export: bpy.props.BoolProperty(name="Auto export",
                                            description="Automatically export the selected track to file while copying",
                                            default=True)
+    do_includes_power_pin: bpy.props.BoolProperty(name="Includes Power Pin",
+                                           description="Includes Power Pin data in plane track export.\nAs of Nov 2022, Aegisub-Perspective-Motion doesn't accept Power Pin data mixed with regular tracking data likely due to a bug. Please use the separate powerpin-export.py until this Aegisub-Perspective-Motion bug is fixed",
+                                           default=True)
     do_do_not_overwrite: bpy.props.BoolProperty(name="Do not overwrite",
                                                 description="Generate unique files every time",
                                                 default=False)
@@ -98,20 +101,22 @@ class AAEExportExportAll(bpy.types.Operator):
         settings = context.screen.AAEExportSettings
 
         for track in clip.tracking.tracks:
-            AAEExportExportAll._export_to_file(clip, track, AAEExportExportAll._generate(clip, track), None, settings.do_do_not_overwrite)
+            AAEExportExportAll._export_to_file(clip, track, AAEExportExportAll._generate(clip, track, settings.do_includes_power_pin), None, settings.do_do_not_overwrite)
 
         for plane_track in clip.tracking.plane_tracks:
-            AAEExportExportAll._export_to_file(clip, plane_track, AAEExportExportAll._generate(clip, plane_track), None, settings.do_do_not_overwrite)
+            AAEExportExportAll._export_to_file(clip, plane_track, AAEExportExportAll._generate(clip, plane_track, settings.do_includes_power_pin), None, settings.do_do_not_overwrite)
         
         return {"FINISHED"}
 
     @staticmethod
-    def _generate(clip, track):
+    def _generate(clip, track, do_includes_power_pin):
         """
         Parameters
         ----------
         clip : bpy.types.MovieClip
         track : bpy.types.MovieTrackingTrack or MovieTrackingPlaneTrack
+        do_includes_power_pin : bool
+            AAEExportSettings.do_includes_power_pin.
 
         Returns
         -------
@@ -189,27 +194,59 @@ class AAEExportExportAll(bpy.types.Operator):
         scaleline = "\t{0}\t{1:.3f}\t{2:.3f}\t100"
         rotline = "\t{0}\t{1:.3f}"
 
-        positions = "\n".join([posline.format(d[0], d[1], d[2]) for d in data]) + "\n\n"
-        scales = "\n".join([scaleline.format(d[0], d[3], d[4]) for d in data]) + "\n\n"
-        rotations = "\n".join([rotline.format(d[0], d[5]) for d in data]) + "\n\n"
+        positions = "\n".join([posline.format(d[0], d[1], d[2]) for d in data])
+        scales = "\n".join([scaleline.format(d[0], d[3], d[4]) for d in data])
+        rotations = "\n".join([rotline.format(d[0], d[5]) for d in data])
 
         aae += "Anchor Point\n"
         aae += "\tFrame\tX pixels\tY pixels\tZ pixels\n"
         aae += positions
 
+        aae += "\n\n"
         aae += "Position\n"
         aae += "\tFrame\tX pixels\tY pixels\tZ pixels\n"
         aae += positions
 
+        aae += "\n\n"
         aae += "Scale\n"
         aae += "\tFrame\tX percent\tY percent\tZ percent\n"
         aae += scales
 
+        aae += "\n\n"
         aae += "Rotation\n"
         aae += "\tFrame Degrees\n"
         aae += rotations
 
-        aae += "End of Keyframe Data\n"
+        def generate_power_pin(clip, track):
+            power_pin = "\n"
+
+            frames = []
+            corners = []
+            for marker in track.markers[1:-1]:
+                if not 0 < marker.frame <= clip.frame_duration:
+                    continue
+                if marker.mute:
+                    continue
+
+                frames.append(marker.frame)
+                corners.append([list(c) for c in marker.corners])
+            
+            for pini, corneri in [(2, 3), (3, 2), (4, 0), (5, 1)]:
+                power_pin += f"\nEffects\tCC Power Pin #1\tCC Power Pin-000{pini}\n"
+                power_pin += "\tFrame\tX pixels\tY pixels\n"
+
+                for i, plane in enumerate(corners):
+                    corner = plane[corneri]
+                    x = corner[0] * clip.size[0]
+                    y = (1 - corner[1]) * clip.size[1]
+                    power_pin += f"\t{frames[i]}\t{x:.3f}\t{y:.3f}\n"
+
+            return power_pin
+    
+        if do_includes_power_pin and track.markers[0].__class__.__name__ == "MovieTrackingPlaneMarker":
+            aae += generate_power_pin(clip, track)
+
+        aae += "\n\nEnd of Keyframe Data\n"
 
         return aae
 
@@ -271,7 +308,7 @@ class AAEExportCopySingleTrack(bpy.types.Operator):
         clip = context.edit_movieclip
         settings = context.screen.AAEExportSettings
 
-        aae = AAEExportExportAll._generate(clip, context.selected_movieclip_tracks[0])
+        aae = AAEExportExportAll._generate(clip, context.selected_movieclip_tracks[0], settings.do_includes_power_pin)
         
         AAEExportExportAll._copy_to_clipboard(context, aae)
         if settings.do_also_export:
@@ -291,7 +328,7 @@ class AAEExportCopyPlaneTrack(bpy.types.Operator):
         aae = None
         for plane_track in context.edit_movieclip.tracking.plane_tracks:
             if plane_track.select == True:
-                aae = AAEExportExportAll._generate(clip, plane_track)
+                aae = AAEExportExportAll._generate(clip, plane_track, settings.do_includes_power_pin)
                 break
 
         AAEExportExportAll._copy_to_clipboard(context, aae)
@@ -370,6 +407,10 @@ class AAEExportAllTracks(bpy.types.Panel):
         settings = context.screen.AAEExportSettings
         
         column = layout.column()
+        column.label(text="Plane tracks")
+        column.prop(settings, "do_includes_power_pin")
+        
+        column = layout.column()
         column.label(text="All tracks")
         column.prop(settings, "do_also_export")
         column.prop(settings, "do_do_not_overwrite")
@@ -399,10 +440,10 @@ class AAEExportLegacy(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
         settings = context.screen.AAEExportSettings
 
         for track in clip.tracking.tracks:
-            AAEExportExportAll._export_to_file(clip, track, AAEExportExportAll._generate(clip, track), self.filepath, True)
+            AAEExportExportAll._export_to_file(clip, track, AAEExportExportAll._generate(clip, track, False), self.filepath, True)
 
         for plane_track in clip.tracking.plane_tracks:
-            AAEExportExportAll._export_to_file(clip, track, AAEExportExportAll._generate(clip, plane_track), self.filepath, True)
+            AAEExportExportAll._export_to_file(clip, track, AAEExportExportAll._generate(clip, plane_track, False), self.filepath, True)
 
 classes = (AAEExportSettings,
            AAEExportExportAll,
