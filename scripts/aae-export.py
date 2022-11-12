@@ -1,16 +1,48 @@
+# Function AAEExportExportAll._generate() at or about line 144,
+# excluding inner function generate_power_pin() at or about line 252,
+# is copied from the original `aae-export.py` by Martin Herkt.
+
+# Other part of this script, including the aforementioned inner
+# function generate_power_pin(), is written by arch1t3cht,
+# Akatsumekusa and contributors.
+
 # Copyright (c) 2013, Martin Herkt
 #
-# Permission to use, copy, modify, and/or distribute this software for any
-# purpose with or without fee is hereby granted, provided that the above
-# copyright notice and this permission notice appear in all copies.
+# Permission to use, copy, modify, and/or distribute this software for
+# any purpose with or without fee is hereby granted, provided that the
+# above copyright notice and this permission notice appear in all
+# copies.
 #
-# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH
-# REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY
-# AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,
-# INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
-# LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE
-# OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL
+# WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE
+# AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
+# DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR
+# PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER
+# TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 # PERFORMANCE OF THIS SOFTWARE.
+
+# Copyright (c) 2022 arch1t3cht and contributors
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject to
+# the following conditions:
+# 
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 bl_info = {
     "name": "Adobe After Effects 6.0 Keyframe Data Export",
@@ -218,7 +250,7 @@ class AAEExportExportAll(bpy.types.Operator):
         aae += rotations
 
         def generate_power_pin(clip, track):
-            power_pin = "\n"
+            power_pin = ""
 
             frames = []
             corners = []
@@ -232,14 +264,14 @@ class AAEExportExportAll(bpy.types.Operator):
                 corners.append([list(c) for c in marker.corners])
             
             for pini, corneri in [(2, 3), (3, 2), (4, 0), (5, 1)]:
-                power_pin += f"\nEffects\tCC Power Pin #1\tCC Power Pin-000{pini}\n"
-                power_pin += "\tFrame\tX pixels\tY pixels\n"
+                power_pin += f"\n\nEffects\tCC Power Pin #1\tCC Power Pin-000{pini}"
+                power_pin += "\n\tFrame\tX pixels\tY pixels"
 
                 for i, plane in enumerate(corners):
                     corner = plane[corneri]
                     x = corner[0] * clip.size[0]
                     y = (1 - corner[1]) * clip.size[1]
-                    power_pin += f"\t{frames[i]}\t{x:.3f}\t{y:.3f}\n"
+                    power_pin += f"\n\t{frames[i]}\t{x:.3f}\t{y:.3f}"
 
             return power_pin
     
