@@ -241,12 +241,14 @@ class PowerPinExport(bpy.types.Panel):
 
         column = layout.column()
         if plane_tracks <= 1:
-            column.label(text="Plane track")
+            column.label(text="Plane tracks")
         else:
             if selected_plane_tracks == 0:
-                column.label(text="Plane track")
-            else:
+                column.label(text="Plane tracks")
+            elif selected_plane_tracks == 1:
                 column.label(text="Selected plane track")
+            else:
+                column.label(text="Selected plane tracks")
         column.prop(settings, "do_do_not_overwrite")
         row = column.row()
         if plane_tracks <= 1:

@@ -399,10 +399,10 @@ class AAEExportLegacy(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
         settings = context.screen.AAEExportSettings
 
         for track in clip.tracking.tracks:
-            AAEExportExportAll._export_to_file(clip, track, AAEExportExportAll._generate(clip, track), self.filepath, settings.do_do_not_overwrite)
+            AAEExportExportAll._export_to_file(clip, track, AAEExportExportAll._generate(clip, track), self.filepath, True)
 
         for plane_track in clip.tracking.plane_tracks:
-            AAEExportExportAll._export_to_file(clip, track, AAEExportExportAll._generate(clip, plane_track), self.filepath, settings.do_do_not_overwrite)
+            AAEExportExportAll._export_to_file(clip, track, AAEExportExportAll._generate(clip, plane_track), self.filepath, True)
 
 classes = (AAEExportSettings,
            AAEExportExportAll,
