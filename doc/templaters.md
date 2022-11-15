@@ -10,6 +10,8 @@ If you're looking for actual guides on KFX, here are some links:
 - [Jocko's Posts](https://jockotan.wordpress.com/2015/08/12/karaoke-templater/): Also very concise and example driven, but uses the stock templater.
 - The actual documentation of the various templaters, linked below.
 
+Furthermore, I have a collection [here](misc_kara.md) of miscellaneous templates I made for typesetting or other purposes that aren't song styling.
+
 ## Existing Templaters
 At the time of writing (2022), there are three major karaoke templaters around:
 1. The stock templater shipped with Aegisub, documented [here](https://aeg-dev.github.io/AegiSite/docs/3.2/automation/karaoke_templater/) as part of the Aegisub documentation. The documentation is very detailed, but rather technical.
@@ -142,7 +144,7 @@ With this, we can make a simple template*
 *that highlights each syllable by making it larger and smaller again.*
 [^3]: Again, I make no claims that this template is *fitting* for the song we're working with. I just want to keep it simple.
 
-**I've now explained most of the basics of templating, and hopefully you should now be able to read the documentation of the various templaters or dissect existing templates to dive deeper. Read on if you want primers on some of the more specific concepts.**
+**I've now explained most of the basics of templating, and hopefully you should now be able to read the documentation of the various templaters or dissect existing templates ([these](misc_kara.md), for example) to dive deeper. Read on if you want primers on some of the more specific concepts.**
 
 ### Multiline effects and mixins
 Our `template syl` generates one `fx` line for each input syllable.
