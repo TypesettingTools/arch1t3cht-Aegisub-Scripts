@@ -31,7 +31,7 @@ From an end-user standpoint, AegisubChain allows you to record and play back "pi
 
 Consider the following example, which records a 4-step process to make text incrementally fade from top to bottom, and later plays it back using just one script and one dialog:
 
-https://user-images.githubusercontent.com/99741385/168145342-8e1daad6-8559-459c-9f0f-69e23e3541a1.mp4
+https://user-images.githubusercontent.com/99741385/202811305-41d3557c-952b-408e-9a5d-113b66efccc7.mp4
 
 Here's a second, simpler example which adds colors to text and runs "Blur & Glow".
 
