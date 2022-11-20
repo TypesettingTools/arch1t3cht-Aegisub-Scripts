@@ -465,8 +465,10 @@ class AAEExportLegacy(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
     filter_glob = bpy.props.StringProperty(default="*", options={"HIDDEN"})
 
     def execute(self, context):
+        if len(bpy.data.movieclips) == 0:
+            raise ValueError("Have you opened any movie clips?")
         # This is broken but I don't want to fix...
-        if len(bpy.data.movieclips) != 1:
+        if len(bpy.data.movieclips) >= 2:
             raise ValueError("The legacy export method only allows one clip to be loaded into Blender at a time. You can either try the new export interface at „Clip Editor > Tools > Solve > AAE Export“ or use „File > New“ to create a new Blender file.")
         clip = bpy.data.movieclips[0]
         settings = context.screen.AAEExportSettings
@@ -476,6 +478,8 @@ class AAEExportLegacy(bpy.types.Operator, bpy_extras.io_utils.ExportHelper):
 
         for plane_track in clip.tracking.plane_tracks:
             AAEExportExportAll._export_to_file(clip, track, AAEExportExportAll._generate(clip, plane_track, False), self.filepath, True)
+
+        return {"FINISHED"}
 
 classes = (AAEExportSettings,
            AAEExportExportAll,
