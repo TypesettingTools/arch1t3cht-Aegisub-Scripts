@@ -169,7 +169,7 @@ class AAEExportExportAll(bpy.types.Operator):
         aae += "\tSource Pixel Aspect Ratio\t1\n"
         aae += "\tComp Pixel Aspect Ratio\t1\n\n"
 
-        for marker in track.markers[1:] if track.markers[0].__class__.__name__ == "MovieTrackingMarker" else track.markers[1:-1]:
+        for marker in (track.markers[1:] if not track.markers[0].is_keyed else track.markers) if track.markers[0].__class__.__name__ == "MovieTrackingMarker" else track.markers[1:-1]:
             if not 0 < marker.frame <= clip.frame_duration:
                 continue
             if marker.mute:
