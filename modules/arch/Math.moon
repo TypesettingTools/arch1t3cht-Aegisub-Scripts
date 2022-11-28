@@ -3,7 +3,7 @@ haveDepCtrl, DependencyControl, depctrl = pcall require, 'l0.DependencyControl'
 if haveDepCtrl
     depctrl = DependencyControl {
         name: "ArchMath",
-        version: "0.1.1",
+        version: "0.1.2",
         description: [[General-purpose linear algebra functions, approximately matching the patterns of Matlab or numpy]],
         author: "arch1t3cht",
         url: "https://github.com/arch1t3cht/Aegisub-Scripts",
@@ -148,7 +148,7 @@ class Point extends ClassFix
 
     dot: (p) => @hadamard_prod(p)\sum!
 
-    length: => @map((a) -> a^2)\sum!
+    length: => math.sqrt(@map((a) -> a^2)\sum!)
 
     dist: (p) => @to(p)\length!
 
