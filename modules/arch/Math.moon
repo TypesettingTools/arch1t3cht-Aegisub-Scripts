@@ -3,7 +3,7 @@ haveDepCtrl, DependencyControl, depctrl = pcall require, 'l0.DependencyControl'
 if haveDepCtrl
     depctrl = DependencyControl {
         name: "ArchMath",
-        version: "0.1.2",
+        version: "0.1.3",
         description: [[General-purpose linear algebra functions, approximately matching the patterns of Matlab or numpy]],
         author: "arch1t3cht",
         url: "https://github.com/arch1t3cht/Aegisub-Scripts",
@@ -71,9 +71,9 @@ class Point extends ClassFix
             @[i] = v
         @size = #coords
 
-    x: => @1
-    y: => @2
-    z: => @3
+    x: => @[1]
+    y: => @[2]
+    z: => @[3]
 
     aslist: () => [v for v in *@]
 
