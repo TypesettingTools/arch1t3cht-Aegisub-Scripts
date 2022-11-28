@@ -58,6 +58,40 @@
         ]
       }
     },
+    "arch.Resample": {
+      "fileBaseUrl": "@{fileBaseUrl}/macros/@{namespace}",
+      "url": "@{baseUrl}#@{namespace}",
+      "author": "arch1t3cht",
+      "name": "Resample Perspective",
+      "description": "Apply after resampling a script in Aegisub to fix any lines with 3D rotations.",
+      "channels": {
+        "release": {
+          "version": "1.0.0",
+          "released": "2022-11-28",
+          "default": true,
+          "files": [
+            {
+              "name": ".moon",
+              "url": "@{fileBaseUrl}@{fileName}",
+              "sha1": ""
+            }
+          ],
+          "requiredModules": [
+            {
+              "moduleName": "arch.Math",
+              "name": "ArchMath",
+              "url": "https://github.com/arch1t3cht/Aegisub-Scripts",
+              "version": "0.1.3"
+            }
+          ]
+        }
+      },
+      "changelog": {
+        "1.0.0": [
+          "Initial Release"
+        ]
+      }
+    },
     "arch.FocusLines": {
       "fileBaseUrl": "@{fileBaseUrl}/macros/@{namespace}",
       "url": "@{baseUrl}#@{namespace}",

@@ -6,6 +6,7 @@ My automation scripts for Aegisub. In my opinion, the coolest thing here is Aegi
   - [AegisubChain](#aegisubchain)
   - [Scripts for Typesetting](#scripts-for-typesetting)
     - [Focus Lines](#focus-lines)
+    - [Resample Perspective](#resample-perspective)
     - [Perspective (WIP)](#perspective-wip)
   - [Scripts for Editing and QC](#scripts-for-editing-and-qc)
     - [Rewriting Tools](#rewriting-tools)
@@ -47,7 +48,14 @@ A script that generates moving focus lines, tweakable with a few parameters.
 
 https://user-images.githubusercontent.com/99741385/180628464-2f970f02-b134-474b-b4b6-a998c22fcf75.mp4
 
+### Resample Perspective
+Run this script after Aegisub's "Resample Resolution" to fix perspective rotations in the selected lines that were broken by resampling.
+
+There exist multiple scripts like this already, but this script uses a different approach to ensure exact accuracy. However, it still requires all individual events to have one consistent perspective and will not work if perspective tags change mid-line. In these cases you'll need to split the lines manually first.
+
 ### Perspective (WIP)
+**Update (November 2022)**: Big parts of this were added directly to [my Aegisub fork](https://github.com/arch1t3cht/Aegisub) instead. Together with the above resampling script and [Aegisub-Perspective-Motion](https://github.com/Zahuczky/Zahuczkys-Aegisub-Scripts), that covers most basic perspective functions. I might still write a script to cover some more advanced usage (e.g. a "perspective Recalculator") eventually, but it's a lot lower priority now.
+
 This is still very work in progress, but I started working on extracting the math I used in [Aegisub-Perspective-Motion](https://github.com/Zahuczky/Zahuczkys-Aegisub-Scripts/tree/main) into Lua libraries and an improved perspective script. The core functions are implemented [here](modules/arch/Perspective.moon) already, together with some general-purpose [linear algebra functions](modules/arch/Math.moon).
 
 For the math involved and how these functions fit into the picture, see [this write-up](doc/perspective_math.md).
