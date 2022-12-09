@@ -2,7 +2,7 @@ export script_name = "Resample Perspective"
 export script_description = "Apply after resampling a script in Aegisub to fix any lines with 3D rotations."
 export script_author = "arch1t3cht"
 export script_namespace = "arch.Resample"
-export script_version = "1.0.0"
+export script_version = "1.1.0"
 
 DependencyControl = require "l0.DependencyControl"
 dep = DependencyControl{
@@ -12,7 +12,7 @@ dep = DependencyControl{
          feed: "https://raw.githubusercontent.com/TypesettingTools/Aegisub-Motion/DepCtrl/DependencyControl.json"},
         {"l0.ASSFoundation", version: "0.5.0", url: "https://github.com/TypesettingTools/ASSFoundation",
          feed: "https://raw.githubusercontent.com/TypesettingTools/ASSFoundation/master/DependencyControl.json"},
-        {"arch.Math", version: "0.1.1", url: "https://github.com/arch1t3cht/Aegisub-Scripts",
+        {"arch.Math", version: "0.1.4", url: "https://github.com/arch1t3cht/Aegisub-Scripts",
          feed: "https://raw.githubusercontent.com/arch1t3cht/Aegisub-Scripts/main/DependencyControl.json"},
     }
 }
@@ -26,8 +26,8 @@ screen_z = 312.5
 alltags = {"shear_x", "shear_y", "scale_x", "scale_y", "angle", "angle_x", "angle_y", "origin", "position", "outline", "outline_x", "outline_y", "shadow", "shadow_x", "shadow_y"}
 usedtags = {"shear_x", "shear_y", "scale_x", "scale_y", "angle", "angle_x", "angle_y", "origin", "position", "outline_x", "outline_y", "shadow_x", "shadow_y"}
 
-an_xshift = { 1, 1, 1, 0.5, 0.5, 0.5, 0, 0, 0 }
-an_yshift = { 0, 0.5, 1, 0, 0.5, 1, 0, 0.5, 1 }
+an_xshift = { 0, 0.5, 1, 0, 0.5, 1, 0, 0.5, 1 }
+an_yshift = { 1, 1, 1, 0.5, 0.5, 0.5, 0, 0, 0 }
 
 transformQuad = (t, width, height) ->
     quad = Matrix {
@@ -125,10 +125,7 @@ tagsFromQuad = (t, quad, width, height, center=false) ->
     t.shear_y.value = 0
 
 
-resample = (srcres, subs, sel) ->
-    _, targetres = aegisub.video_size!
-    ratio = srcres / targetres
-
+resample = (ratiox, ratioy, subs, sel) ->
     lines = LineCollection subs, sel, () -> true
     lines\runCallback (lines, line) ->
         data = ASS\parse line
@@ -137,12 +134,13 @@ resample = (srcres, subs, sel) ->
         return if #data\getTags({"angle_x", "angle_y"}) == 0
 
         tagvals = data\getEffectiveTags(-1, true, true, false).tags
+        return if tagvals.angle_x.value == 0 and tagvals.angle_y.value == 0
         width, height = data\getTextExtents!
         width /= (tagvals.scale_x.value / 100)
         height /= (tagvals.scale_y.value / 100)
-        -- return if tagvals.angle_x.value == 0 and tagvals.angle_y.value == 0
         if data\getPosition().class == ASS.Tag.Move
             aegisub.log("Line has \\move! Skipping.")
+            return
 
         -- Manually enforce the relations between tags
         if #data\getTags({"origin"}) == 0
@@ -160,19 +158,19 @@ resample = (srcres, subs, sel) ->
 
         -- Revert Aegisub's resampling.
         for tag in *{"position", "origin"}
-            tagvals[tag].x *= ratio
-            tagvals[tag].y *= ratio
+            tagvals[tag].x *= ratiox
+            tagvals[tag].y *= ratioy
 
         -- Store the previous \fscx\fscy
         oldscale = { k,tagvals[k].value for k in *{"scale_x", "scale_y"} }
 
         -- Get the original rendered quad
-        quad = transformQuad(tagvals, ratio * width, ratio * height)
+        quad = transformQuad(tagvals, ratiox * width, ratioy * height)
 
         -- Transform it back to the new coordinates
-        tagvals.origin.x /= ratio
-        tagvals.origin.y /= ratio
-        quad /= ratio
+        tagvals.origin.x /= ratiox
+        tagvals.origin.y /= ratioy
+        quad /= Matrix([ {ratiox, ratioy} for i=1,4 ])
         tagsFromQuad(tagvals, quad, width, height, true)    -- TODO get center=false working
 
         -- Correct \bord and \shad for the \fscx\fscy change
@@ -186,17 +184,46 @@ resample = (srcres, subs, sel) ->
 
 
 resample_ui = (subs, sel) ->
+    video_width, video_height = aegisub.video_size!
+
     button, results = aegisub.dialog.display({{
         class: "label",
         label: "Source Resolution: ",
         x: 0, y: 0, width: 1, height: 1,
     }, {
         class: "intedit",
-        name: "srcres",
-        value: 720,
+        name: "srcresx",
+        value: 1280,
         x: 1, y: 0, width: 1, height: 1,
+    }, {
+        class: "label",
+        label: "x",
+        x: 2, y: 0, width: 1, height: 1,
+    }, {
+        class: "intedit",
+        name: "srcresy",
+        value: 720,
+        x: 3, y: 0, width: 1, height: 1,
+    }, {
+        class: "label",
+        label: "Target Resolution: ",
+        x: 0, y: 1, width: 1, height: 1,
+    }, {
+        class: "intedit",
+        name: "targetresx",
+        value: video_width or 1920,
+        x: 1, y: 1, width: 1, height: 1,
+    }, {
+        class: "label",
+        label: "x",
+        x: 2, y: 1, width: 1, height: 1,
+    }, {
+        class: "intedit",
+        name: "targetresy",
+        value: video_height or 1080,
+        x: 3, y: 1, width: 1, height: 1,
     }})
 
-    resample(results.srcres, subs, sel) if button
+    resample(results.targetresx / results.srcresx, results.targetresy / results.srcresy, subs, sel) if button
 
 dep\registerMacro resample_ui
