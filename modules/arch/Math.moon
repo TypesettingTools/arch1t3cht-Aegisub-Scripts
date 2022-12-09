@@ -3,7 +3,7 @@ haveDepCtrl, DependencyControl, depctrl = pcall require, 'l0.DependencyControl'
 if haveDepCtrl
     depctrl = DependencyControl {
         name: "ArchMath",
-        version: "0.1.3",
+        version: "0.1.4",
         description: [[General-purpose linear algebra functions, approximately matching the patterns of Matlab or numpy]],
         author: "arch1t3cht",
         url: "https://github.com/arch1t3cht/Aegisub-Scripts",
@@ -120,7 +120,12 @@ class Point extends ClassFix
             return p\map((a) -> a * q)
         return p\dot(q)
 
-    __div: (q) => @ * (1/q)
+    __div: (p, q) ->
+        if type(p) == "number"
+            return q\map((a) -> p / a)
+        elseif type(q) == "number"
+            return p\map((a) -> a / q)
+        return p\zipWith(((a, b) -> a / b), q)
 
     __concat: (q) =>
         p = @
@@ -240,7 +245,12 @@ class Matrix extends ClassFix
             q = (Matrix q)\transpose!
         return p\prod(q)
 
-    __div: (q) => @ * (1/q)
+    __div: (p, q) ->
+        if type(p) == "number"
+            return q\map((a) -> p / a)
+        elseif type(q) == "number"
+            return p\map((a) -> a / q)
+        return p\zipWith(((a, b) -> a / b), q)
 
     __concat: (q) =>
         p = @
