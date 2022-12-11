@@ -16,6 +16,7 @@ My automation scripts for Aegisub. In my opinion, the coolest thing here is Aegi
     - [Timing Binds](#timing-binds)
     - [Center Times](#center-times)
   - [Other Scripts](#other-scripts)
+    - [Convert Folds](#convert-folds)
     - [Blender Export Scripts for After Effects Tracking Data](#blender-export-scripts-for-after-effects-tracking-data)
   - [See also](#see-also)
 
@@ -96,6 +97,11 @@ For reference, I usually time without TPP and without autocommit, but with "Go t
 Chooses the centisecond timings for subtitle lines in their frames in a way that prevents or minimizes frame timing errors (whenever possible) when shifting subtitles by time (e.g. when syncing files with [SubKt](https://github.com/Myaamori/SubKt)). The [script file](macros/arch.CenterTimes.lua) has a very detailed explanation.
 
 ## Other Scripts
+
+### Convert Folds
+This script converts the line folds added in [my Aegisub fork](https://arch1t3cht/Aegisub) from the old storage format that used the Project Properties to the new extradata-based format.
+To use it, copy the "Line Folds:" line in your `.ass` file, open this file in Aegisub, and paste this into the dialog of the "Convert Folds" script.
+This will work on any version of Aegisub (i.e. an Aegisub version using extradata folds will be able to load folds from the resulting file), but in order for the folds to be displayed inside of Aegisub, you obviously need a build that supports extradata folds.
 
 ### Blender Export Scripts for After Effects Tracking Data
 You might be looking for my patched version of the After Effects Blender export script that adds the ability to export Power Pin data. This script has been superseded by Akatsumekusa's version, which is an almost complete rewrite with more features and a more user-friendly GUI. Go [here](https://github.com/Akatmks/Akatsumekusa-Aegisub-Scripts) to download this version.

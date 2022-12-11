@@ -243,6 +243,32 @@
           "Add empty extradata to newly inserted lines - this fixes a crash on Aegisub 3.2 and older versions."
         ]
       }
+    },
+    "arch.ConvertFolds": {
+      "fileBaseUrl": "@{fileBaseUrl}/macros/@{namespace}",
+      "url": "@{baseUrl}#@{namespace}",
+      "author": "arch1t3cht",
+      "name": "Convert Folds",
+      "description": "Convert folds stored in the project properties to extradata folds.",
+      "channels": {
+        "release": {
+          "version": "1.0.0",
+          "released": "2022-12-10",
+          "default": true,
+          "files": [
+            {
+              "name": ".moon",
+              "url": "@{fileBaseUrl}@{fileName}",
+              "sha1": ""
+            }
+          ]
+        }
+      },
+      "changelog": {
+        "1.0.0": [
+          "Initial Release"
+        ]
+      }
     }
   },
   "modules": {
