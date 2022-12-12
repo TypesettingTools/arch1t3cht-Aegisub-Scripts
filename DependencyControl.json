@@ -252,14 +252,14 @@
       "description": "Convert folds stored in the project properties to extradata folds.",
       "channels": {
         "release": {
-          "version": "1.1.0",
+          "version": "1.1.1",
           "released": "2022-12-12",
           "default": true,
           "files": [
             {
               "name": ".moon",
               "url": "@{fileBaseUrl}@{fileName}",
-              "sha1": "14b2dee53bddcf49509d5a89feebe2c99df2e14b"
+              "sha1": "7c1e179a03fc1fc531c4f2e4591116208d9942ec"
             }
           ]
         }
