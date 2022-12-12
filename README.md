@@ -100,7 +100,9 @@ Chooses the centisecond timings for subtitle lines in their frames in a way that
 
 ### Convert Folds
 This script converts the line folds added in [my Aegisub fork](https://arch1t3cht/Aegisub) from the old storage format that used the Project Properties to the new extradata-based format.
-To use it, copy the "Line Folds:" line in your `.ass` file, open this file in Aegisub, and paste this into the dialog of the "Convert Folds" script.
+To use it, either
+- copy the "Line Folds:" line in your `.ass` file, open this file in Aegisub, and paste this into the dialog of the "Convert Folds" script, or
+- click the "From File" button to automatically read this line from the subtitle file. This only works if the file is saved on your disk.
 This will work on any version of Aegisub (i.e. an Aegisub version using extradata folds will be able to load folds from the resulting file), but in order for the folds to be displayed inside of Aegisub, you obviously need a build that supports extradata folds.
 
 ### Blender Export Scripts for After Effects Tracking Data

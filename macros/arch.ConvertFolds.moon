@@ -2,7 +2,7 @@ export script_name = "Convert Folds"
 export script_description = "Convert folds stored in the project properties to extradata folds."
 export script_author = "arch1t3cht"
 export script_namespace = "arch.LoadFolds"
-export script_version = "1.0.0"
+export script_version = "1.1.0"
 
 haveDepCtrl, DependencyControl = pcall(require, "l0.DependencyControl")
 
@@ -30,6 +30,10 @@ parse_line_fold = (line) ->
 
 
 load_folds = (subs, sel) ->
+    apply = "Apply"
+    fromfile = "From File"
+    cancel = "Cancel"
+
     button, results = aegisub.dialog.display({{
         class: "label",
         label: "Paste the \"Line Folds\" line from the Project Properties:",
@@ -38,9 +42,27 @@ load_folds = (subs, sel) ->
         class: "edit",
         name: "foldinfo"
         x: 0, y: 1, width: 1, height: 1,
-    }})
+    }}, {apply, fromfile, cancel}, {"ok": apply, "cancel": cancel})
 
     return if not button
+
+    foldinfo = results.foldinfo
+
+    if button == fromfile
+        f = io.open(aegisub.decode_path("?script/#{aegisub.file_name()}"))
+        if f == nil
+            aegisub.log("Couldn't open subtitle file.\n")
+            aegisub.cancel()
+
+        content = f\read("a")\gsub("\r\n", "\n")
+        f\close()
+        infoline = content\match("\n(Line Folds: *[0-9:,]* *\n)")
+        if infoline == nil
+            aegisub.log("Couldn't find fold info in subtitle file.\n")
+            aegisub.cancel()
+
+        foldinfo = infoline\gsub("^\n*", "")\gsub("\n*$", "")
+
 
     maxid = 0
     local dialoguestart
@@ -51,7 +73,6 @@ load_folds = (subs, sel) ->
         if dialoguestart == nil and line.class == "dialogue"
             dialoguestart = i
 
-    foldinfo = results.foldinfo
     foldinfo = foldinfo\gsub("^Line Folds:", "")\gsub("^ *", "")\gsub(" *$", "")
 
     for foldrange in foldinfo\gmatch("[^,]+")
