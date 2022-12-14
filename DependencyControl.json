@@ -94,6 +94,12 @@
           "Allow specifying target resolution",
           "Allow rescaling to different aspect ratio",
           "Fix resampling with non-center align"
+        ],
+        "1.2.0": [
+          "Fix me being dumb and forgetting to ship a crucial fix last version",
+          "Fix strange behaviour when not all relevant tags occur in line",
+          "Fix resampling to different aspect ratios",
+          "Clean up tags after processing"
         ]
       }
     },

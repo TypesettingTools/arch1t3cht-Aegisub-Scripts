@@ -2,7 +2,7 @@ export script_name = "Resample Perspective"
 export script_description = "Apply after resampling a script in Aegisub to fix any lines with 3D rotations."
 export script_author = "arch1t3cht"
 export script_namespace = "arch.Resample"
-export script_version = "1.1.0"
+export script_version = "1.2.0"
 
 DependencyControl = require "l0.DependencyControl"
 dep = DependencyControl{
@@ -126,15 +126,17 @@ tagsFromQuad = (t, quad, width, height, center=false) ->
 
 
 resample = (ratiox, ratioy, subs, sel) ->
+    anamorphic = math.max(ratiox, ratioy) / math.min(ratiox, ratioy) > 1.01
+
     lines = LineCollection subs, sel, () -> true
     lines\runCallback (lines, line) ->
         data = ASS\parse line
 
         -- No perspective tags, we don't need to do anything
-        return if #data\getTags({"angle_x", "angle_y"}) == 0
+        return if not anamorphic and #data\getTags({"angle_x", "angle_y"}) == 0
 
-        tagvals = data\getEffectiveTags(-1, true, true, false).tags
-        return if tagvals.angle_x.value == 0 and tagvals.angle_y.value == 0
+        tagvals = data\getEffectiveTags(-1, true, true, true).tags
+        return if not anamorphic and tagvals.angle_x.value == 0 and tagvals.angle_y.value == 0
         width, height = data\getTextExtents!
         width /= (tagvals.scale_x.value / 100)
         height /= (tagvals.scale_y.value / 100)
@@ -161,11 +163,15 @@ resample = (ratiox, ratioy, subs, sel) ->
             tagvals[tag].x *= ratiox
             tagvals[tag].y *= ratioy
 
+        tagvals.scale_x.value *= (ratiox / ratioy)      -- Aspect ratio resampling
+
         -- Store the previous \fscx\fscy
         oldscale = { k,tagvals[k].value for k in *{"scale_x", "scale_y"} }
 
         -- Get the original rendered quad
-        quad = transformQuad(tagvals, ratiox * width, ratioy * height)
+        -- Note that we use ratioy in both dimensions here, since font sizes in .ass rendering
+        -- only scale with the height.
+        quad = transformQuad(tagvals, ratioy * width, ratioy * height)
 
         -- Transform it back to the new coordinates
         tagvals.origin.x /= ratiox
@@ -179,6 +185,7 @@ resample = (ratiox, ratioy, subs, sel) ->
                 tagvals["#{name}_#{coord}"].value *= tagvals["scale_#{coord}"].value / oldscale["scale_#{coord}"]
 
         -- Rejoice
+        data\cleanTags 4
         data\commit!
     lines\replaceLines!
 
@@ -224,6 +231,6 @@ resample_ui = (subs, sel) ->
         x: 3, y: 1, width: 1, height: 1,
     }})
 
-    resample(results.targetresx / results.srcresx, results.targetresy / results.srcresy, subs, sel) if button
+    resample(results.srcresx / results.targetresx, results.srcresy / results.targetresy, subs, sel) if button
 
 dep\registerMacro resample_ui
