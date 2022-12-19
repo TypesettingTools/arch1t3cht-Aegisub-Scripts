@@ -77,6 +77,13 @@ class Point extends ClassFix
 
     aslist: () => [v for v in *@]
 
+    project: (fr, to) =>
+        if to == nil
+            to = fr
+            fr = 1
+
+        return Point([@[i] for i=fr,to])
+
     map: (f) =>
         return @@ [f(v) for v in *@]
 
