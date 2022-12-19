@@ -317,6 +317,10 @@
         ],
         "0.1.4": [
           "Fix division functions"
+        ],
+        "0.1.5": [
+          "Add projection function to take subsets of coordinates.",
+          "Add transformShape function."
         ]
       }
     }

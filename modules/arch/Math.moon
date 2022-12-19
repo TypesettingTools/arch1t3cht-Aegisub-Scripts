@@ -3,7 +3,7 @@ haveDepCtrl, DependencyControl, depctrl = pcall require, 'l0.DependencyControl'
 if haveDepCtrl
     depctrl = DependencyControl {
         name: "ArchMath",
-        version: "0.1.4",
+        version: "0.1.5",
         description: [[General-purpose linear algebra functions, approximately matching the patterns of Matlab or numpy]],
         author: "arch1t3cht",
         url: "https://github.com/arch1t3cht/Aegisub-Scripts",
@@ -398,9 +398,30 @@ class Matrix extends ClassFix
         }
 
 
+-- transforms each point in the given shape string. The transform argument can either be
+-- - a function that takes a 2d Point and returns a 2d Point, or
+-- - a 2x2 or 3x3 Matrix. In the case of a 3x3 Matrix, points will be transformed projectively.
+--   That is, they'll be given a z coordinate of 1, multiplied by the matrix, and projected back
+--   to the z=1 plane.
+transformShape = (shape, transform) ->
+    if type(transform) == "table" and transform.__class == Matrix
+        if #transform == 2
+            transform = transform\onSubspace(3)
+
+        mat = transform
+        transform = (pt) ->
+            pt = Point(mat * (pt .. 1))
+            return (pt / pt\z!)\project(2)
+
+    return shape\gsub("([-%d.]+) +([-%d.]+)", (x, y) ->
+        pt = transform(Point(x, y))
+        "#{pt\x!} #{pt\y!}")
+
+
 lib = {
     :Point,
     :Matrix,
+    :transformShape,
 }
 
 if haveDepCtrl
