@@ -2,7 +2,7 @@ export script_name = "Resample Perspective"
 export script_description = "Apply after resampling a script in Aegisub to fix any lines with 3D rotations."
 export script_author = "arch1t3cht"
 export script_namespace = "arch.Resample"
-export script_version = "1.2.0"
+export script_version = "1.3.0"
 
 DependencyControl = require "l0.DependencyControl"
 dep = DependencyControl{
