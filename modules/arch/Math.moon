@@ -289,6 +289,9 @@ class Matrix extends ClassFix
     transpose: () =>
         @@ [ [@[i][j] for i=1,@height] for j=1,@width]
 
+    -- shorthand for transpose
+    t: () => @transpose!
+
     -- For an nxn matrix, returns the (n+1)x(n+1) matrix that leaves the k-th canonical basis vector invariant
     -- and acts like the given matrix on the quotient space.
     -- Can also take multiple values to do this iteratively.
