@@ -391,6 +391,7 @@ class Matrix extends ClassFix
 
     @diag = (...) ->
         diagonal = {...}
+        diagonal = diagonal[1] if type(diagonal[1]) == "table"
         return @@ [ [(if i == j then diagonal[i] else 0) for j=1,#diagonal] for i=1,#diagonal]
 
     @id = (n) ->
