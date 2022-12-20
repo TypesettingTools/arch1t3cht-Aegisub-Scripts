@@ -81,7 +81,13 @@
               "moduleName": "arch.Math",
               "name": "ArchMath",
               "url": "https://github.com/arch1t3cht/Aegisub-Scripts",
-              "version": "0.1.4"
+              "version": "0.1.6"
+            },
+            {
+              "moduleName": "arch.Perspective",
+              "name": "Perspective",
+              "url": "https://github.com/arch1t3cht/Aegisub-Scripts",
+              "version": "0.2.0"
             }
           ]
         }
@@ -100,6 +106,11 @@
           "Fix strange behaviour when not all relevant tags occur in line",
           "Fix resampling to different aspect ratios",
           "Clean up tags after processing"
+        ],
+        "1.3.0": [
+          "Add support for non-center org",
+          "Support flipped and mirrored quads",
+          "Move perspective logic to the Perspective module"
         ]
       }
     },
@@ -326,6 +337,45 @@
           "Add projection function for matrices.",
           "Add shorthand t for transpose.",
           "Allow passing tables or points to Matrix.diag."
+        ]
+      }
+    },
+    "arch.Perspective": {
+      "fileBaseUrl": "@{fileBaseUrl}/modules/@{namespacePath}",
+      "url": "@{baseUrl}#@{namespace}",
+      "author": "arch1t3cht",
+      "name": "Perspective",
+      "description": "Math functions for dealing with perspective transformations.",
+      "channels": {
+        "release": {
+          "version": "0.2.0",
+          "released": "2022-12-19",
+          "default": true,
+          "files": [
+            {
+              "name": ".moon",
+              "url": "@{fileBaseUrl}@{fileName}",
+              "sha1": ""
+            }
+          ],
+          "requiredModules": [
+            {
+              "moduleName": "arch.Math",
+              "name": "ArchMath",
+              "url": "https://github.com/arch1t3cht/Aegisub-Scripts",
+              "version": "0.1.6"
+            }
+          ]
+        }
+      },
+      "changelog": {
+        "0.1.0": [
+          "Initial Release",
+          "Add Quad class and general perspective transformation functions."
+        ],
+        "0.2.0": [
+          "Add function transforming points according to .ass tags.",
+          "Add function generating .ass tags from transformed quad."
         ]
       }
     }
