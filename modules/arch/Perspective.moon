@@ -5,7 +5,7 @@ local amath
 if haveDepCtrl
     depctrl = DependencyControl {
         name: "Perspective",
-        version: "0.2.1",
+        version: "0.2.2",
         description: [[Math functions for dealing with perspective transformations.]],
         author: "arch1t3cht",
         url: "https://github.com/arch1t3cht/Aegisub-Scripts",
@@ -239,7 +239,7 @@ tagsFromQuad = (t, quad, width, height, center=false) ->
     t.shear_y.value = 0
 
 
-return {
+lib = {
     :Quad,
     :transformPoints,
     :tagsFromQuad,

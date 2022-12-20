@@ -87,7 +87,7 @@
               "moduleName": "arch.Perspective",
               "name": "Perspective",
               "url": "https://github.com/arch1t3cht/Aegisub-Scripts",
-              "version": "0.2.1"
+              "version": "0.2.2"
             }
           ]
         }
@@ -382,6 +382,9 @@
         ],
         "0.2.1": [
           "Add version record."
+        ],
+        "0.2.1": [
+          "Fix version record..."
         ]
       }
     }
