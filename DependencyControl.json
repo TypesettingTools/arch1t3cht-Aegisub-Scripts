@@ -66,14 +66,14 @@
       "description": "Apply after resampling a script in Aegisub to fix any lines with 3D rotations.",
       "channels": {
         "release": {
-          "version": "1.2.0",
-          "released": "2022-12-14",
+          "version": "1.3.0",
+          "released": "2022-12-20",
           "default": true,
           "files": [
             {
               "name": ".moon",
               "url": "@{fileBaseUrl}@{fileName}",
-              "sha1": "082e21c1760dcccf3031018a9792167457ca0a15"
+              "sha1": "e36882fe2cdedcda5b750ccd4831d98e5bd6a372"
             }
           ],
           "requiredModules": [
