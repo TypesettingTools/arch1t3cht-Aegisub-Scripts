@@ -5,7 +5,7 @@ local amath
 if haveDepCtrl
     depctrl = DependencyControl {
         name: "Perspective",
-        version: "0.2.0",
+        version: "0.2.1",
         description: [[Math functions for dealing with perspective transformations.]],
         author: "arch1t3cht",
         url: "https://github.com/arch1t3cht/Aegisub-Scripts",
@@ -244,3 +244,9 @@ return {
     :transformPoints,
     :tagsFromQuad,
 }
+
+if haveDepCtrl
+    lib.version = depctrl
+    return depctrl\register lib
+else
+    return lib
