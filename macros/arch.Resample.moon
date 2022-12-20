@@ -12,7 +12,7 @@ dep = DependencyControl{
          feed: "https://raw.githubusercontent.com/TypesettingTools/Aegisub-Motion/DepCtrl/DependencyControl.json"},
         {"l0.ASSFoundation", version: "0.5.0", url: "https://github.com/TypesettingTools/ASSFoundation",
          feed: "https://raw.githubusercontent.com/TypesettingTools/ASSFoundation/master/DependencyControl.json"},
-        {"arch.Math", version: "0.1.4", url: "https://github.com/arch1t3cht/Aegisub-Scripts",
+        {"arch.Math", version: "0.1.6", url: "https://github.com/arch1t3cht/Aegisub-Scripts",
          feed: "https://raw.githubusercontent.com/arch1t3cht/Aegisub-Scripts/main/DependencyControl.json"},
     }
 }
@@ -43,26 +43,26 @@ transformQuad = (t, width, height) ->
     quad *= Matrix({
         {1, t.shear_x.value},
         {t.shear_y.value, 1},
-    })\transpose!
+    })\t!
 
     -- Translate to alignment point
     an = t.align.value
     quad -= Point(width * an_xshift[an], height * an_yshift[an])
 
     -- Apply scaling
-    quad = quad\zipWith(((a, b) -> a * b), Matrix([Point(t.scale_x.value / 100, t.scale_y.value / 100) for i=1,4]))
+    quad *= (Matrix.diag(t.scale_x.value, t.scale_y.value) / 100)
 
     -- Translate relative to origin
     quad += pos - org
 
     -- Rotate ZXY
     quad = quad .. 0
-    quad *= Matrix.rot2d(math.rad(-t.angle.value))\onSubspace(3)\transpose!
-    quad *= Matrix.rot2d(math.rad(-t.angle_x.value))\onSubspace(1)\transpose!
-    quad *= Matrix.rot2d(math.rad(t.angle_y.value))\onSubspace(2)\transpose!
+    quad *= Matrix.rot2d(math.rad(-t.angle.value))\onSubspace(3)\t!
+    quad *= Matrix.rot2d(math.rad(-t.angle_x.value))\onSubspace(1)\t!
+    quad *= Matrix.rot2d(math.rad(t.angle_y.value))\onSubspace(2)\t!
 
     -- Project
-    quad = Matrix [ (screen_z / (p\z! + screen_z)) * Point(p\x!, p\y!) for p in *quad ]
+    quad = Matrix [ (screen_z / (p\z! + screen_z)) * p\project(2) for p in *quad ]
 
     -- Move to origin
     quad += org
@@ -75,19 +75,26 @@ tagsFromQuad = (t, quad, width, height, center=false) ->
         diag1 = quad[3] - quad[1]
         diag2 = quad[2] - quad[4]
         b = quad[4] - quad[1]
-        center_la = Matrix(diag1, diag2)\transpose!\preim b
+        center_la = Matrix(diag1, diag2)\t!\preim b
         center = quad[1] + center_la[1] * diag1
         t.origin.x = center\x!
         t.origin.y = center\y!
 
     -- Normalize to center
-    quad -= Point(t.origin.x, t.origin.y)
+    org = Point(t.origin.x, t.origin.y)
+    quad -= org
 
-    -- Find a paralellogram projecting to the quad
-    z24 = Matrix({ quad[2] - quad[3], quad[4] - quad[3] })\transpose!\preim(quad[1] - quad[3])
-    zs = Point(1, z24[1], z24\sum!, z24[2]) * 2 / z24\sum!
+    -- Find a parallelogram projecting to the quad
+    z24 = Matrix({ quad[2] - quad[3], quad[4] - quad[3] })\t!\preim(quad[1] - quad[3])
+    zs = Point(1, z24[1], z24\sum! - 1, z24[2])
     quad ..= screen_z
-    quad = Matrix[quad[i] * zs[i] for i=1,4]
+    quad = Matrix.diag(zs) * quad
+
+    -- Normalize so the origin has z=screen_z
+    orgla = Matrix({Point(0, 0, screen_z), quad[1] - quad[2], quad[1] - quad[4]})\t!\preim(quad[1])
+    quad /= orgla[1]
+
+    quad -= Matrix[{0, 0, screen_z} for i=1,4]
 
     -- Find the rotations
     n = (quad[2] - quad[1])\cross(quad[4] - quad[1])
@@ -97,23 +104,30 @@ tagsFromQuad = (t, quad, width, height, center=false) ->
     rotx = math.atan2(n\y!, n\z!)
     rx = Matrix.rot2d(rotx)\onSubspace(1)
 
-    ab = Point(rx * ry * (quad[2] - quad[1]))
+    quad *= ry\t!
+    quad *= rx\t!
+
+    ab = quad[2] - quad[1]
     rotz = math.atan2(ab\y!, ab\x!)
     rz = Matrix.rot2d(-rotz)\onSubspace(3)
 
+    quad *= rz\t!
+
     -- We now have a horizontal parallelogram in the 2D plane, so find the shear and the dimensions
-    ad = Point(rz * rx * ry * (quad[4] - quad[1]))
+    ab = quad[2] - quad[1]
+    ad = quad[4] - quad[1]
     rawfax = ad\x! / ad\y!
     
-    scalex = ab\length! / width
-    scaley = math.abs(ad\y!) / height
+    quadwidth = ab\length!
+    quadheight = math.abs(ad\y!)
+    scalex = quadwidth / width
+    scaley = quadheight / height
 
-    -- TODO: Figure out what happens here when center = false. Need to transform the entire quad back and find the positioning
+    -- Find \pos
     an = t.align.value
-    shift = Point(an_xshift[an], an_yshift[an]) - 0.5
+    pos = org + (quad[1]\project(2) + Point(quadwidth * an_xshift[an], quadheight * an_yshift[an]))
 
     -- Set all the new tags
-    pos = Point(t.origin.x, t.origin.y) - Point(height / 2 * rawfax * scaley, 0) + Point(width, height)\hadamard_prod(shift)\hadamard_prod(Point(scalex, scaley))
     t.position.x = pos\x!
     t.position.y = pos\y!
     t.angle.value = math.deg(-rotz)
@@ -125,7 +139,7 @@ tagsFromQuad = (t, quad, width, height, center=false) ->
     t.shear_y.value = 0
 
 
-resample = (ratiox, ratioy, subs, sel) ->
+resample = (ratiox, ratioy, centerorg, subs, sel) ->
     anamorphic = math.max(ratiox, ratioy) / math.min(ratiox, ratioy) > 1.01
 
     lines = LineCollection subs, sel, () -> true
@@ -176,8 +190,8 @@ resample = (ratiox, ratioy, subs, sel) ->
         -- Transform it back to the new coordinates
         tagvals.origin.x /= ratiox
         tagvals.origin.y /= ratioy
-        quad /= Matrix([ {ratiox, ratioy} for i=1,4 ])
-        tagsFromQuad(tagvals, quad, width, height, true)    -- TODO get center=false working
+        quad *= Matrix.diag(1 / ratiox, 1 / ratioy)
+        tagsFromQuad(tagvals, quad, width, height, centerorg)
 
         -- Correct \bord and \shad for the \fscx\fscy change
         for name in *{"outline", "shadow"}
@@ -229,8 +243,14 @@ resample_ui = (subs, sel) ->
         name: "targetresy",
         value: video_height or 1080,
         x: 3, y: 1, width: 1, height: 1,
+    }, {
+        class: "checkbox",
+        label: "Force center \\org",
+        hint: "If on, all lines will use the center of their quad as the \\org point. If off, the \\org of the lines will be preserved. This option should not change rendering except for rounding errors."
+        name: "centerorg"
+        x: 0, y: 2, width: 2, height: 1,
     }})
 
-    resample(results.srcresx / results.targetresx, results.srcresy / results.targetresy, subs, sel) if button
+    resample(results.srcresx / results.targetresx, results.srcresy / results.targetresy, results.centerorg, subs, sel) if button
 
 dep\registerMacro resample_ui
