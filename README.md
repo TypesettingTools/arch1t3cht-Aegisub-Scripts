@@ -63,7 +63,7 @@ https://user-images.githubusercontent.com/99741385/180628464-2f970f02-b134-474b-
 ### Resample Perspective
 Run this [script](macros/arch.Resample.moon) after Aegisub's "Resample Resolution" to fix perspective rotations in the selected lines that were broken by resampling. If you're resampling to a different aspect ratio, select "Stretch" in Aegisub's resampler.
 
-There exist multiple scripts like this already, but this script uses a different approach to ensure exact accuracy. However, it still has a few limitations:
+There exist [multiple](https://github.com/TypesettingTools/CoffeeFlux-Aegisub-Scripts#scale-rotation-tags) [scripts](https://github.com/petzku/Aegisub-Scripts#resample) like this already, but this script uses a different approach to ensure exact accuracy. However, it still has a few limitations:
 - It still requires all individual events to have one consistent perspective and will not work if perspective tags change mid-line. In these cases you'll need to split the lines manually first.
 - It does not take position shifts due to large `\shad` values into account. If these become significant, you need to split the text from the shadow, adjust the positions, and resample them separately.
 - Shapes might need to be `\an7` to be positioned properly.
