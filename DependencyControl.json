@@ -321,6 +321,11 @@
         "0.1.5": [
           "Add projection function to take subsets of coordinates.",
           "Add transformShape function."
+        ],
+        "0.1.6": [
+          "Add projection function for matrices.",
+          "Add shorthand t for transpose.",
+          "Allow passing tables or points to Matrix.diag."
         ]
       }
     }
