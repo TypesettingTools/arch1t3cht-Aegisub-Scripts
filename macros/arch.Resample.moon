@@ -99,6 +99,7 @@ tagsFromQuad = (t, quad, width, height, center=false) ->
     -- Find the rotations
     n = (quad[2] - quad[1])\cross(quad[4] - quad[1])
     roty = math.atan2(n\x!, n\z!)
+    roty += math.pi if n\z! < 0
     ry = Matrix.rot2d(roty)\onSubspace(2)
     n = Point(ry * n)
     rotx = math.atan2(n\y!, n\z!)
@@ -109,6 +110,7 @@ tagsFromQuad = (t, quad, width, height, center=false) ->
 
     ab = quad[2] - quad[1]
     rotz = math.atan2(ab\y!, ab\x!)
+    rotz += math.pi if ab\x! < 0
     rz = Matrix.rot2d(-rotz)\onSubspace(3)
 
     quad *= rz\t!
