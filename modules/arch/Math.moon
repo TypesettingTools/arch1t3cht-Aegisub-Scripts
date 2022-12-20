@@ -203,6 +203,8 @@ class Matrix extends ClassFix
 
     aslist: () => [ r\aslist! for r in *@]
 
+    project: (...) => [ r\project(...) for r in *@ ]
+
     square: () => @width == @height
 
     map: (f) =>
