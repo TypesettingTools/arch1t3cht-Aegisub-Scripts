@@ -66,14 +66,14 @@
       "description": "Apply after resampling a script in Aegisub to fix any lines with 3D rotations.",
       "channels": {
         "release": {
-          "version": "1.3.1",
+          "version": "1.3.2",
           "released": "2022-12-20",
           "default": true,
           "files": [
             {
               "name": ".moon",
               "url": "@{fileBaseUrl}@{fileName}",
-              "sha1": "13b4663b902bf053707e28a538085df372f71bb0"
+              "sha1": "c761aeed0f0d6459dc3e9aed1afd2d199dc2f208"
             }
           ],
           "requiredModules": [
@@ -351,14 +351,14 @@
       "description": "Math functions for dealing with perspective transformations.",
       "channels": {
         "release": {
-          "version": "0.2.1",
+          "version": "0.2.2",
           "released": "2022-12-20",
           "default": true,
           "files": [
             {
               "name": ".moon",
               "url": "@{fileBaseUrl}@{fileName}",
-              "sha1": "5ccbc1f3d86ddb105a7642629641eb43dce29755"
+              "sha1": "1b1fb69f66d78e4e3f98b1632219f7c09dc1bc24"
             }
           ],
           "requiredModules": [
@@ -379,9 +379,6 @@
         "0.2.0": [
           "Add function transforming points according to .ass tags.",
           "Add function generating .ass tags from transformed quad."
-        ],
-        "0.2.1": [
-          "Add version record."
         ],
         "0.2.1": [
           "Fix version record..."
