@@ -340,6 +340,9 @@
           "Add projection function for matrices.",
           "Add shorthand t for transpose.",
           "Allow passing tables or points to Matrix.diag."
+        ],
+        "0.1.7": [
+          "Fix pattern for shape transform function."
         ]
       }
     },

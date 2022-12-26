@@ -3,7 +3,7 @@ haveDepCtrl, DependencyControl, depctrl = pcall require, 'l0.DependencyControl'
 if haveDepCtrl
     depctrl = DependencyControl {
         name: "ArchMath",
-        version: "0.1.6",
+        version: "0.1.7",
         description: [[General-purpose linear algebra functions, approximately matching the patterns of Matlab or numpy]],
         author: "arch1t3cht",
         url: "https://github.com/arch1t3cht/Aegisub-Scripts",
@@ -419,7 +419,7 @@ transformShape = (shape, transform) ->
             pt = Point(mat * (pt .. 1))
             return (pt / pt\z!)\project(2)
 
-    return shape\gsub("([-%d.]+) +([-%d.]+)", (x, y) ->
+    return shape\gsub("([+-%d.eE]+)%s+([+-%d.eE]+)", (x, y) ->
         pt = transform(Point(x, y))
         "#{pt\x!} #{pt\y!}")
 
