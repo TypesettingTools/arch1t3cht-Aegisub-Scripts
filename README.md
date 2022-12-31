@@ -22,14 +22,8 @@ My automation scripts for Aegisub. In my opinion, the coolest thing here is Aegi
   - [See also](#see-also)
 
 ## Installation
-Most scripts I make use [DependencyControl](https://github.com/TypesettingTools/DependencyControl) for versioning and dependency management.
+Most scripts I make use [DependencyControl](https://github.com/TypesettingTools/DependencyControl) for versioning and dependency management, and can be installed from within Aegisub using DependencyControl's Install Script function.
 Some of them strictly require it to be installed.
-However, this repository is not added to the main feed yet, so scripts cannot yet be installed through DependencyControl.
-There's a few ways to work around this:
-- Install the scripts manually (by dropping them in `%appdata%/Aegisub/automation/autoload` on Windows or equivalent folders on other operating systems). Even if the script needs extra dependencies, DependencyControl *should* pull them automatically when loading the script. If this causes issues, you can use the other methods.
-- After installing one of my scripts manually, others can be installed via `DependencyControl > Install Script` from Aegisub
-- To be able to install all script from inside Aegisub, you can add my feed to the `config.extraFeeds` field in `%appdata%/Aegisub/config/l0.DependencyControl.json` (refer to the [documentation](https://github.com/TypesettingTools/DependencyControl#1-global-configuration)).
-- You can also use [garret's Global Config script](https://github.com/garret1317/aegisub-scripts#dependencycontrol-global-config) to do the above from inside Aegisub. Install the script, run `DependencyControl > Extra Feeds` and add the link `https://raw.githubusercontent.com/arch1t3cht/Aegisub-Scripts/main/DependencyControl.json`.
 
 ## Guides
 I wrote a [guide](doc/templaters.md) or primer on karaoke templates that aims to get people far enough to start reading documentation without too much pain. It also contains a few tables for converting templates between the three major templaters.
