@@ -6,7 +6,7 @@ if haveDepCtrl
         version: "0.1.7",
         description: [[General-purpose linear algebra functions, approximately matching the patterns of Matlab or numpy]],
         author: "arch1t3cht",
-        url: "https://github.com/arch1t3cht/Aegisub-Scripts",
+        url: "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
         moduleName: 'arch.Math',
         {}
     }

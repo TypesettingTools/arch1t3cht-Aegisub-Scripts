@@ -6,16 +6,16 @@ export script_version = "1.3.2"
 
 DependencyControl = require "l0.DependencyControl"
 dep = DependencyControl{
-    feed: "https://raw.githubusercontent.com/arch1t3cht/Aegisub-Scripts/main/DependencyControl.json",
+    feed: "https://raw.githubusercontent.com/TypesettingTools/arch1t3cht-Aegisub-Scripts/main/DependencyControl.json",
     {
         {"a-mo.LineCollection", version: "1.3.0", url: "https://github.com/TypesettingTools/Aegisub-Motion",
          feed: "https://raw.githubusercontent.com/TypesettingTools/Aegisub-Motion/DepCtrl/DependencyControl.json"},
         {"l0.ASSFoundation", version: "0.5.0", url: "https://github.com/TypesettingTools/ASSFoundation",
          feed: "https://raw.githubusercontent.com/TypesettingTools/ASSFoundation/master/DependencyControl.json"},
-        {"arch.Math", version: "0.1.6", url: "https://github.com/arch1t3cht/Aegisub-Scripts",
-         feed: "https://raw.githubusercontent.com/arch1t3cht/Aegisub-Scripts/main/DependencyControl.json"},
-        {"arch.Perspective", version: "0.2.2", url: "https://github.com/arch1t3cht/Aegisub-Scripts",
-         feed: "https://raw.githubusercontent.com/arch1t3cht/Aegisub-Scripts/main/DependencyControl.json"},
+        {"arch.Math", version: "0.1.6", url: "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
+         feed: "https://raw.githubusercontent.com/TypesettingTools/arch1t3cht-Aegisub-Scripts/main/DependencyControl.json"},
+        {"arch.Perspective", version: "0.2.2", url: "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
+         feed: "https://raw.githubusercontent.com/TypesettingTools/arch1t3cht-Aegisub-Scripts/main/DependencyControl.json"},
     }
 }
 LineCollection, ASS, AMath, APersp = dep\requireModules!

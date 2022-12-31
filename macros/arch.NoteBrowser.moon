@@ -65,7 +65,7 @@ local depctrl
 
 if haveDepCtrl
     depctrl = DependencyControl({
-        feed: "https://raw.githubusercontent.com/arch1t3cht/Aegisub-Scripts/main/DependencyControl.json",
+        feed: "https://raw.githubusercontent.com/TypesettingTools/arch1t3cht-Aegisub-Scripts/main/DependencyControl.json",
         {
             {"l0.Functional", version: "0.6.0", url: "https://github.com/TypesettingTools/Functional",
               feed: "https://raw.githubusercontent.com/TypesettingTools/Functional/master/DependencyControl.json"},

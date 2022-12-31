@@ -38,7 +38,7 @@ export aegisub = {k, v for k, v in pairs(_ac_aegisub)}
 
 _ac_i.depctrl = require'l0.DependencyControl'
 _ac_c.depctrl = _ac_i.depctrl {
-    feed: "https://raw.githubusercontent.com/arch1t3cht/Aegisub-Scripts/main/DependencyControl.json",
+    feed: "https://raw.githubusercontent.com/TypesettingTools/arch1t3cht-Aegisub-Scripts/main/DependencyControl.json",
     {
         {"l0.Functional", version: "0.6.0", url: "https://github.com/TypesettingTools/Functional",
           feed: "https://raw.githubusercontent.com/TypesettingTools/Functional/master/DependencyControl.json"},

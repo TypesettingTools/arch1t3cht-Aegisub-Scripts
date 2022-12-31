@@ -10,10 +10,10 @@ local depctrl
 
 if haveDepCtrl
     depctrl = DependencyControl({
-        feed: "https://raw.githubusercontent.com/arch1t3cht/Aegisub-Scripts/main/DependencyControl.json",
+        feed: "https://raw.githubusercontent.com/TypesettingTools/arch1t3cht-Aegisub-Scripts/main/DependencyControl.json",
         {
-            {"arch.Math", version: "0.1.0", url: "https://github.com/arch1t3cht/Aegisub-Scripts",
-            feed: "https://raw.githubusercontent.com/arch1t3cht/Aegisub-Scripts/main/DependencyControl.json"},
+            {"arch.Math", version: "0.1.0", url: "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
+            feed: "https://raw.githubusercontent.com/TypesettingTools/arch1t3cht-Aegisub-Scripts/main/DependencyControl.json"},
         }
     })
     AMath = depctrl\requireModules!

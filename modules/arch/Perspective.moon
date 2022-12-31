@@ -8,11 +8,11 @@ if haveDepCtrl
         version: "0.2.2",
         description: [[Math functions for dealing with perspective transformations.]],
         author: "arch1t3cht",
-        url: "https://github.com/arch1t3cht/Aegisub-Scripts",
+        url: "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
         moduleName: 'arch.Perspective',
         {
-            {"arch.Math", version: "0.1.6", url: "https://github.com/arch1t3cht/Aegisub-Scripts",
-            feed: "https://raw.githubusercontent.com/arch1t3cht/Aegisub-Scripts/main/DependencyControl.json"},
+            {"arch.Math", version: "0.1.6", url: "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
+            feed: "https://raw.githubusercontent.com/TypesettingTools/arch1t3cht-Aegisub-Scripts/main/DependencyControl.json"},
         }
     }
 

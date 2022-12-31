@@ -6,9 +6,9 @@
   "knownFeeds": {
     "Functional": "https://raw.githubusercontent.com/TypesettingTools/Functional/master/DependencyControl.json"
   },
-  "baseUrl": "https://github.com/arch1t3cht/Aegisub-Scripts",
+  "baseUrl": "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
   "url": "@{baseUrl}",
-  "fileBaseUrl": "https://raw.githubusercontent.com/arch1t3cht/Aegisub-Scripts/@{namespace}-v@{version}",
+  "fileBaseUrl": "https://raw.githubusercontent.com/TypesettingTools/arch1t3cht-Aegisub-Scripts/@{namespace}-v@{version}",
   "macros": {
     "arch.AegisubChain": {
       "fileBaseUrl": "@{fileBaseUrl}/macros/@{namespace}",
@@ -80,13 +80,13 @@
             {
               "moduleName": "arch.Math",
               "name": "ArchMath",
-              "url": "https://github.com/arch1t3cht/Aegisub-Scripts",
+              "url": "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
               "version": "0.1.6"
             },
             {
               "moduleName": "arch.Perspective",
               "name": "Perspective",
-              "url": "https://github.com/arch1t3cht/Aegisub-Scripts",
+              "url": "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
               "version": "0.2.2"
             }
           ]
@@ -139,7 +139,7 @@
             {
               "moduleName": "arch.Math",
               "name": "ArchMath",
-              "url": "https://github.com/arch1t3cht/Aegisub-Scripts",
+              "url": "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
               "version": "0.1.0"
             }
           ]
@@ -368,7 +368,7 @@
             {
               "moduleName": "arch.Math",
               "name": "ArchMath",
-              "url": "https://github.com/arch1t3cht/Aegisub-Scripts",
+              "url": "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
               "version": "0.1.6"
             }
           ]

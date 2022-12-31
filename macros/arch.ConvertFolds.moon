@@ -10,7 +10,7 @@ local depctrl
 
 if haveDepCtrl
     depctrl = DependencyControl({
-        feed: "https://raw.githubusercontent.com/arch1t3cht/Aegisub-Scripts/main/DependencyControl.json",
+        feed: "https://raw.githubusercontent.com/TypesettingTools/arch1t3cht-Aegisub-Scripts/main/DependencyControl.json",
         {},
     })
     config = depctrl\getConfigHandler(default_config, "config", false)
