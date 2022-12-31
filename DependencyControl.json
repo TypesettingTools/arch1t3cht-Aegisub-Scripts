@@ -18,14 +18,14 @@
       "description": "Compose chains out of existing automation macros, and play them back as non-GUI macros, or using only one dialog.",
       "channels": {
         "release": {
-          "version": "0.4.0",
-          "released": "2022-10-14",
+          "version": "0.4.1",
+          "released": "2022-12-31",
           "default": true,
           "files": [
             {
               "name": ".moon",
               "url": "@{fileBaseUrl}@{fileName}",
-              "sha1": "52ed0868240b75daf690301da5a7873e908f9106"
+              "sha1": "f9789afbb79aceb24d3ef371059653071bcbc162"
             }
           ],
           "requiredModules": [
@@ -69,14 +69,14 @@
       "description": "Apply after resampling a script in Aegisub to fix any lines with 3D rotations.",
       "channels": {
         "release": {
-          "version": "1.3.2",
-          "released": "2022-12-20",
+          "version": "1.3.3",
+          "released": "2022-12-31",
           "default": true,
           "files": [
             {
               "name": ".moon",
               "url": "@{fileBaseUrl}@{fileName}",
-              "sha1": "c761aeed0f0d6459dc3e9aed1afd2d199dc2f208"
+              "sha1": "2d435191867e671ee2d48117b4f9fd0135336bea"
             }
           ],
           "requiredModules": [
@@ -131,14 +131,14 @@
       "description": "Draws moving focus lines.",
       "channels": {
         "release": {
-          "version": "1.0.0",
-          "released": "2022-07-24",
+          "version": "1.0.1",
+          "released": "2022-12-31",
           "default": true,
           "files": [
             {
               "name": ".moon",
               "url": "@{fileBaseUrl}@{fileName}",
-              "sha1": "3b099cb3a395db928e16c5ae405eee212cf295eb"
+              "sha1": "f03b9ef81267a37850826dbd3f85f6cae3883493"
             }
           ],
           "requiredModules": [
@@ -168,14 +168,14 @@
       "description": "Shortcuts for managing multiple rewrites of a line in one .ass event line.",
       "channels": {
         "release": {
-          "version": "1.3.0",
-          "released": "2022-08-01",
+          "version": "1.3.1",
+          "released": "2022-12-31",
           "default": true,
           "files": [
             {
               "name": ".lua",
               "url": "@{fileBaseUrl}@{fileName}",
-              "sha1": "73d9d651c26d84898c4a99cd9763a1ca550fe10a"
+              "sha1": "f70cf891188752ce1c5ec911cbd7de505bfe2b82"
             }
           ]
         }
@@ -206,14 +206,14 @@
       "description": "Loads a set of timestamped notes and adds options to mark them or jump between them.",
       "channels": {
         "release": {
-          "version": "1.3.4",
-          "released": "2022-06-21",
+          "version": "1.3.5",
+          "released": "2022-12-31",
           "default": true,
           "files": [
             {
               "name": ".moon",
               "url": "@{fileBaseUrl}@{fileName}",
-              "sha1": "5d66befd522cd8214128d4f0e2e62dd9d48ea7c8"
+              "sha1": "75bd6d2749190999cba015e8936836d2bb729746"
             }
           ]
         }
@@ -248,14 +248,14 @@
       "description": "Displays git diffs in Aegisub",
       "channels": {
         "release": {
-          "version": "0.2.3",
-          "released": "2022-07-16",
+          "version": "0.2.4",
+          "released": "2022-12-31",
           "default": true,
           "files": [
             {
               "name": ".moon",
               "url": "@{fileBaseUrl}@{fileName}",
-              "sha1": "ff7702508e970898549a2e5b38d6f68f7cbd926d"
+              "sha1": "9751a0702c03a65434977a3a6d371431a24bd658"
             }
           ]
         }
@@ -290,14 +290,14 @@
       "description": "Convert folds stored in the project properties to extradata folds.",
       "channels": {
         "release": {
-          "version": "1.1.1",
-          "released": "2022-12-12",
+          "version": "1.1.2",
+          "released": "2022-12-31",
           "default": true,
           "files": [
             {
               "name": ".moon",
               "url": "@{fileBaseUrl}@{fileName}",
-              "sha1": "7c1e179a03fc1fc531c4f2e4591116208d9942ec"
+              "sha1": "05bc513095c66ec0adc175de551199b80bfa1c4d"
             }
           ]
         }
@@ -324,14 +324,14 @@
       "description": "General-purpose linear algebra functions, approximately matching the patterns of Matlab or numpy",
       "channels": {
         "release": {
-          "version": "0.1.7",
-          "released": "2022-12-26",
+          "version": "0.1.8",
+          "released": "2022-12-31",
           "default": true,
           "files": [
             {
               "name": ".moon",
               "url": "@{fileBaseUrl}@{fileName}",
-              "sha1": "cbbbb7d13a80996c81551512f19073dcb68b72bf"
+              "sha1": "3e328244410c9704ea5c11c58dbd7c1576c2df64"
             }
           ]
         }
@@ -378,14 +378,14 @@
       "description": "Math functions for dealing with perspective transformations.",
       "channels": {
         "release": {
-          "version": "0.2.2",
-          "released": "2022-12-20",
+          "version": "0.2.3",
+          "released": "2022-12-31",
           "default": true,
           "files": [
             {
               "name": ".moon",
               "url": "@{fileBaseUrl}@{fileName}",
-              "sha1": "1b1fb69f66d78e4e3f98b1632219f7c09dc1bc24"
+              "sha1": "559655f25aef45ade444702c2a4f91343bf51367"
             }
           ],
           "requiredModules": [
