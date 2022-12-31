@@ -1,6 +1,6 @@
 export script_name = "AegisubChain"
 export script_description = "Compose chains out of existing automation macros, and play them back as non-GUI macros, or using only one dialog."
-export script_version = "0.4.0"
+export script_version = "0.4.1"
 export script_namespace = "arch.AegisubChain"
 export script_author = "arch1t3cht"
 

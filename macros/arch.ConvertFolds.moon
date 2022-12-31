@@ -2,7 +2,7 @@ export script_name = "Convert Folds"
 export script_description = "Convert folds stored in the project properties to extradata folds."
 export script_author = "arch1t3cht"
 export script_namespace = "arch.ConvertFolds"
-export script_version = "1.1.1"
+export script_version = "1.1.2"
 
 haveDepCtrl, DependencyControl = pcall(require, "l0.DependencyControl")
 

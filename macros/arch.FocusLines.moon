@@ -1,6 +1,6 @@
 export script_name = "Focus Lines"
 export script_description = "Draws moving focus lines."
-export script_version = "1.0.0"
+export script_version = "1.0.1"
 export script_namespace = "arch.FocusLines"
 export script_author = "arch1t3cht"
 

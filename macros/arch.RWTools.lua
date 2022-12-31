@@ -1,6 +1,6 @@
 script_name = "Rewriting Tools"
 script_author = "arch1t3cht"
-script_version = "1.3.0"
+script_version = "1.3.1"
 script_namespace = "arch.RWTools"
 script_description = "Shortcuts for managing multiple rewrites of a line in one .ass event line."
 
