@@ -13,7 +13,6 @@ if haveDepCtrl
         feed: "https://raw.githubusercontent.com/TypesettingTools/arch1t3cht-Aegisub-Scripts/main/DependencyControl.json",
         {},
     })
-    config = depctrl\getConfigHandler(default_config, "config", false)
 
 
 folds_key = "_aegi_folddata"
