@@ -215,6 +215,15 @@
               "url": "@{fileBaseUrl}@{fileName}",
               "sha1": "75bd6d2749190999cba015e8936836d2bb729746"
             }
+          ],
+          "requiredModules": [
+            {
+              "moduleName": "l0.Functional",
+              "name": "(Almost) Functional Suite",
+              "url": "https://github.com/TypesettingTools/ASSFoundation",
+              "version": "0.6.0",
+              "feed": "https://raw.githubusercontent.com/TypesettingTools/ASSFoundation/master/DependencyControl.json"
+            }
           ]
         }
       },
@@ -256,6 +265,15 @@
               "name": ".moon",
               "url": "@{fileBaseUrl}@{fileName}",
               "sha1": "9751a0702c03a65434977a3a6d371431a24bd658"
+            }
+          ],
+          "requiredModules": [
+            {
+              "moduleName": "l0.Functional",
+              "name": "(Almost) Functional Suite",
+              "url": "https://github.com/TypesettingTools/ASSFoundation",
+              "version": "0.6.0",
+              "feed": "https://raw.githubusercontent.com/TypesettingTools/ASSFoundation/master/DependencyControl.json"
             }
           ]
         }
