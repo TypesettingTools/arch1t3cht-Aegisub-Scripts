@@ -4,6 +4,7 @@
   "description": "Main repository for all of arch1t3cht's automation macros.",
   "maintainer": "arch1t3cht",
   "knownFeeds": {
+    "ASSFoundation": "https://raw.githubusercontent.com/TypesettingTools/ASSFoundation/master/DependencyControl.json",
     "Functional": "https://raw.githubusercontent.com/TypesettingTools/Functional/master/DependencyControl.json"
   },
   "baseUrl": "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
@@ -80,6 +81,13 @@
             }
           ],
           "requiredModules": [
+            {
+              "moduleName": "l0.ASSFoundation",
+              "name": "ASSFoundation",
+              "url": "https://github.com/TypesettingTools/ASSFoundation",
+              "version": "0.5.0",
+              "feed": "https://raw.githubusercontent.com/TypesettingTools/ASSFoundation/master/DependencyControl.json"
+            },
             {
               "moduleName": "arch.Math",
               "name": "ArchMath",
