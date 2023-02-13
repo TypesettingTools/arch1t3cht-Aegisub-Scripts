@@ -244,7 +244,7 @@ focus_lines = (subs, sel) ->
             class: "floatedit",
             name: "linepointiness",
             min: 0,
-            max: 2,
+            max: 100,
             value: 70,
             x: 6, y: 3, width: 1, height: 1,
         }}, {ok, help, cancel}, {ok: ok, cancel: cancel})
