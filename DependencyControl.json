@@ -62,6 +62,69 @@
         ]
       }
     },
+   "arch.DerivePerspTrack": {
+      "fileBaseUrl": "@{fileBaseUrl}/macros/@{namespace}",
+      "url": "@{baseUrl}#@{namespace}",
+      "author": "arch1t3cht",
+      "name": "Derive Perspective Track",
+      "description": "Create a power-pin track file from the outer perspective quads of a set of lines.",
+      "channels": {
+        "release": {
+          "version": "1.0.0",
+          "released": "2023-05-13",
+          "default": true,
+          "files": [
+            {
+              "name": ".moon",
+              "url": "@{fileBaseUrl}@{fileName}",
+              "sha1": ""
+            }
+          ]
+        }
+      },
+      "changelog": {
+        "1.0.0": [
+          "Initial Release"
+        ]
+      }
+    },
+    "arch.FocusLines": {
+      "fileBaseUrl": "@{fileBaseUrl}/macros/@{namespace}",
+      "url": "@{baseUrl}#@{namespace}",
+      "author": "arch1t3cht",
+      "name": "Focus Lines",
+      "description": "Draws moving focus lines.",
+      "channels": {
+        "release": {
+          "version": "1.0.1",
+          "released": "2022-12-31",
+          "default": true,
+          "files": [
+            {
+              "name": ".moon",
+              "url": "@{fileBaseUrl}@{fileName}",
+              "sha1": "f03b9ef81267a37850826dbd3f85f6cae3883493"
+            }
+          ],
+          "requiredModules": [
+            {
+              "moduleName": "arch.Math",
+              "name": "ArchMath",
+              "url": "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
+              "version": "0.1.8"
+            }
+          ]
+        }
+      },
+      "changelog": {
+        "1.0.0": [
+          "Initial Release"
+        ],
+        "1.0.1": [
+          "Move repository to TypesettingTools/arch1t3cht-Aegisub-Scripts"
+        ]
+      }
+    },
     "arch.Resample": {
       "fileBaseUrl": "@{fileBaseUrl}/macros/@{namespace}",
       "url": "@{baseUrl}#@{namespace}",
