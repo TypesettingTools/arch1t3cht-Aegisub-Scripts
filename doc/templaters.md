@@ -14,7 +14,7 @@ Furthermore, I have a collection [here](misc_kara.md) of miscellaneous templates
 
 ## Existing Templaters
 At the time of writing (2022), there are three major karaoke templaters around:
-1. The stock templater shipped with Aegisub, documented [here](https://aeg-dev.github.io/AegiSite/docs/3.2/automation/karaoke_templater/) as part of the Aegisub documentation. The documentation is very detailed, but rather technical.
+1. The stock templater shipped with Aegisub, documented [here](https://aegisub.org/docs/latest/automation/karaoke_templater/) as part of the Aegisub documentation. The documentation is very detailed, but rather technical.
 2. [KaraOK](https://github.com/logarrhythmic/karaOK), a modified version of the stock templater together with a utility library. It's also shipped by default with some newer Aegisub versions like [AegisubDC](https://github.com/Ristellise/AegisubDC).
 3. [The0x539's Templater](https://github.com/The0x539/Aegisub-Scripts/blob/trunk/src/0x.KaraTemplater.moon), documented [here](https://github.com/The0x539/Aegisub-Scripts/blob/trunk/doc/0x.KaraTemplater.md) in its repository. This is a fully rewritten templater with more powerful execution logic (mixins, stronger conditionals, nested loops, etc) and more sensibly organized variables.
 
@@ -84,7 +84,7 @@ Now, the interesting part is that this can't only contain static text, but also 
 
 Furthermore, in this Lua environment, the templater gives you access to all necessary information about your `kara` line.
 This is stored in the `orgline` table, which has the format of the standard table describing an `.ass` line, but also contains lots of additional fields added by karaskel or by The0x's templater.
-The karaskel fields are documented [here](https://aeg-dev.github.io/AegiSite/docs/3.2/automation/lua/modules/karaskel.lua/#dialogue-line-table) while The0x's fields are documented in the templater's documentation.
+The karaskel fields are documented [here](https://aegisub.org/docs/latest/automation/lua/modules/karaskel.lua/#dialogue-line-table) while The0x's fields are documented in the templater's documentation.
 
 *For example, `orgline.duration` is the duration of the `kara` line.
 So if you put `{\t(0,!orgline.duration/2!,\fscx150\fscy150)\t(!orgline.duration/2!,!orgline.duration!,\fscx100\fscy100)}` in your `template line`, this would create an effect that makes each line get bigger and smaller over its duration.
@@ -99,7 +99,7 @@ So the above template could also be written as `{\t(0,!$ldur/2!,\fscx150\fscy150
 Note that the last occurrence of `$ldur` is not wrapped in exclamation marks, as its value can be directly substituted into the command text.
 However, the previous two instances still need to happen inside of a Lua eval block to perform arithmetic operations with them afterwards.*
 
-The inline variables for the stock templater are documented [here](https://aeg-dev.github.io/AegiSite/docs/3.2/automation/karaoke_templater/inline_variables/).
+The inline variables for the stock templater are documented [here](https://aegisub.org/docs/latest/automation/karaoke_templater/inline_variables/).
 KaraOK adds a character index variable `$ci`.
 However, The0x's templater removes most of these inline variables.
 You can see which ones are still available [here](https://github.com/The0x539/Aegisub-Scripts/blob/4d00d789d4897a04687fa7f66d3dce29dae64b64/src/0x.KaraTemplater.moon#L750-L775).
@@ -327,14 +327,14 @@ This is not a complete list. Check the documentation for all possible modifiers.
 Apart from the various line tables, utility functions, and loop variables, the templaters expose various different libraries and data in `tenv`, to be accessed directly from Lua eval fields:
 
 - All three templaters provide the global environment `_G` of the calling templater to `tenv`, through which all other global variables can be accessed. For example, on the stock templater or KaraOK, Aegisub's `unicode` library can be accessed via `_G.unicode`.
-- The stock templater exposed only the `string` and `math` libraries, as seen [here](https://github.com/Aegisub/Aegisub/blob/6f546951b4f004da16ce19ba638bf3eedefb9f31/automation/autoload/kara-templater.lua#L294-L300). The final member `meta` is the map of script metadata fields in the subtitle file's `[Script Info]` section, as [collected by karaskel](https://aeg-dev.github.io/AegiSite/docs/3.2/automation/lua/modules/karaskel.lua/#karaskelcollect_head).
+- The stock templater exposed only the `string` and `math` libraries, as seen [here](https://github.com/Aegisub/Aegisub/blob/6f546951b4f004da16ce19ba638bf3eedefb9f31/automation/autoload/kara-templater.lua#L294-L300). The final member `meta` is the map of script metadata fields in the subtitle file's `[Script Info]` section, as [collected by karaskel](https://aegisub.org/docs/latest/automation/lua/modules/karaskel.lua/#karaskelcollect_head).
 - In addition to this, KaraOK exposes the `math` libarary, as well as the subtitles object `subs` and various utility functions such as `ipairs` and `tostring`. The full list is [here](https://github.com/logarrhythmic/karaOK/blob/dc26cf017809b3d6ee2fabf01b454b09a6d1413a/autoload/ln.kara-templater-mod.lua#L336-L349).
 - The0x's templater exposes all of the libraries that KaraOK does, together with Aegisub's libraries `unicode` and `karaskel`. When available, it also exposes KaraOK's library as `ln` (which is automatically initialized), and The0x's color library as `colorlib`.
 The0x's templater does not expose all of the utility functions KaraOK does (`ipairs` being the most notable one), but exposes some other functions such as `require`. See [here](https://github.com/The0x539/Aegisub-Scripts/blob/3cd439b9d2bef2307a1c5725deb03206383b8ad3/src/0x.KaraTemplater.moon#L181) for a full list.
 The templater also exposes the `subs`, `meta`, and `styles` objects, and its own utility library [here](https://github.com/The0x539/Aegisub-Scripts/blob/3cd439b9d2bef2307a1c5725deb03206383b8ad3/src/0x.KaraTemplater.moon#L240).
 
 ### Inline variables
-- The following list is complete with respect to the inline variables in the stock templater and KaraOK. It's in the same order as the [documentation for inline variables in the stock templater](https://aeg-dev.github.io/AegiSite/docs/3.2/automation/karaoke_templater/inline_variables/), so refer to that for the explanations of these variables.
+- The following list is complete with respect to the inline variables in the stock templater and KaraOK. It's in the same order as the [documentation for inline variables in the stock templater](https://aegisub.org/docs/latest/automation/karaoke_templater/inline_variables/), so refer to that for the explanations of these variables.
     - The0x's templater contains additional inline variables for working with loops, as well as the `$env_*` variables - see the source code for these.
 - The expressions in the following table are analogues of each other, but they might not be exactly equal. In particular, some values are rounded in the stock templater.
 - Many of the expressions listed below for The0x's templater also work for the stock templater and KaraOK.
