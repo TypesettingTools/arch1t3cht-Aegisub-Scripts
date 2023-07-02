@@ -133,7 +133,7 @@ We don't need `syl` for the y position, since the syllable's y position isn't de
 In fact `syl.middle` doesn't even exist.
 [^2]: I am aware that `$smiddle` also exists, but I'm trying to highlight the `$s[var]` and `$l[var]` pattern.
 
-*With everything we know now, we can already make a simple template[^3].
+*With everything we know now, we can already make a simple template.
 The only remaining pieces we need are the variables `syl.duration`, `syl.start_time`, and `syl.end_time`, which are the syllable's duration and start and end times in milliseconds respectively, with the latter two again being relative to the current line's start time.
 With this, we can make a simple template*
 ```
@@ -142,7 +142,8 @@ With this, we can make a simple template*
 \t(!syl.start_time+syl.duration/2!,!syl.end_time!,\fscx100\fscy100)}
 ```
 *that highlights each syllable by making it larger and smaller again.*
-[^3]: Again, I make no claims that this template is *fitting* for the song we're working with. I just want to keep it simple.
+
+*Note: This is only an example styling, designed to be as simple as possible. It is not perfect styling, nor is it styling you should copy at all. Its biggest problem is that the scaling on syl highlights follows a simple triangle curve: It grows for half of the syllable's duration, and shrinks for the other half. This will make short syllables grow and shrink very quickly, while the more dragged out syllables grow and shrink very slowly, reaching their peak size far too late. For actual song styling, you should instead make the highlight follow something resembling an [ADSR Curve](https://en.wikipedia.org/wiki/Envelope_(music)#ADSR), i.e. leave the growing and shrinking times somewhat constant and instead sustain the highlight effect for some time for longer syllables.*
 
 **I've now explained most of the basics of templating, and hopefully you should now be able to read the documentation of the various templaters or dissect existing templates ([these](misc_kara.md), for example) to dive deeper. Read on if you want primers on some of the more specific concepts.**
 
