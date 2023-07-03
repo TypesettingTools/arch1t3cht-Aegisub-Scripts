@@ -302,6 +302,9 @@ This is not a complete list. Check the documentation for all possible modifiers.
 | not present | `template lchar` | `template line` + `mixin char` |
 | not present | `template lword` | `template line` + `mixin word` |
 ||||
+| `all` (for template and code components) | `all` | `anystyle` |
+| not present | `all style <stylename>` | `style <stylename>` |
+||||
 | not present | not present | general `mixin line` |
 | not present | not present | general `mixin syl` |
 | not present | not present | general `mixin char` |
