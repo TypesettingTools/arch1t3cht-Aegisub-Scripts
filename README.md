@@ -56,7 +56,7 @@ A script that generates moving focus lines, tweakable with a few parameters.
 https://user-images.githubusercontent.com/99741385/180628464-2f970f02-b134-474b-b4b6-a998c22fcf75.mp4
 
 ### Derive Perspective Track
-More or less an analogue to [The0x539's DeriveTrack](https://github.com/The0x539/Aegisub-Scripts/blob/trunk/doc/0x.DeriveTrack.md) for perspective tracks. It turns the outer quads of a set of lines (as set using the perspective tool in [my Aegisub fork](https://github.com/arch1t3cht/Aegisub)) into a PowerPin track that can be used with [Aegisub Perspective-Motion](https://github.com/Zahuczky/Zahuczkys-Aegisub-Scripts/tree/main). This way, manual perspective tracks can be made and applied to multiple different lines directly in Aegisub, without having to go through Mocha or Blender.
+More or less an analogue to [The0x539's DeriveTrack](https://github.com/The0x539/Aegisub-Scripts/blob/trunk/doc/0x.DeriveTrack.md) for perspective tracks. It turns the outer quads of a set of lines (as set using the perspective tool in [my Aegisub fork](https://github.com/arch1t3cht/Aegisub)) into a PowerPin track that can be used with [Aegisub Perspective-Motion](https://github.com/Zahuczky/Zahuczkys-Aegisub-Scripts/tree/main). Alternatively, it can derive a track directly from the override tags. This way, manual perspective tracks can be made and applied to multiple different lines directly in Aegisub, without having to go through Mocha or Blender.
 
 ### Resample Perspective
 Run this [script](macros/arch.Resample.moon) after Aegisub's "Resample Resolution" to fix perspective rotations in the selected lines that were broken by resampling. If you're resampling to a different aspect ratio, select "Stretch" in Aegisub's resampler.
