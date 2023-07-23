@@ -79,6 +79,21 @@
               "url": "@{fileBaseUrl}@{fileName}",
               "sha1": "25f9a1ddbd09ca73d0e8e0d8f6ceb0d227ec9f26"
             }
+          ],
+          "requiredModules": [
+            {
+              "moduleName": "l0.Functional",
+              "name": "(Almost) Functional Suite",
+              "url": "https://github.com/TypesettingTools/ASSFoundation",
+              "version": "0.6.0",
+              "feed": "https://raw.githubusercontent.com/TypesettingTools/ASSFoundation/master/DependencyControl.json"
+            },
+            {
+              "moduleName": "arch.Math",
+              "name": "ArchMath",
+              "url": "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
+              "version": "0.1.9"
+            }
           ]
         }
       },

@@ -4,28 +4,24 @@ export script_author = "arch1t3cht"
 export script_namespace = "arch.DerivePerspTrack"
 export script_version = "1.0.0"
 
-haveDepCtrl, DependencyControl = pcall(require, "l0.DependencyControl")
-local depctrl
-if haveDepCtrl
-    depctrl = DependencyControl{
-        feed: "https://raw.githubusercontent.com/TypesettingTools/arch1t3cht-Aegisub-Scripts/main/DependencyControl.json",
+DependencyControl = require("l0.DependencyControl")
+dep = DependencyControl{
+    feed: "https://raw.githubusercontent.com/TypesettingTools/arch1t3cht-Aegisub-Scripts/main/DependencyControl.json",
+    {
+        {"l0.Functional", version: "0.6.0", url: "https://github.com/TypesettingTools/Functional",
+          feed: "https://raw.githubusercontent.com/TypesettingTools/Functional/master/DependencyControl.json"},
+        {"arch.Math", version: "0.1.9", url: "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
+         feed: "https://raw.githubusercontent.com/TypesettingTools/arch1t3cht-Aegisub-Scripts/main/DependencyControl.json"},
+        "karaskel",
     }
+}
 
-require "karaskel"
+Functional, AMath = dep\requireModules!
+{:Point, :Matrix} = AMath
+
 
 outer_quad_key = "_aegi_perspective_ambient_plane"
 translate_outer_powerpin = {1, 2, 4, 3}
-
--- Reinvent a wheel or two here... this script is really simple so it's worth doing this to avoid having external dependencies
-min = (l) ->
-    result = math.huge
-    for v in *l
-        result = math.min(result, v)
-    return result
-
-max = (l) -> -min([-v for v in *l])
-
-keys = (l) -> [k for k,v in pairs(l)]
 
 get_outer_quad = (line) ->
     quadinfo = line.extra[outer_quad_key]
@@ -58,8 +54,8 @@ derive_persp_track = (subs, sel) ->
             
             quads[f] = q
 
-    minf = min(keys(quads))
-    maxf = max(keys(quads))
+    minf = Point(Functional.table.keys(quads))\min()
+    maxf = Point(Functional.table.keys(quads))\max()
 
     powerpin = {}
     append = (s) -> table.insert powerpin, s
@@ -90,7 +86,4 @@ derive_persp_track = (subs, sel) ->
     aegisub.log(table.concat powerpin, "\n")
 
 
-if haveDepCtrl
-    depctrl\registerMacro derive_persp_track
-else
-    aegisub.register_macro(script_name, script_description, derive_persp_track)
+dep\registerMacro derive_persp_track
