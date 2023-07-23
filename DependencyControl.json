@@ -89,10 +89,23 @@
               "feed": "https://raw.githubusercontent.com/TypesettingTools/ASSFoundation/master/DependencyControl.json"
             },
             {
+              "moduleName": "l0.ASSFoundation",
+              "name": "ASSFoundation",
+              "url": "https://github.com/TypesettingTools/ASSFoundation",
+              "version": "0.5.0",
+              "feed": "https://raw.githubusercontent.com/TypesettingTools/ASSFoundation/master/DependencyControl.json"
+            },
+            {
               "moduleName": "arch.Math",
               "name": "ArchMath",
               "url": "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
               "version": "0.1.9"
+            },
+            {
+              "moduleName": "arch.Perspective",
+              "name": "Perspective",
+              "url": "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
+              "version": "0.2.3"
             }
           ]
         }

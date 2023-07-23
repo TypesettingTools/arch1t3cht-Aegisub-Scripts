@@ -10,36 +10,68 @@ dep = DependencyControl{
     {
         {"l0.Functional", version: "0.6.0", url: "https://github.com/TypesettingTools/Functional",
           feed: "https://raw.githubusercontent.com/TypesettingTools/Functional/master/DependencyControl.json"},
+        {"a-mo.Line", version: "1.5.3", url: "https://github.com/TypesettingTools/Aegisub-Motion",
+          feed: "https://raw.githubusercontent.com/TypesettingTools/Aegisub-Motion/DepCtrl/DependencyControl.json"},
+        {"a-mo.LineCollection", version: "1.3.0", url: "https://github.com/TypesettingTools/Aegisub-Motion",
+         feed: "https://raw.githubusercontent.com/TypesettingTools/Aegisub-Motion/DepCtrl/DependencyControl.json"},
+        {"l0.ASSFoundation", version: "0.5.0", url: "https://github.com/TypesettingTools/ASSFoundation",
+         feed: "https://raw.githubusercontent.com/TypesettingTools/ASSFoundation/master/DependencyControl.json"},
         {"arch.Math", version: "0.1.9", url: "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
+         feed: "https://raw.githubusercontent.com/TypesettingTools/arch1t3cht-Aegisub-Scripts/main/DependencyControl.json"},
+        {"arch.Perspective", version: "0.2.3", url: "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
          feed: "https://raw.githubusercontent.com/TypesettingTools/arch1t3cht-Aegisub-Scripts/main/DependencyControl.json"},
         "karaskel",
     }
 }
 
-Functional, AMath = dep\requireModules!
-{:Point, :Matrix} = AMath
+Functional, Line, LineCollection, ASS, AMath, APersp = dep\requireModules!
+{:Point} = AMath
+{:transformPoints, :Quad} = APersp
 
 
 outer_quad_key = "_aegi_perspective_ambient_plane"
 translate_outer_powerpin = {1, 2, 4, 3}
 
-get_outer_quad = (line) ->
-    quadinfo = line.extra[outer_quad_key]
+
+get_outer_quad = (subs, i) ->
+    quadinfo = subs[i].extra[outer_quad_key]
     return nil if quadinfo == nil
 
     x1, y1, x2, y2, x3, y3, x4, y4 = quadinfo\match("^([%d-.]+);([%d-.]+)|([%d-.]+);([%d-.]+)|([%d-.]+);([%d-.]+)|([%d-.]+);([%d-.]+)$")
     return nil if x1 == nil
 
-    return {{x1, x2, x3, x4}, {y1, y2, y3, y4}}
+    return Quad({{x1, y1}, {x2, y2}, {x3, y3}, {x4, y4}})
 
 
-derive_persp_track = (subs, sel) ->
+get_quad_from_tags = (subs, i) ->
+    -- We need to go through LineCollection here to get the styleRef
+    lines = LineCollection subs, {i}
+
+    data = ASS\parse(lines.lines[1])
+    tags = data\getEffectiveTags(-1, true, true, true).tags
+
+    width, height = data\getTextExtents!
+    width /= (tags.scale_x.value / 100)
+    height /= (tags.scale_y.value / 100)
+    if data\getPosition().class == ASS.Tag.Move
+        aegisub.log("Failed to derive: line has \\move!")
+        aegisub.cancel()
+
+    -- Manually enforce the relations between tags
+    if #data\getTags({"origin"}) == 0
+        tags.origin.x = tags.position.x
+        tags.origin.y = tags.position.y
+
+    return transformPoints(tags, width, height)
+
+
+derive_persp_track = (derive_fun) -> (subs, sel) ->
     meta = karaskel.collect_head subs, false
     quads = {}
 
     for li in *sel
         line = subs[li]
-        q = get_outer_quad(line)
+        q = derive_fun(subs, li)
         if q == nil
             aegisub.log("Selected line has no outer quad set!")
             aegisub.cancel()
@@ -77,7 +109,7 @@ derive_persp_track = (subs, sel) ->
         q = quads[minf]
         for f=minf,maxf
             q = quads[f] unless quads[f] == nil
-            append "\t#{f - minf}\t#{q[1][j]}\t#{q[2][j]}"
+            append "\t#{f - minf}\t#{q[j][1]}\t#{q[j][2]}"
 
         append ""
     
@@ -86,4 +118,7 @@ derive_persp_track = (subs, sel) ->
     aegisub.log(table.concat powerpin, "\n")
 
 
-dep\registerMacro derive_persp_track
+dep\registerMacros {
+    {"From Outer Quad", "Derive a Power-Pin track from the outer quad set using the perspective tool", derive_persp_track get_outer_quad}
+    {"From Tags", "Derive a Power-Pin track from the override tags of the selected lines", derive_persp_track get_quad_from_tags}
+}
