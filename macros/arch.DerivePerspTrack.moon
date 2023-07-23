@@ -2,7 +2,7 @@ export script_name = "Derive Perspective Track"
 export script_description = "Create a power-pin track file from the outer perspective quads of a set of lines."
 export script_author = "arch1t3cht"
 export script_namespace = "arch.DerivePerspTrack"
-export script_version = "1.0.0"
+export script_version = "1.1.0"
 
 DependencyControl = require("l0.DependencyControl")
 dep = DependencyControl{
