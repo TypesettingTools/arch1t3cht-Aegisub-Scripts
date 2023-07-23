@@ -404,14 +404,14 @@
       "description": "General-purpose linear algebra functions, approximately matching the patterns of Matlab or numpy",
       "channels": {
         "release": {
-          "version": "0.1.8",
-          "released": "2022-12-31",
+          "version": "0.1.9",
+          "released": "2023-07-23",
           "default": true,
           "files": [
             {
               "name": ".moon",
               "url": "@{fileBaseUrl}@{fileName}",
-              "sha1": "3e328244410c9704ea5c11c58dbd7c1576c2df64"
+              "sha1": "9a1702d8fb4ac44873afb97055939eda7b9674ee"
             }
           ]
         }
