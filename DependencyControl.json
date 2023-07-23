@@ -70,14 +70,14 @@
       "description": "Create a power-pin track file from the outer perspective quads of a set of lines.",
       "channels": {
         "release": {
-          "version": "1.0.0",
-          "released": "2023-05-13",
+          "version": "1.1.0",
+          "released": "2023-07-23",
           "default": true,
           "files": [
             {
               "name": ".moon",
               "url": "@{fileBaseUrl}@{fileName}",
-              "sha1": "25f9a1ddbd09ca73d0e8e0d8f6ceb0d227ec9f26"
+              "sha1": "0b77af4c622e2a322a1fa5ceaa3f42ae1fde81bf"
             }
           ],
           "requiredModules": [
