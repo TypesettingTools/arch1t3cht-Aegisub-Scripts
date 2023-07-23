@@ -113,6 +113,9 @@
       "changelog": {
         "1.0.0": [
           "Initial Release"
+        ],
+        "1.1.0": [
+          "Add option to derive the track from the override tags of the lines"
         ]
       }
     },
@@ -447,6 +450,9 @@
         ],
         "0.1.8": [
           "Move repository to TypesettingTools/arch1t3cht-Aegisub-Scripts"
+        ],
+        "0.1.9": [
+          "Add min/max functions to Point class"
         ]
       }
     },
