@@ -70,14 +70,14 @@
       "description": "Create a power-pin track file from the outer perspective quads of a set of lines.",
       "channels": {
         "release": {
-          "version": "1.1.0",
-          "released": "2023-07-23",
+          "version": "1.1.1",
+          "released": "2023-08-31",
           "default": true,
           "files": [
             {
               "name": ".moon",
               "url": "@{fileBaseUrl}@{fileName}",
-              "sha1": "0b77af4c622e2a322a1fa5ceaa3f42ae1fde81bf"
+              "sha1": "a2aacc3943fac7189620ef70be6fba64c96da38b"
             }
           ],
           "requiredModules": [
@@ -407,14 +407,14 @@
       "description": "General-purpose linear algebra functions, approximately matching the patterns of Matlab or numpy",
       "channels": {
         "release": {
-          "version": "0.1.9",
-          "released": "2023-07-23",
+          "version": "0.1.10",
+          "released": "2023-08-31",
           "default": true,
           "files": [
             {
               "name": ".moon",
               "url": "@{fileBaseUrl}@{fileName}",
-              "sha1": "9a1702d8fb4ac44873afb97055939eda7b9674ee"
+              "sha1": "294f15f3c1a9d9d47e4d0776f64819884e8c84d6"
             }
           ]
         }
