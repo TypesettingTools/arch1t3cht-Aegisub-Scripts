@@ -3,7 +3,7 @@ haveDepCtrl, DependencyControl, depctrl = pcall require, 'l0.DependencyControl'
 if haveDepCtrl
     depctrl = DependencyControl {
         name: "ArchMath",
-        version: "0.1.9",
+        version: "0.1.10",
         description: [[General-purpose linear algebra functions, approximately matching the patterns of Matlab or numpy]],
         author: "arch1t3cht",
         url: "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
@@ -164,7 +164,7 @@ class Point extends ClassFix
 
     dist: (p) => @to(p)\length!
 
-    min: => @fold(math.huge, math.min)
+    min: => @fold(math.min, math.huge)
 
     max: => -((-@)\min!)
 
