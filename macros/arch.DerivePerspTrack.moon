@@ -2,7 +2,7 @@ export script_name = "Derive Perspective Track"
 export script_description = "Create a power-pin track file from the outer perspective quads of a set of lines."
 export script_author = "arch1t3cht"
 export script_namespace = "arch.DerivePerspTrack"
-export script_version = "1.1.0"
+export script_version = "1.1.1"
 
 DependencyControl = require("l0.DependencyControl")
 dep = DependencyControl{
@@ -16,7 +16,7 @@ dep = DependencyControl{
          feed: "https://raw.githubusercontent.com/TypesettingTools/Aegisub-Motion/DepCtrl/DependencyControl.json"},
         {"l0.ASSFoundation", version: "0.5.0", url: "https://github.com/TypesettingTools/ASSFoundation",
          feed: "https://raw.githubusercontent.com/TypesettingTools/ASSFoundation/master/DependencyControl.json"},
-        {"arch.Math", version: "0.1.9", url: "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
+        {"arch.Math", version: "0.1.10", url: "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
          feed: "https://raw.githubusercontent.com/TypesettingTools/arch1t3cht-Aegisub-Scripts/main/DependencyControl.json"},
         {"arch.Perspective", version: "0.2.3", url: "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
          feed: "https://raw.githubusercontent.com/TypesettingTools/arch1t3cht-Aegisub-Scripts/main/DependencyControl.json"},
