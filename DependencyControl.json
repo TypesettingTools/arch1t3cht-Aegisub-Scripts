@@ -167,14 +167,14 @@
       "description": "Apply after resampling a script in Aegisub to fix any lines with 3D rotations.",
       "channels": {
         "release": {
-          "version": "1.3.3",
-          "released": "2022-12-31",
+          "version": "1.3.4",
+          "released": "2023-09-05",
           "default": true,
           "files": [
             {
               "name": ".moon",
               "url": "@{fileBaseUrl}@{fileName}",
-              "sha1": "2d435191867e671ee2d48117b4f9fd0135336bea"
+              "sha1": "8671f449385aa2d6ede697c00fa2be7d18b66c37"
             }
           ],
           "requiredModules": [
@@ -478,14 +478,14 @@
       "description": "Math functions for dealing with perspective transformations.",
       "channels": {
         "release": {
-          "version": "0.2.3",
-          "released": "2022-12-31",
+          "version": "0.2.4",
+          "released": "2023-09-05",
           "default": true,
           "files": [
             {
               "name": ".moon",
               "url": "@{fileBaseUrl}@{fileName}",
-              "sha1": "559655f25aef45ade444702c2a4f91343bf51367"
+              "sha1": "86e451074076f2073a683a6f63c1883d6df2a46b"
             }
           ],
           "requiredModules": [
