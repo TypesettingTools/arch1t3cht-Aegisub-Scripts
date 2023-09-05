@@ -5,7 +5,7 @@ local amath
 if haveDepCtrl
     depctrl = DependencyControl {
         name: "Perspective",
-        version: "0.2.3",
+        version: "0.2.4",
         description: [[Math functions for dealing with perspective transformations.]],
         author: "arch1t3cht",
         url: "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
@@ -196,18 +196,18 @@ tagsFromQuad = (t, quad, width, height, center=false) ->
 
     -- Find the rotations
     n = (quad[2] - quad[1])\cross(quad[4] - quad[1])
-    roty = math.atan2(n\x!, n\z!)
+    roty = math.atan(n\x! / n\z!)
     roty += math.pi if n\z! < 0
     ry = Matrix.rot2d(roty)\onSubspace(2)
     n = Point(ry * n)
-    rotx = math.atan2(n\y!, n\z!)
+    rotx = math.atan(n\y! / n\z!)
     rx = Matrix.rot2d(rotx)\onSubspace(1)
 
     quad *= ry\t!
     quad *= rx\t!
 
     ab = quad[2] - quad[1]
-    rotz = math.atan2(ab\y!, ab\x!)
+    rotz = math.atan(ab\y! / ab\x!)
     rotz += math.pi if ab\x! < 0
     rz = Matrix.rot2d(-rotz)\onSubspace(3)
 
