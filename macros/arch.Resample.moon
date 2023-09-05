@@ -40,11 +40,35 @@ resample = (ratiox, ratioy, centerorg, subs, sel) ->
 
         tagvals = data\getEffectiveTags(-1, true, true, true).tags
         return if not anamorphic and tagvals.angle_x.value == 0 and tagvals.angle_y.value == 0
-        width, height = data\getTextExtents!
+
+        width, height = 0, 0
+        has_text, has_drawing = false, false
+
+        data\callback (section) ->
+            if section.class == ASS.Section.Text
+                has_text = true
+                width, height = data\getTextExtents!
+            if section.class == ASS.Section.Drawing
+                has_drawing = true
+                bounds = section\getBounds!
+                width, height = bounds.w, bounds.h
+
+        if has_text and has_drawing
+            aegisub.log("Line #{line.humanizedNumber} has both text and drawings! Skipping.\n")
+            return
+
+        if has_text and (width == 0 or height == 0)
+            aegisub.log("Warning: Line #{line.humanizedNumber} has zero width or height!\n")
+
+        -- Width and height can be 0 for drawings
+        width = math.max(width, 0.01)
+        height = math.max(height, 0.01)
+
         width /= (tagvals.scale_x.value / 100)
         height /= (tagvals.scale_y.value / 100)
+
         if data\getPosition().class == ASS.Tag.Move
-            aegisub.log("Line has \\move! Skipping.")
+            aegisub.log("Line #{line.humanizedNumber} has \\move! Skipping.\n")
             return
 
         -- Manually enforce the relations between tags
