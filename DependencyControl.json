@@ -228,6 +228,11 @@
         ],
         "1.3.3": [
           "Move repository to TypesettingTools/arch1t3cht-Aegisub-Scripts"
+        ],
+        "1.3.4": [
+          "Add proper handling for drawings",
+          "Bump Perspective dependency to fix resampling in cases involving 180 degree rotations",
+          "Add warning messages for cases where the script is likely to break"
         ]
       }
     },

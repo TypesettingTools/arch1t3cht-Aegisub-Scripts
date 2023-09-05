@@ -2,7 +2,7 @@ export script_name = "Resample Perspective"
 export script_description = "Apply after resampling a script in Aegisub to fix any lines with 3D rotations."
 export script_author = "arch1t3cht"
 export script_namespace = "arch.Resample"
-export script_version = "1.3.3"
+export script_version = "1.3.4"
 
 DependencyControl = require "l0.DependencyControl"
 dep = DependencyControl{
@@ -70,6 +70,27 @@ resample = (ratiox, ratioy, centerorg, subs, sel) ->
         if data\getPosition().class == ASS.Tag.Move
             aegisub.log("Line #{line.humanizedNumber} has \\move! Skipping.\n")
             return
+
+        -- Do some checks for cases that break this script
+        -- These are a bit more aggressive than necessary (e.g. two tags of the same type in the same section will trigger this detection but not break resampling)
+        -- but I can't be bothered to be more exact. Users can run ASSWipe before resampling or something.
+        for tname in *alltags
+            if #data\getTags({tname}) >= 2
+                aegisub.log("Warning: Line #{line.humanizedNumber} has more than one #{ASS.tagMap[tname].overrideName} tag! This might break resampling.")
+
+        -- Assf doesn't support nested transforms so this code could be much simpler, but a) I only found that out after writing this and b) I guess I can
+        -- keep this code around in case it ever starts supporting them
+        checkTransformTags = (section, initial) ->
+            if not initial
+                for tname in *alltags
+                    if #section\getTags({tname}) >= 1
+                        aegisub.log("Warning: Line #{line.humanizedNumber} contains a #{ASS.tagMap[tname].overrideName} tag in a transform tag! This might break resampling.")
+
+            section\modTags {"transform"}, (tag) ->
+                checkTransformTags tag.tags, false
+                tag
+
+        checkTransformTags data, true
 
         -- Manually enforce the relations between tags
         if #data\getTags({"origin"}) == 0
