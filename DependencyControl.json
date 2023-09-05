@@ -116,6 +116,9 @@
         ],
         "1.1.0": [
           "Add option to derive the track from the override tags of the lines"
+        ],
+        "1.1.1": [
+          "Bump ArchMath dependency to fix a bug"
         ]
       }
     },
@@ -453,6 +456,9 @@
         ],
         "0.1.9": [
           "Add min/max functions to Point class"
+        ],
+        "0.1.10": [
+          "Fix min/max functions"
         ]
       }
     },
