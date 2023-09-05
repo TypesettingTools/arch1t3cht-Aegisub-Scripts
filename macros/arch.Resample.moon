@@ -14,7 +14,7 @@ dep = DependencyControl{
          feed: "https://raw.githubusercontent.com/TypesettingTools/ASSFoundation/master/DependencyControl.json"},
         {"arch.Math", version: "0.1.8", url: "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
          feed: "https://raw.githubusercontent.com/TypesettingTools/arch1t3cht-Aegisub-Scripts/main/DependencyControl.json"},
-        {"arch.Perspective", version: "0.2.3", url: "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
+        {"arch.Perspective", version: "0.2.4", url: "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
          feed: "https://raw.githubusercontent.com/TypesettingTools/arch1t3cht-Aegisub-Scripts/main/DependencyControl.json"},
     }
 }
