@@ -10,8 +10,6 @@ dep = DependencyControl{
     {
         {"l0.Functional", version: "0.6.0", url: "https://github.com/TypesettingTools/Functional",
           feed: "https://raw.githubusercontent.com/TypesettingTools/Functional/master/DependencyControl.json"},
-        {"a-mo.Line", version: "1.5.3", url: "https://github.com/TypesettingTools/Aegisub-Motion",
-          feed: "https://raw.githubusercontent.com/TypesettingTools/Aegisub-Motion/DepCtrl/DependencyControl.json"},
         {"a-mo.LineCollection", version: "1.3.0", url: "https://github.com/TypesettingTools/Aegisub-Motion",
          feed: "https://raw.githubusercontent.com/TypesettingTools/Aegisub-Motion/DepCtrl/DependencyControl.json"},
         {"l0.ASSFoundation", version: "0.5.0", url: "https://github.com/TypesettingTools/ASSFoundation",
@@ -24,7 +22,7 @@ dep = DependencyControl{
     }
 }
 
-Functional, Line, LineCollection, ASS, AMath, APersp = dep\requireModules!
+Functional, LineCollection, ASS, AMath, APersp = dep\requireModules!
 {:Point} = AMath
 {:transformPoints, :Quad} = APersp
 
