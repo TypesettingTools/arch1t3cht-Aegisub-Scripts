@@ -174,7 +174,7 @@
             {
               "name": ".moon",
               "url": "@{fileBaseUrl}@{fileName}",
-              "sha1": ""
+              "sha1": "1613f3158b2b4e34f5f3afbd63e1935427c17e5d"
             }
           ],
           "requiredModules": [
