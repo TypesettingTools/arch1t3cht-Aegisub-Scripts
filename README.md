@@ -53,6 +53,8 @@ Detailed documentation is [here](doc/aegisubchain.md).
 ### Focus Lines
 A script that generates moving focus lines, tweakable with a few parameters.
 
+**WARNING**: This script is dumb and horribly inefficient. I made it when I didn't know what I was doing. You can still use it, but make sure to clip the generated shapes to the frame area (plus some padding to account for the blur) and apply a Shape Clipper. Also be careful not to use too many layers.
+
 https://user-images.githubusercontent.com/99741385/180628464-2f970f02-b134-474b-b4b6-a998c22fcf75.mp4
 
 ### Derive Perspective Track
