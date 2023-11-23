@@ -2,7 +2,7 @@ export script_name = "Resample Perspective"
 export script_description = "Apply after resampling a script in Aegisub to fix any lines with 3D rotations."
 export script_author = "arch1t3cht"
 export script_namespace = "arch.Resample"
-export script_version = "1.3.4"
+export script_version = "2.0.0"
 
 DependencyControl = require "l0.DependencyControl"
 dep = DependencyControl{
@@ -14,7 +14,7 @@ dep = DependencyControl{
          feed: "https://raw.githubusercontent.com/TypesettingTools/ASSFoundation/master/DependencyControl.json"},
         {"arch.Math", version: "0.1.8", url: "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
          feed: "https://raw.githubusercontent.com/TypesettingTools/arch1t3cht-Aegisub-Scripts/main/DependencyControl.json"},
-        {"arch.Perspective", version: "0.2.4", url: "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
+        {"arch.Perspective", version: "0.2.5", url: "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
          feed: "https://raw.githubusercontent.com/TypesettingTools/arch1t3cht-Aegisub-Scripts/main/DependencyControl.json"},
     }
 }
@@ -28,7 +28,7 @@ alltags = {"shear_x", "shear_y", "scale_x", "scale_y", "angle", "angle_x", "angl
 usedtags = {"shear_x", "shear_y", "scale_x", "scale_y", "angle", "angle_x", "angle_y", "origin", "position", "outline_x", "outline_y", "shadow_x", "shadow_y"}
 
 
-resample = (ratiox, ratioy, centerorg, subs, sel) ->
+resample = (ratiox, ratioy, orgmode, subs, sel) ->
     anamorphic = math.max(ratiox, ratioy) / math.min(ratiox, ratioy) > 1.01
 
     lines = LineCollection subs, sel, () -> true
@@ -125,7 +125,7 @@ resample = (ratiox, ratioy, centerorg, subs, sel) ->
         tagvals.origin.x /= ratiox
         tagvals.origin.y /= ratioy
         quad *= Matrix.diag(1 / ratiox, 1 / ratioy)
-        tagsFromQuad(tagvals, quad, width, height, centerorg)
+        tagsFromQuad(tagvals, quad, width, height, orgmode)
 
         -- Correct \bord and \shad for the \fscx\fscy change
         for name in *{"outline", "shadow"}
@@ -140,6 +140,13 @@ resample = (ratiox, ratioy, centerorg, subs, sel) ->
 
 resample_ui = (subs, sel) ->
     video_width, video_height = aegisub.video_size!
+
+    orgmodes = {
+        "Keep original \\org",
+        "Force center \\org",
+        "Try to force \\fax0",
+    }
+    orgmodes_flip = {v,k for k,v in pairs(orgmodes)}
 
     button, results = aegisub.dialog.display({{
         class: "label",
@@ -178,13 +185,18 @@ resample_ui = (subs, sel) ->
         value: video_height or 1080,
         x: 3, y: 1, width: 1, height: 1,
     }, {
-        class: "checkbox",
-        label: "Force center \\org",
-        hint: "If on, all lines will use the center of their quad as the \\org point. If off, the \\org of the lines will be preserved. This option should not change rendering except for rounding errors."
-        name: "centerorg"
-        x: 0, y: 2, width: 2, height: 1,
+        class: "label",
+        label: "\\org mode: ",
+        x: 0, y: 2, width: 1, height: 1,
+    }, {
+        class: "dropdown",
+        value: orgmodes[1],
+        items: orgmodes,
+        hint: "Controls how \\org will be handled when computing perspective tags, analogously to modes in Aegisub's perspective tool. This option should not change rendering except for rounding errors.",
+        name: "orgmode",
+        x: 1, y: 2, width: 2, height: 1,
     }})
 
-    resample(results.srcresx / results.targetresx, results.srcresy / results.targetresy, results.centerorg, subs, sel) if button
+    resample(results.srcresx / results.targetresx, results.srcresy / results.targetresy, orgmodes_flip[results.orgmode], subs, sel) if button
 
 dep\registerMacro resample_ui
