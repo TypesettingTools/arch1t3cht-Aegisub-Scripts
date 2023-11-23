@@ -5,7 +5,7 @@ local amath
 if haveDepCtrl
     depctrl = DependencyControl {
         name: "Perspective",
-        version: "0.2.4",
+        version: "0.2.5",
         description: [[Math functions for dealing with perspective transformations.]],
         author: "arch1t3cht",
         url: "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
@@ -170,20 +170,72 @@ transformPoints = (t, width, height, points=nil) ->
 
 -- Given a quad on screen and the width and height of the text, returns in t (again an ASSFoundation tags table)
 -- the tag values that will transform this text to the given quad.
--- If center = true, the center of the quad will be used as \org. If not, the \org set in t will be used.
-tagsFromQuad = (t, quad, width, height, center=false) ->
+-- The orgMode parameter controls how the value of \org is chosen:
+--   orgMode = 1: \org is not changed, i.e. the origin tag passed in the t parameter is not modified
+--   orgMode = 2: \org is set to the center of the quad
+--   orgMode = 3: \org is chosen in a way that tries to ensure that \fax can be zero, or as close to zero as possible
+-- For the sake of backwards compatibility, orgMode=false is synonymous with orgMode=1 and orgMode=true is synonymous with orgMode=2 .
+tagsFromQuad = (t, quad, width, height, orgMode=0) ->
     quad = Quad(quad) if quad.__class != Quad
-    if center
+
+    -- Find a parallelogram projecting to the quad
+    z24 = Matrix({ quad[2] - quad[3], quad[4] - quad[3] })\t!\preim(quad[1] - quad[3])
+
+    if orgMode == 2 or orgMode == true
         center = quad\midpoint!
         t.origin.x = center\x!
         t.origin.y = center\y!
+    else if orgMode == 3
+        v2 = quad[2] - quad[1]
+        v4 = quad[4] - quad[1]
+
+        -- Look for a translation after which the quad will unproject to a rectangle.
+        -- Specifically, look for a vector t such that this happens after moving q0 to t.
+        -- The set of such vectors is cut out by the equation a (x^2 + y^2) - b1 x - b2 y + c
+        -- with the following coefficients.
+
+        a = (1 - z24[1]) * (1 - z24[2])
+        b = z24[1] * v2 + z24[2] * v4 - z24[1] * z24[2] * (v2 + v4)
+        c = z24[1] * z24[2] * v2 * v4 + (z24[1] - 1) * (z24[2] - 1) * screen_z ^ 2
+
+        -- Our default value for o, which would put \org at the center of the quad.
+        -- We'll try to find a value for \org that's as close as possible to it.
+        o = quad[1] - quad\midpoint!
+
+        -- Handle all the edge cases. These can actually come up in practice, like when
+        -- starting from text without any perspective.
+        if a == 0
+            -- If b = 0 we get a trivial or impossible equation, so just keep the previous \org.
+            if b\length! != 0
+                -- The equation cuts out a line. Find the point closest to the previous o.
+                o = o + b * ((c - o\dot(b)) / b\dot(b))
+        else
+            -- The equation cuts out a circle.
+            -- Complete the square to find center and radius.
+            circleCenter = b / (2 * a)
+            sqradius = (b\dot(b) / (4 * a) - c) / a
+
+            if sqradius <= 0
+                -- This is actually very rare.
+                org = circleCenter
+            else
+                -- Find the point on the circle closest to the current \org.
+                radius = math.sqrt(sqradius)
+                center2t = o - circleCenter
+                if center2t\length! == 0
+                    o = circleCenter + Point(radius, 0)
+                else
+                    o = circleCenter + center2t / center2t\length! * radius
+
+        org = quad[1] - o
+        t.origin.x = org\x!
+        t.origin.y = org\y!
 
     -- Normalize to center
     org = Point(t.origin.x, t.origin.y)
     quad -= org
 
-    -- Find a parallelogram projecting to the quad
-    z24 = Matrix({ quad[2] - quad[3], quad[4] - quad[3] })\t!\preim(quad[1] - quad[3])
+    -- Unproject the quad
     zs = Point(1, z24[1], z24\sum! - 1, z24[2])
     quad ..= screen_z
     quad = Matrix.diag(zs) * quad
