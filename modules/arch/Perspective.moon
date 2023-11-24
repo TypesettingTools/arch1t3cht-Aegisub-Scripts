@@ -5,7 +5,7 @@ local amath
 if haveDepCtrl
     depctrl = DependencyControl {
         name: "Perspective",
-        version: "0.2.5",
+        version: "1.0.0",
         description: [[Math functions for dealing with perspective transformations.]],
         author: "arch1t3cht",
         url: "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
@@ -117,6 +117,86 @@ screen_z = 312.5
 
 an_xshift = { 0, 0.5, 1, 0, 0.5, 1, 0, 0.5, 1 }
 an_yshift = { 1, 1, 1, 0.5, 0.5, 0.5, 0, 0, 0 }
+
+
+-- List of tags that affect perspective
+relevantTags = {"fontsize", "shear_x", "shear_y", "scale_x", "scale_y", "angle", "angle_x", "angle_y", "origin", "position", "outline", "outline_x", "outline_y", "shadow", "shadow_x", "shadow_y"}
+
+-- List of tags that are used in perspective. This is the same list as relevant_tags except for outline and shadow, since the single-coordinate versions of those tags are used instead
+usedTags = {"fontsize", "shear_x", "shear_y", "scale_x", "scale_y", "angle", "angle_x", "angle_y", "origin", "position", "outline_x", "outline_y", "shadow_x", "shadow_y"}
+
+-- Takes an ASSFoundation LineContents object and returns its effective tags, but preprocessed
+-- for perspective handling. This includes inforcing the relations between \org and \pos as
+-- well as those between the various transform tags, as well as warning when the line has tags
+-- that would break perspective calulations (\move, certain \t transformations, multiple tag sections, etc).
+-- Also needs the ASSFoundation library to be given in its first parameter. This is to prevent this library
+-- from depending on ASSFoundation.
+-- Returns:
+--   - the effective tags table
+--   - the line's width (not scaled with \fscx)
+--   - the line's height (not scaled with \fscy)
+--   - a table of warnings about possibly problematic tags
+--        -> each warning is of the form {warning, details} where details may be nil depending on the warning.
+prepareForPerspective = (ASS, data) ->
+    tagvals = data\getEffectiveTags(-1, true, true, true).tags
+    return if not anamorphic and tagvals.angle_x.value == 0 and tagvals.angle_y.value == 0
+
+    width, height = 0, 0
+    has_text, has_drawing = false, false
+
+    data\callback (section) ->
+        if section.class == ASS.Section.Text
+            has_text = true
+            width, height = data\getTextExtents!
+        if section.class == ASS.Section.Drawing
+            has_drawing = true
+            bounds = section\getBounds!
+            width, height = bounds.w, bounds.h
+
+    warnings = {}
+
+    table.insert(warnings, {"text_and_drawings"}) if has_text and has_drawing
+    table.insert(warnings, {"zero_size"}) if has_text and (width == 0 or height == 0)
+    table.insert(warnings, {"move"}) if data\getPosition().class == ASS.Tag.Move
+
+    -- Width and height can be 0 for drawings
+    width = math.max(width, 0.01)
+    height = math.max(height, 0.01)
+
+    width /= (tagvals.scale_x.value / 100)
+    height /= (tagvals.scale_y.value / 100)
+
+    -- Do some checks for cases that break this script
+    -- These are a bit more aggressive than necessary (e.g. two tags of the same type in the same section will trigger this detection but not break resampling)
+    -- but I can't be bothered to be more exact. Users can run ASSWipe before resampling or something.
+    for tname in *relevantTags
+        table.insert(warnings, {"multiple_tags", ASS.tagMap[tname].overrideName}) if #data\getTags({tname}) >= 2
+
+    -- Assf doesn't support nested transforms so this code could be much simpler, but a) I only found that out after writing this and b) I guess I can
+    -- keep this code around in case it ever starts supporting them
+    checkTransformTags = (section, initial) ->
+        if not initial
+            for tname in *relevantTags
+                table.insert(warnings, {"transform", ASS.tagMap[tname].overrideName}) if #section\getTags({tname}) >= 1
+
+        section\modTags {"transform"}, (tag) ->
+            checkTransformTags tag.tags, false
+            tag
+
+    checkTransformTags data, true
+
+    -- Manually enforce the relations between tags
+    if #data\getTags({"origin"}) == 0
+        tagvals.origin.x = tagvals.position.x
+        tagvals.origin.y = tagvals.position.y
+    for name in *{"outline", "shadow"}
+        for coord in *{"x", "y"}
+            cname = "#{name}_#{coord}"
+            if #data\getTags({cname}) == 0
+                tagvals[cname].value = tagvals[name].value
+
+    return tagvals, width, height, warnings
+
 
 -- Transforms the given list of points in a relative coordinate system according to the given .ass tags.
 -- If no list of points is given, a rectangle with the given dimensions is used.
@@ -293,6 +373,9 @@ tagsFromQuad = (t, quad, width, height, orgMode=0) ->
 
 lib = {
     :Quad,
+    :relevantTags,
+    :usedTags,
+    :prepareForPerspective
     :transformPoints,
     :tagsFromQuad,
 }

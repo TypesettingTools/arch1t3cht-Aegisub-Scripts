@@ -230,7 +230,7 @@
               "moduleName": "arch.Perspective",
               "name": "Perspective",
               "url": "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
-              "version": "0.2.5"
+              "version": "1.0.0"
             }
           ]
         }
@@ -268,6 +268,12 @@
           "Add proper handling for drawings",
           "Bump Perspective dependency to fix resampling in cases involving 180 degree rotations",
           "Add warning messages for cases where the script is likely to break"
+        ],
+        "2.0.0": [
+          "Add support for nofax \\org mode"
+        ],
+        "2.1.0": [
+          "Move some more logic over to the Perspective module"
         ]
       }
     },
@@ -553,6 +559,12 @@
         ],
         "0.2.4": [
           "Fix the tagsFromQuad computation when 180 degree rotations are involved"
+        ],
+        "0.2.5": [
+          "Add support for a nofax org mode"
+        ],
+        "1.0.0": [
+          "Add prepareForPerspective function that wraps the remaining logic needed for general perspective computations with ASSFoundation"
         ]
       }
     }

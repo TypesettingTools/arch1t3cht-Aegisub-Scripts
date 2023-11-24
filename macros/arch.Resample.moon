@@ -2,7 +2,7 @@ export script_name = "Resample Perspective"
 export script_description = "Apply after resampling a script in Aegisub to fix any lines with 3D rotations."
 export script_author = "arch1t3cht"
 export script_namespace = "arch.Resample"
-export script_version = "2.0.0"
+export script_version = "2.1.0"
 
 DependencyControl = require "l0.DependencyControl"
 dep = DependencyControl{
@@ -14,19 +14,15 @@ dep = DependencyControl{
          feed: "https://raw.githubusercontent.com/TypesettingTools/ASSFoundation/master/DependencyControl.json"},
         {"arch.Math", version: "0.1.8", url: "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
          feed: "https://raw.githubusercontent.com/TypesettingTools/arch1t3cht-Aegisub-Scripts/main/DependencyControl.json"},
-        {"arch.Perspective", version: "0.2.5", url: "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
+        {"arch.Perspective", version: "1.0.0", url: "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
          feed: "https://raw.githubusercontent.com/TypesettingTools/arch1t3cht-Aegisub-Scripts/main/DependencyControl.json"},
     }
 }
 LineCollection, ASS, AMath, APersp = dep\requireModules!
 {:Matrix} = AMath
-{:transformPoints, :tagsFromQuad} = APersp
+{:relevantTags, :usedTags, :transformPoints, :tagsFromQuad, :prepareForPerspective} = APersp
 
 logger = dep\getLogger!
-
-alltags = {"shear_x", "shear_y", "scale_x", "scale_y", "angle", "angle_x", "angle_y", "origin", "position", "outline", "outline_x", "outline_y", "shadow", "shadow_x", "shadow_y"}
-usedtags = {"shear_x", "shear_y", "scale_x", "scale_y", "angle", "angle_x", "angle_y", "origin", "position", "outline_x", "outline_y", "shadow_x", "shadow_y"}
-
 
 resample = (ratiox, ratioy, orgmode, subs, sel) ->
     anamorphic = math.max(ratiox, ratioy) / math.min(ratiox, ratioy) > 1.01
@@ -38,73 +34,37 @@ resample = (ratiox, ratioy, orgmode, subs, sel) ->
         -- No perspective tags, we don't need to do anything
         return if not anamorphic and #data\getTags({"angle_x", "angle_y"}) == 0
 
-        tagvals = data\getEffectiveTags(-1, true, true, true).tags
+        tagvals, width, height, warnings = prepareForPerspective(ASS, data)
+
+        for warn in *warnings
+            switch warn[1]
+                when "multiple_tags"
+                    aegisub.log("Warning: Line #{line.humanizedNumber} has more than one #{warn[2]} tag! This might break resampling.\n") if warn[2] == "\\frx" or warn[2] == "\\fry"
+                when "transform"
+                    aegisub.log("Warning: Line #{line.humanizedNumber} contains a #{warn[2]} tag in a transform tag! This might break resampling.\n") if warn[2] == "\\frx" or warn[2] == "\\fry"
+
         return if not anamorphic and tagvals.angle_x.value == 0 and tagvals.angle_y.value == 0
 
-        width, height = 0, 0
-        has_text, has_drawing = false, false
-
-        data\callback (section) ->
-            if section.class == ASS.Section.Text
-                has_text = true
-                width, height = data\getTextExtents!
-            if section.class == ASS.Section.Drawing
-                has_drawing = true
-                bounds = section\getBounds!
-                width, height = bounds.w, bounds.h
-
-        if has_text and has_drawing
-            aegisub.log("Line #{line.humanizedNumber} has both text and drawings! Skipping.\n")
-            return
-
-        if has_text and (width == 0 or height == 0)
-            aegisub.log("Warning: Line #{line.humanizedNumber} has zero width or height!\n")
-
-        -- Width and height can be 0 for drawings
-        width = math.max(width, 0.01)
-        height = math.max(height, 0.01)
-
-        width /= (tagvals.scale_x.value / 100)
-        height /= (tagvals.scale_y.value / 100)
-
-        if data\getPosition().class == ASS.Tag.Move
-            aegisub.log("Line #{line.humanizedNumber} has \\move! Skipping.\n")
-            return
-
-        -- Do some checks for cases that break this script
-        -- These are a bit more aggressive than necessary (e.g. two tags of the same type in the same section will trigger this detection but not break resampling)
-        -- but I can't be bothered to be more exact. Users can run ASSWipe before resampling or something.
-        for tname in *alltags
-            if #data\getTags({tname}) >= 2
-                aegisub.log("Warning: Line #{line.humanizedNumber} has more than one #{ASS.tagMap[tname].overrideName} tag! This might break resampling.")
-
-        -- Assf doesn't support nested transforms so this code could be much simpler, but a) I only found that out after writing this and b) I guess I can
-        -- keep this code around in case it ever starts supporting them
-        checkTransformTags = (section, initial) ->
-            if not initial
-                for tname in *alltags
-                    if #section\getTags({tname}) >= 1
-                        aegisub.log("Warning: Line #{line.humanizedNumber} contains a #{ASS.tagMap[tname].overrideName} tag in a transform tag! This might break resampling.")
-
-            section\modTags {"transform"}, (tag) ->
-                checkTransformTags tag.tags, false
-                tag
-
-        checkTransformTags data, true
-
-        -- Manually enforce the relations between tags
-        if #data\getTags({"origin"}) == 0
-            tagvals.origin.x = tagvals.position.x
-            tagvals.origin.y = tagvals.position.y
-        for name in *{"outline", "shadow"}
-            for coord in *{"x", "y"}
-                cname = "#{name}_#{coord}"
-                if #data\getTags({cname}) == 0
-                    tagvals[cname].value = tagvals[name].value
+        for warn in *warnings
+            switch warn[1]
+                when "multiple_tags"
+                    aegisub.log("Warning: Line #{line.humanizedNumber} has more than one #{warn[2]} tag! This might break resampling.\n")
+                when "transform"
+                    aegisub.log("Warning: Line #{line.humanizedNumber} contains a #{warn[2]} tag in a transform tag! This might break resampling.\n")
+                when "zero_size"
+                    aegisub.log("Warning: Line #{line.humanizedNumber} has zero width or height!\n")
+                when "move"
+                    aegisub.log("Line #{line.humanizedNumber} has \\move! Skipping.\n")
+                    return
+                when "text_and_drawings"
+                    aegisub.log("Line #{line.humanizedNumber} has both text and drawings! Skipping.\n")
+                    return
+                else
+                    aegisub.log("Unknown warning on line #{line.humanizedNumber}: #{warn[1]}\n")
 
         -- Set up the tags
-        data\removeTags alltags
-        data\insertTags [ tagvals[k] for k in *usedtags ]
+        data\removeTags relevantTags
+        data\insertTags [ tagvals[k] for k in *usedTags ]
 
         -- Revert Aegisub's resampling.
         for tag in *{"position", "origin"}
