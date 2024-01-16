@@ -167,14 +167,14 @@
       "description": "Split subtitle lines at tags, creating a separate event for each section",
       "channels": {
         "release": {
-          "version": "0.1.0",
-          "released": "2023-09-27",
+          "version": "0.1.1",
+          "released": "2024-01-16",
           "default": true,
           "files": [
             {
               "name": ".moon",
               "url": "@{fileBaseUrl}@{fileName}",
-              "sha1": "1613f3158b2b4e34f5f3afbd63e1935427c17e5d"
+              "sha1": "119fcd38eb27753b1e1404520d4deec82f6bfb10"
             }
           ],
           "requiredModules": [
