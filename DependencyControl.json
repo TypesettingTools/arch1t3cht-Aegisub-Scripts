@@ -119,6 +119,10 @@
         ],
         "1.1.1": [
           "Bump ArchMath dependency to fix a bug"
+        ],
+        "1.1.2": [
+          "Remove unused Line dependency",
+          "Switch to prepareForPerspective function"
         ]
       }
     },

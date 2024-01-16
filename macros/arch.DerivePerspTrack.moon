@@ -2,7 +2,7 @@ export script_name = "Derive Perspective Track"
 export script_description = "Create a power-pin track file from the outer perspective quads of a set of lines."
 export script_author = "arch1t3cht"
 export script_namespace = "arch.DerivePerspTrack"
-export script_version = "1.1.1"
+export script_version = "1.1.2"
 
 DependencyControl = require("l0.DependencyControl")
 dep = DependencyControl{
@@ -24,7 +24,7 @@ dep = DependencyControl{
 
 Functional, LineCollection, ASS, AMath, APersp = dep\requireModules!
 {:Point} = AMath
-{:transformPoints, :Quad} = APersp
+{:prepareForPerspective, :transformPoints, :Quad} = APersp
 
 
 outer_quad_key = "_aegi_perspective_ambient_plane"
@@ -46,19 +46,13 @@ get_quad_from_tags = (subs, i) ->
     lines = LineCollection subs, {i}
 
     data = ASS\parse(lines.lines[1])
-    tags = data\getEffectiveTags(-1, true, true, true).tags
+    tags, width, height, warnings = prepareForPerspective(ASS, data)
 
-    width, height = data\getTextExtents!
-    width /= (tags.scale_x.value / 100)
-    height /= (tags.scale_y.value / 100)
-    if data\getPosition().class == ASS.Tag.Move
-        aegisub.log("Failed to derive: line has \\move!")
-        aegisub.cancel()
-
-    -- Manually enforce the relations between tags
-    if #data\getTags({"origin"}) == 0
-        tags.origin.x = tags.position.x
-        tags.origin.y = tags.position.y
+    for warn in *warnings
+        if warn[1] == "move"
+            aegisub.log("Failed to derive: line has \\move!")
+            aegisub.cancel()
+        -- ignore the other ones for now
 
     return transformPoints(tags, width, height)
 
