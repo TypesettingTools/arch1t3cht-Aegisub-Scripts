@@ -57,8 +57,11 @@ A script that generates moving focus lines, tweakable with a few parameters.
 
 https://user-images.githubusercontent.com/99741385/180628464-2f970f02-b134-474b-b4b6-a998c22fcf75.mp4
 
+### PerspectiveMotion
+An analogue to [Aegisub-Motion](https://github.com/TypesettingTools/Aegisub-Motion) that can handle perspective motion. Unlike the "After Effects Transform Data" that Aegisub-Motion needs, this tool requires an "After Effects Power Pin" track, which you can export directly from Mocha, or using [Akatsumekusa's plugin](https://github.com/Akatmks/Akatsumekusa-Aegisub-Scripts) for Blender.
+
 ### Derive Perspective Track
-More or less an analogue to [The0x539's DeriveTrack](https://github.com/The0x539/Aegisub-Scripts/blob/trunk/doc/0x.DeriveTrack.md) for perspective tracks. It turns the outer quads of a set of lines (as set using the perspective tool in [my Aegisub fork](https://github.com/arch1t3cht/Aegisub)) into a PowerPin track that can be used with [Aegisub Perspective-Motion](https://github.com/Zahuczky/Zahuczkys-Aegisub-Scripts/tree/main). Alternatively, it can derive a track directly from the override tags. This way, manual perspective tracks can be made and applied to multiple different lines directly in Aegisub, without having to go through Mocha or Blender.
+More or less an analogue to [The0x539's DeriveTrack](https://github.com/The0x539/Aegisub-Scripts/blob/trunk/doc/0x.DeriveTrack.md) for perspective tracks. It turns the outer quads of a set of lines (as set using the perspective tool in [my Aegisub fork](https://github.com/arch1t3cht/Aegisub)) into a PowerPin track that can be used with [Aegisub Perspective-Motion](#perspective-motion). Alternatively, it can derive a track directly from the override tags. This way, manual perspective tracks can be made and applied to multiple different lines directly in Aegisub, without having to go through Mocha or Blender.
 
 ### Resample Perspective
 Run this [script](macros/arch.Resample.moon) after Aegisub's "Resample Resolution" to fix perspective rotations in the selected lines that were broken by resampling. If you're resampling to a different aspect ratio, select "Stretch" in Aegisub's resampler.
@@ -68,12 +71,12 @@ There exist [multiple](https://github.com/TypesettingTools/CoffeeFlux-Aegisub-Sc
 - It does not take position shifts due to large `\shad` values into account. If these become significant, you need to split the text from the shadow, adjust the positions, and resample them separately.
 - Shapes might need to be `\an7` to be positioned properly.
 
-### Perspective (WIP)
-**Update (November 2022)**: Big parts of this were added directly to [my Aegisub fork](https://github.com/arch1t3cht/Aegisub) instead. Together with the above resampling script and [Aegisub-Perspective-Motion](https://github.com/Zahuczky/Zahuczkys-Aegisub-Scripts), that covers most basic perspective functions. I might still write a script to cover some more advanced usage (e.g. a "perspective Recalculator") eventually, but it's a lot lower priority now.
+### Perspective
+I have a library [`arch.Perspective.moon`](modules/arch/Perspective.moon) that allows applying perspective transformations to subtitle lines. It abstracts away almost all of the tag wrangling and allows you to just work in terms of the quads you want to transform things from or to. All my perspective-related scripts use this library.
 
-This is still very work in progress, but I started working on extracting the math I used in [Aegisub-Perspective-Motion](https://github.com/Zahuczky/Zahuczkys-Aegisub-Scripts/tree/main) into Lua libraries and an improved perspective script. The core functions are implemented [here](modules/arch/Perspective.moon) already, together with some general-purpose [linear algebra functions](modules/arch/Math.moon).
+Ordinary single-line perspective handling has been added directly to [my Aegisub fork](https://github.com/arch1t3cht/Aegisub). One day I might still write a script to cover some more advanced usage (e.g. a "perspective Recalculator"), but this is very low priority.
 
-For the math involved and how these functions fit into the picture, see [this write-up](doc/perspective_math.md).
+For the math involved in these functions, see either the comments in the source code [this write-up](doc/perspective_math.md).
 
 ## Scripts for Editing and QC
 These scripts try to provide shortcuts for actions in editing or in applying QC notes. They're tailored to the processes and conventions in the group I'm working in, but maybe they'll also be useful for other people.
@@ -124,7 +127,6 @@ You might be looking for my patched version of the After Effects Blender export 
 
 ## See also
 Or "Other Stuff I Worked on that Might be Interesting".
-- Zahuczky's [Aegisub-Perspective-Motion](https://github.com/Zahuczky/Zahuczkys-Aegisub-Scripts/tree/main) (worked on the [tracking math](doc/perspective_math.md) in this)
 - [ass.nvim](https://github.com/arch1t3cht/ass.nvim): A neovim 5.0 plugin for `.ass` subtitles. Its most important feature is a split window editing mode to efficiently copy new dialog (say, a translation) to a timed subtitle file.
 - My [Aegisub fork](https://github.com/arch1t3cht/Aegisub) with some new features like folding and other audio/video sources.
 
