@@ -113,6 +113,14 @@ class Quad extends Matrix
 
         return Matrix({{dudx, dudy}, {dvdx, dvdy}})
 
+    rect: (width, height) ->
+        Quad {
+            {0, 0},
+            {width, 0},
+            {width, height},
+            {0, height},
+        }
+
 screen_z = 312.5
 
 an_xshift = { 0, 0.5, 1, 0, 0.5, 1, 0, 0.5, 1 }
@@ -206,12 +214,7 @@ prepareForPerspective = (ASS, data) ->
 -- fields for the respective tags works.
 transformPoints = (t, width, height, points=nil) ->
     if points == nil
-        points = Quad {
-            {0, 0},
-            {width, 0},
-            {width, height},
-            {0, height},
-        }
+        points = Quad.rect width, height
     else
         points = Matrix(points)
 
