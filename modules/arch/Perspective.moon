@@ -5,7 +5,7 @@ local amath
 if haveDepCtrl
     depctrl = DependencyControl {
         name: "Perspective",
-        version: "1.0.0",
+        version: "1.1.0",
         description: [[Math functions for dealing with perspective transformations.]],
         author: "arch1t3cht",
         url: "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",

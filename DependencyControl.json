@@ -568,6 +568,12 @@
         ],
         "1.0.0": [
           "Add prepareForPerspective function that wraps the remaining logic needed for general perspective computations with ASSFoundation"
+        ],
+        "1.1.0": [
+          "Add Quad.rect function",
+          "Remove stray code line in prepareForPerspective",
+          "Fix bounds calculation for drawings",
+          "Export an_xshift and an_yshift"
         ]
       }
     }
