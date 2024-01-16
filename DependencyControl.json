@@ -70,14 +70,14 @@
       "description": "Create a power-pin track file from the outer perspective quads of a set of lines.",
       "channels": {
         "release": {
-          "version": "1.1.1",
-          "released": "2023-08-31",
+          "version": "1.1.2",
+          "released": "2024-01-16",
           "default": true,
           "files": [
             {
               "name": ".moon",
               "url": "@{fileBaseUrl}@{fileName}",
-              "sha1": "a2aacc3943fac7189620ef70be6fba64c96da38b"
+              "sha1": "5dd6c700cfa148b1cd9d20e97fa59033090c07fe"
             }
           ],
           "requiredModules": [
@@ -178,7 +178,7 @@
             {
               "name": ".moon",
               "url": "@{fileBaseUrl}@{fileName}",
-              "sha1": ""
+              "sha1": "25c9fe23d44f32c52a7c377a91621d1d7d4cb98b"
             }
           ],
           "requiredModules": [
@@ -573,14 +573,14 @@
       "description": "Math functions for dealing with perspective transformations.",
       "channels": {
         "release": {
-          "version": "1.0.0",
-          "released": "2023-11-24",
+          "version": "1.1.0",
+          "released": "2024-01-16",
           "default": true,
           "files": [
             {
               "name": ".moon",
               "url": "@{fileBaseUrl}@{fileName}",
-              "sha1": "52c9fda4efb5046b2465efab33a75bd3528b05dd"
+              "sha1": "ed62bc8a13aeacf27da88ed4f266941d4d1915be"
             }
           ],
           "requiredModules": [
