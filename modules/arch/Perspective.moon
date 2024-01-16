@@ -157,8 +157,8 @@ prepareForPerspective = (ASS, data) ->
             width, height = data\getTextExtents!
         if section.class == ASS.Section.Drawing
             has_drawing = true
-            bounds = section\getBounds!
-            width, height = bounds.w, bounds.h
+            ext = section\getExtremePoints!
+            width, height = ext.w, ext.h
 
     warnings = {}
 
