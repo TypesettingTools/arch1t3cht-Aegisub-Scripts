@@ -132,4 +132,4 @@ Or "Other Stuff I Worked on that Might be Interesting".
 - My [Aegisub fork](https://github.com/arch1t3cht/Aegisub) with some new features like folding and other audio/video sources.
 
 ---
-Thanks to [PhosCity](https://github.com/PhosCity) for testing almost all of these scripts.
+Thanks to [PhosCity](https://github.com/PhosCity) for testing many of my early scripts.
