@@ -2,7 +2,7 @@ export script_name = "Aegisub Perspective-Motion"
 export script_description = "Apply perspective motion tracking data"
 export script_author = "arch1t3cht"
 export script_namespace = "arch.PerspectiveMotion"
-export script_version = "0.1.0"
+export script_version = "0.1.1"
 
 DependencyControl = require "l0.DependencyControl"
 dep = DependencyControl{
@@ -372,7 +372,7 @@ main_dialog = (subs, sel, active) ->
     selection_end_frame = Point([ aegisub.frame_from_ms(subs[si].end_time) for si in *sel ])\max!
     selection_frames = selection_end_frame - selection_start_frame
 
-    clipboard_input = clipboard.get!
+    clipboard_input = clipboard.get() or ""
     clipboard_data = parse_powerpin_data(clipboard_input)
     prefilled_data = if clipboard_data != nil and #clipboard_data == selection_frames then clipboard_input else ""
 
