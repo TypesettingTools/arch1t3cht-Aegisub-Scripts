@@ -375,6 +375,8 @@ tagsFromQuad = (t, quad, width, height, orgMode=0) ->
 
 lib = {
     :Quad,
+    :an_xshift,
+    :an_yshift,
     :relevantTags,
     :usedTags,
     :prepareForPerspective
