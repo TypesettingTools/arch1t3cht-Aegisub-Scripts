@@ -147,7 +147,6 @@ usedTags = {"fontsize", "shear_x", "shear_y", "scale_x", "scale_y", "angle", "an
 --        -> each warning is of the form {warning, details} where details may be nil depending on the warning.
 prepareForPerspective = (ASS, data) ->
     tagvals = data\getEffectiveTags(-1, true, true, true).tags
-    return if not anamorphic and tagvals.angle_x.value == 0 and tagvals.angle_y.value == 0
 
     width, height = 0, 0
     has_text, has_drawing = false, false
