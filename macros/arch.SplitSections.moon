@@ -2,7 +2,7 @@ export script_name = "Split Tag Sections"
 export script_description = "Split subtitle lines at tags, creating a separate event for each section"
 export script_author = "arch1t3cht"
 export script_namespace = "arch.SplitSections"
-export script_version = "0.1.0"
+export script_version = "0.1.1"
 
 DependencyControl = require "l0.DependencyControl"
 dep = DependencyControl{
@@ -66,8 +66,8 @@ split = (subs, sel) ->
             if section.class == ASS.Section.Text
                 splitLine.width, splitLine.height, splitLine.descent = section\getTextExtents!
             else
-                bounds = section\getBounds!
-                splitLine.width, splitLine.height, splitLine.descent = bounds.w, bounds.h, 0
+                ext = section\getExtremePoints!
+                splitLine.width, splitLine.height, splitLine.descent = ext.w, ext.h, 0
 
             splitLine.x = x
 
