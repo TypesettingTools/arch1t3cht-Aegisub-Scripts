@@ -216,6 +216,9 @@
         ],
         "0.1.3": [
           "Fix line ordering and missing frames in line2fbf"
+        ],
+        "0.1.4": [
+          "Various fixes and improvements to the line2fbf logic (more robust transform handling, fixing transforms of colors and rect clips, fixing fades for lines without alpha tags)"
         ]
       }
     },
