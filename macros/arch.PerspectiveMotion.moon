@@ -69,13 +69,11 @@ line2fbf = (sourceData, cleanLevel = 3) ->
 
     -- Transform
     transforms = sourceData\getTags "transform"
-    tagBlockIndex = {}
+    tagSections = {}
     sectionEffTags = {}
     sourceData\callback ((section, _, i, j) ->
-        sectionTransform = section\getTags "transform"
-        if #sectionTransform > 0
-          tagBlockIndex[i] = j
-          sectionEffTags[i] = (section\getEffectiveTags true).tags
+        tagSections[i] = j
+        sectionEffTags[i] = (section\getEffectiveTags true).tags
     ), ASS.Section.Tag
 
     -- Fbfing
@@ -120,7 +118,7 @@ line2fbf = (sourceData, cleanLevel = 3) ->
             data\removeTags "transform"
             for tr in *transforms
                 sectionIndex = tr.parent.index
-                tagIndex = tagBlockIndex[sectionIndex]
+                tagIndex = tagSections[sectionIndex]
 
                 t1 = tr.startTime\get!
                 t2 = tr.endTime\get!
@@ -138,24 +136,22 @@ line2fbf = (sourceData, cleanLevel = 3) ->
                     k = ((now - t1) / (t2 - t1))^accel
 
                 for tag in *tr.tags\getTags!
+                    -- FIXME this still breaks in a case like \t(\frx10)\frx20\t(\frx30)
+                    -- but that's extremely niche so I'm not fixing it now
                     tagname = tag.__tag.name
                     currValue[tagIndex] or= {}
                     currValue[tagIndex][tagname] or= sectionEffTags[sectionIndex][tagname]
                     local finalValue
 
                     if tag.class == ASS.Tag.Color
-                        colorcopy = currValue[tagIndex][tagname]\copy!
-                        ba, ga, ra = colorcopy\getTagParams!
-                        bb, gb, rb = tag\getTagParams!
-                        with colorcopy
-                            .r.value, .g.value, .b.value = ra + (rb - ra)*k, ga + (gb - ga)*k, ba + (bb - ba)*k
-                        finalValue = colorcopy
+                        finalValue = currValue[tagIndex][tagname]\copy!
+                        for channel in *{"r", "g", "b"}
+                            finalValue[channel] = finalValue[channel]\lerp tag[channel], k
                     elseif tag.class == ASS.Tag.ClipRect
-                        -- INFO: Lerp method for assf does not return clip result. If and when it gets fixed, this can be removed
-                        clipCopy = currValue[tagIndex][tagname]\copy!
-                        clipCopy.topLeft = clipCopy.topLeft\lerp tag.topLeft, k
-                        clipCopy.bottomRight = clipCopy.bottomRight\lerp tag.bottomRight, k
-                        finalValue = clipCopy
+                        -- ClipRect\lerp exists but does not return the resulting clip. If and when this gets fixed, this can be removed
+                        finalValue = currValue[tagIndex][tagname]\copy!
+                        for pt in *{"topLeft", "bottomRight"}
+                            finalValue[pt] = finalValue[pt]\lerp tag[pt], k
                     else
                         finalValue = currValue[tagIndex][tagname]\lerp tag, k
 
