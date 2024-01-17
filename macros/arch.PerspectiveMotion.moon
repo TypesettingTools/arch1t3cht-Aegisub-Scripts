@@ -2,7 +2,7 @@ export script_name = "Aegisub Perspective-Motion"
 export script_description = "Apply perspective motion tracking data"
 export script_author = "arch1t3cht"
 export script_namespace = "arch.PerspectiveMotion"
-export script_version = "0.1.2"
+export script_version = "0.1.3"
 
 DependencyControl = require "l0.DependencyControl"
 dep = DependencyControl{
@@ -57,7 +57,7 @@ line2fbf = (sourceData, cleanLevel = 3) ->
     -- Aegisub will never give us timestamps that aren't rounded to centiseconds, but lua code might.
     -- Explicitly round to centiseconds just to be sure.
     startTime = round_to_cs line.start_time
-    startFrame = round_to_cs line.startFrame
+    startFrame = line.startFrame
     endFrame = line.endFrame
 
     -- Tag Collection
@@ -71,7 +71,7 @@ line2fbf = (sourceData, cleanLevel = 3) ->
 
     -- Fbfing
     fbfLines = {}
-    for frame = startFrame, endFrame-1, 1
+    for frame = startFrame, endFrame-1
         newLine = Line sourceData.line, sourceData.line.parentCollection
         newLine.start_time = aegisub.ms_from_frame(frame)
         newLine.end_time = aegisub.ms_from_frame(frame + 1)
@@ -188,7 +188,7 @@ track = (quads, options, subs, sel, active) ->
 
     -- First, FBF everything
     to_delete = {}
-    lines\runCallback (lines, line) ->
+    lines\runCallback ((lines, line) ->
         data = ASS\parse line
 
         table.insert to_delete, line
@@ -196,6 +196,7 @@ track = (quads, options, subs, sel, active) ->
         fbf = line2fbf data
         for fbfline in *fbf
             lines\addLine fbfline
+    ), true
 
     -- Then, find the line we do everything relative to
 
