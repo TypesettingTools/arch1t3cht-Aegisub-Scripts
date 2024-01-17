@@ -66,8 +66,17 @@ line2fbf = (sourceData, cleanLevel = 3) ->
     for tag in *{"fade_simple", "fade"}
         fade = sourceData\getTags(tag, 1)[1]
         break if fade
+
     -- Transform
     transforms = sourceData\getTags "transform"
+    tagBlockIndex = {}
+    sectionEffTags = {}
+    sourceData\callback ((section, _, i, j) ->
+        sectionTransform = section\getTags "transform"
+        if #sectionTransform > 0
+          tagBlockIndex[i] = j
+          sectionEffTags[i] = (section\getEffectiveTags true).tags
+    ), ASS.Section.Tag
 
     -- Fbfing
     fbfLines = {}
@@ -110,6 +119,9 @@ line2fbf = (sourceData, cleanLevel = 3) ->
             currValue = {}
             data\removeTags "transform"
             for tr in *transforms
+                sectionIndex = tr.parent.index
+                tagIndex = tagBlockIndex[sectionIndex]
+
                 t1 = tr.startTime\get!
                 t2 = tr.endTime\get!
 
@@ -127,16 +139,28 @@ line2fbf = (sourceData, cleanLevel = 3) ->
 
                 for tag in *tr.tags\getTags!
                     tagname = tag.__tag.name
-                    -- FIXME this can break when there's more than one section
-                    -- or for certain orders of tags
-                    currValue[tagname] or= effTags[tagname]
+                    currValue[tagIndex] or= {}
+                    currValue[tagIndex][tagname] or= sectionEffTags[sectionIndex][tagname]
                     local finalValue
+
                     if tag.class == ASS.Tag.Color
-                        finalValue = currValue[tagname]\lerpRGB tag, fac
+                        colorcopy = currValue[tagIndex][tagname]\copy!
+                        ba, ga, ra = colorcopy\getTagParams!
+                        bb, gb, rb = tag\getTagParams!
+                        with colorcopy
+                            .r.value, .g.value, .b.value = ra + (rb - ra)*k, ga + (gb - ga)*k, ba + (bb - ba)*k
+                        finalValue = colorcopy
+                    elseif tag.class == ASS.Tag.ClipRect
+                        -- INFO: Lerp method for assf does not return clip result. If and when it gets fixed, this can be removed
+                        clipCopy = currValue[tagIndex][tagname]\copy!
+                        clipCopy.topLeft = clipCopy.topLeft\lerp tag.topLeft, k
+                        clipCopy.bottomRight = clipCopy.bottomRight\lerp tag.bottomRight, k
+                        finalValue = clipCopy
                     else
-                        finalValue = currValue[tagname]\lerp tag, fac
-                    data\replaceTags finalValue
-                    currValue[tagname] = finalValue
+                        finalValue = currValue[tagIndex][tagname]\lerp tag, k
+
+                    data\replaceTags finalValue, tagIndex, tagIndex, true
+                    currValue[tagIndex][tagname] = finalValue
 
         -- Fade
         if fade
