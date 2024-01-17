@@ -189,6 +189,14 @@ line2fbf = (sourceData, cleanLevel = 3) ->
 
             data\removeTags {"fade", "fade_simple"}
 
+            -- Insert all alpha tags so we can modify them later
+            -- Don't bother with checking if they exist already, cleanTags will do that for us later
+            alphaTags = data\getDefaultTags!\filterTags [ "alpha#{k}" for k=1,4 ]
+            if alphaTags.tags.alpha1.value == alphaTags.tags.alpha2.value and alphaTags.tags.alpha1.value == alphaTags.tags.alpha3.value and alphaTags.tags.alpha1.value == alphaTags.tags.alpha4.value
+                alphaTags = {ASS\createTag "alpha", alphaTags.tags.alpha1.value}
+
+            data\insertTags alphaTags, 1, 1
+
             data\modTags {"alpha", "alpha1", "alpha2", "alpha3", "alpha4"}, ((tag) ->
                 tag.value = tag.value - (tag.value * fadeVal - 0x7F) / 0xFF + fadeVal
                 tag.value = math.max(0, math.min(255, tag.value))
