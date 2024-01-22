@@ -200,6 +200,12 @@
               "name": "Perspective",
               "url": "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
               "version": "1.1.0"
+            },
+            {
+              "moduleName": "arch.Util",
+              "name": "Util",
+              "url": "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
+              "version": "0.1.0"
             }
           ]
         }
@@ -219,6 +225,9 @@
         ],
         "0.1.4": [
           "Various fixes and improvements to the line2fbf logic (more robust transform handling, fixing transforms of colors and rect clips, fixing fades for lines without alpha tags)"
+        ],
+        "0.1.5": [
+          "Move line2fbf function to a separate Util module"
         ]
       }
     },
@@ -637,6 +646,48 @@
           "Remove stray code line in prepareForPerspective",
           "Fix bounds calculation for drawings",
           "Export an_xshift and an_yshift"
+        ]
+      }
+    },
+    "arch.Util": {
+      "fileBaseUrl": "@{fileBaseUrl}/modules/@{namespacePath}",
+      "url": "@{baseUrl}#@{namespace}",
+      "author": "arch1t3cht",
+      "name": "Util",
+      "description": "Utility functions used in some of my scripts",
+      "channels": {
+        "release": {
+          "version": "0.1.0",
+          "released": "2024-01-22",
+          "default": true,
+          "files": [
+            {
+              "name": ".moon",
+              "url": "@{fileBaseUrl}@{fileName}",
+              "sha1": ""
+            }
+          ],
+          "requiredModules": [
+            {
+              "moduleName": "a-mo.Line",
+              "version": "1.5.3",
+              "name": "Aegisub-Motion (Line)",
+              "url": "https://github.com/TypesettingTools/Aegisub-Motion",
+              "feed": "@{feed:a-mo}"
+            },
+            {
+              "moduleName": "l0.ASSFoundation",
+              "name": "ASSFoundation",
+              "url": "https://github.com/TypesettingTools/ASSFoundation",
+              "version": "0.5.0",
+              "feed": "https://raw.githubusercontent.com/TypesettingTools/ASSFoundation/master/DependencyControl.json"
+            }
+          ]
+        }
+      },
+      "changelog": {
+        "0.1.0": [
+          "Initial Release with line2fbf function"
         ]
       }
     }
