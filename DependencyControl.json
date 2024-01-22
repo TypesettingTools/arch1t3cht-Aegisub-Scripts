@@ -4,6 +4,7 @@
   "description": "Main repository for all of arch1t3cht's automation macros.",
   "maintainer": "arch1t3cht",
   "knownFeeds": {
+    "a-mo": "https://raw.githubusercontent.com/TypesettingTools/Aegisub-Motion/DepCtrl/DependencyControl.json",
     "ASSFoundation": "https://raw.githubusercontent.com/TypesettingTools/ASSFoundation/master/DependencyControl.json",
     "Functional": "https://raw.githubusercontent.com/TypesettingTools/Functional/master/DependencyControl.json"
   },
@@ -673,7 +674,7 @@
               "version": "1.5.3",
               "name": "Aegisub-Motion (Line)",
               "url": "https://github.com/TypesettingTools/Aegisub-Motion",
-              "feed": "@{feed:a-mo}"
+              "feed": "https://raw.githubusercontent.com/TypesettingTools/Aegisub-Motion/DepCtrl/DependencyControl.json"
             },
             {
               "moduleName": "l0.ASSFoundation",
