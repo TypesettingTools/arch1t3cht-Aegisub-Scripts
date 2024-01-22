@@ -171,14 +171,14 @@
       "description": "Apply perspective motion tracking data",
       "channels": {
         "release": {
-          "version": "0.1.4",
-          "released": "2024-01-17",
+          "version": "0.1.5",
+          "released": "2024-01-22",
           "default": true,
           "files": [
             {
               "name": ".moon",
               "url": "@{fileBaseUrl}@{fileName}",
-              "sha1": "f2ec0e51c53cc6832a4e81b597f7b2fa98e34517"
+              "sha1": "fd6e5fe7d8322b03e9b0eb606da948fed9098b52"
             }
           ],
           "requiredModules": [
@@ -664,7 +664,7 @@
             {
               "name": ".moon",
               "url": "@{fileBaseUrl}@{fileName}",
-              "sha1": ""
+              "sha1": "21e5f8e81351617b10d52ef85c90dea1c8aa0de6"
             }
           ],
           "requiredModules": [
