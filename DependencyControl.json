@@ -164,6 +164,54 @@
         ]
       }
     },
+    "arch.Line2Fbf": {
+      "fileBaseUrl": "@{fileBaseUrl}/macros/@{namespace}",
+      "url": "@{baseUrl}#@{namespace}",
+      "author": "arch1t3cht",
+      "name": "FBF-ifier",
+      "description": "Convert lines into frame-by-frame chunks",
+      "channels": {
+        "release": {
+          "version": "0.1.0",
+          "released": "2024-01-22",
+          "default": true,
+          "files": [
+            {
+              "name": ".moon",
+              "url": "@{fileBaseUrl}@{fileName}",
+              "sha1": ""
+            }
+          ],
+          "requiredModules": [
+            {
+              "moduleName": "a-mo.LineCollection",
+              "version": "1.3.0",
+              "name": "Aegisub-Motion (LineCollection)",
+              "url": "https://github.com/TypesettingTools/Aegisub-Motion",
+              "feed": "https://raw.githubusercontent.com/TypesettingTools/Aegisub-Motion/DepCtrl/DependencyControl.json"
+            },
+            {
+              "moduleName": "l0.ASSFoundation",
+              "name": "ASSFoundation",
+              "url": "https://github.com/TypesettingTools/ASSFoundation",
+              "version": "0.5.0",
+              "feed": "https://raw.githubusercontent.com/TypesettingTools/ASSFoundation/master/DependencyControl.json"
+            },
+            {
+              "moduleName": "arch.Util",
+              "name": "Util",
+              "url": "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
+              "version": "0.1.0"
+            }
+          ]
+        }
+      },
+      "changelog": {
+        "0.1.0": [
+          "Initial Release"
+        ]
+      }
+    },
     "arch.PerspectiveMotion": {
       "fileBaseUrl": "@{fileBaseUrl}/macros/@{namespace}",
       "url": "@{baseUrl}#@{namespace}",

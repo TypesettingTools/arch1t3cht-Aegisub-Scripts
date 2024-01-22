@@ -58,6 +58,9 @@ A script that generates moving focus lines, tweakable with a few parameters.
 
 https://user-images.githubusercontent.com/99741385/180628464-2f970f02-b134-474b-b4b6-a998c22fcf75.mp4
 
+### FBF-ifier
+Yet another line2fbf script. Meaning, this script turns lines into frame-by-frame chunks without changing the rendering output, replacing all transform (and fade and move) tags by constant tags in the process. This script should be more accurate than the other line2fbf scripts floating around.
+
 ### PerspectiveMotion
 An analogue to [Aegisub-Motion](https://github.com/TypesettingTools/Aegisub-Motion) that can handle perspective motion. Unlike the "After Effects Transform Data" that Aegisub-Motion needs, this tool requires an "After Effects Power Pin" track, which you can export directly from Mocha, or using [Akatsumekusa's plugin](https://github.com/Akatmks/Akatsumekusa-Aegisub-Scripts) for Blender.
 
