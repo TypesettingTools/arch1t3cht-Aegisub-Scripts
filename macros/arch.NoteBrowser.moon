@@ -1,6 +1,6 @@
 export script_name = "Note Browser"
 export script_description = "Loads a set of timestamped notes and adds options to mark them or jump between them."
-export script_version = "1.3.5"
+export script_version = "1.3.6"
 export script_namespace = "arch.NoteBrowser"
 export script_author = "arch1t3cht"
 
@@ -62,6 +62,7 @@ haveDepCtrl, DependencyControl = pcall(require, "l0.DependencyControl")
 local config
 local fun
 local depctrl
+local clipboard
 
 if haveDepCtrl
     depctrl = DependencyControl({
@@ -69,14 +70,16 @@ if haveDepCtrl
         {
             {"l0.Functional", version: "0.6.0", url: "https://github.com/TypesettingTools/Functional",
               feed: "https://raw.githubusercontent.com/TypesettingTools/Functional/master/DependencyControl.json"},
+            "aegisub.clipboard"
         }
     })
     config = depctrl\getConfigHandler(default_config, "config", false)
-    fun = depctrl\requireModules!
+    fun, clipboard = depctrl\requireModules!
 else
     id = () -> nil
     config = {c: default_config, load: id, write: id}
     fun = require "l0.Functional"
+    clipboard = require "aegisub.clipboard"
 
 
 current_notes = {}
@@ -143,6 +146,13 @@ patch_for_mpvqc = (lines) ->
     return patched_lines
 
 
+fetch_note_from_clipboard = ->
+    note = clipboard.get!
+    if note\match "%d+:%d+"
+        return note
+    return ""
+
+
 load_notes = (subs) ->
     config\load()
     btn, result = aegisub.dialog.display({{
@@ -164,6 +174,7 @@ load_notes = (subs) ->
     },{
         class: "textbox",
         name: "notes",
+        text: fetch_note_from_clipboard!,
         x: 0, y: 2, width: 2, height: 10,
     }})
 
