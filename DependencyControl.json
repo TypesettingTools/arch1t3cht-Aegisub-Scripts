@@ -277,6 +277,9 @@
         ],
         "0.1.5": [
           "Move line2fbf function to a separate Util module"
+        ],
+        "0.2.0": [
+          "Allow tracking multiple lines at once as long as they're arranged in some sane way"
         ]
       }
     },

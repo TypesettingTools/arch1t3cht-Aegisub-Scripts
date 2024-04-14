@@ -2,7 +2,7 @@ export script_name = "Aegisub Perspective-Motion"
 export script_description = "Apply perspective motion tracking data"
 export script_author = "arch1t3cht"
 export script_namespace = "arch.PerspectiveMotion"
-export script_version = "0.1.5"
+export script_version = "0.2.0"
 
 DependencyControl = require "l0.DependencyControl"
 dep = DependencyControl{
@@ -37,93 +37,112 @@ track = (quads, options, subs, sel, active) ->
 
     die("Invalid relative frame") if options.relframe < 1 or options.relframe > #quads
 
-    -- First, FBF everything
+    abs_relframe = options.selection_start_frame + options.relframe - 1
+
+    -- First, find out what lines should be transformed relative to which other lines
+    frame2line = {}
+    lines_intersect = false
+    all_contain_relframe = true
+    lines\runCallback (lines, line) ->
+        all_contain_relframe and= (line.startFrame <= abs_relframe and abs_relframe < line.endFrame)
+        for frame=line.startFrame,(line.endFrame - 1)
+            lines_intersect = true if frame2line[frame]
+            frame2line[frame] = line
+
+    if lines_intersect and not all_contain_relframe
+        die("Times of selected lines intersect but not all lines contain the reference frame. I don't know what to do with this. If you think of a way to make this script read the user's mind, let me know.")
+
+    die("No line at reference frame!") if not frame2line[abs_relframe]
+
+    rel_lines = {}
+    local single_rel_line
+
+    -- Then, FBF everything and find the lines we work relative to
     to_delete = {}
     lines\runCallback ((lines, line) ->
         data = ASS\parse line
 
         table.insert to_delete, line
+        line.willdelete = true
 
         fbf = Util.line2fbf data
         for fbfline in *fbf
             lines\addLine fbfline
+
+            if all_contain_relframe
+                fbfline.rel_line = fbf[abs_relframe - line.startFrame + 1]
+                rel_lines[fbfline.rel_line] = 1
+            elseif fbfline.startFrame == abs_relframe
+                single_rel_line = fbfline
+                rel_lines[fbfline] = 1
     ), true
-
-    -- Then, find the line we do everything relative to
-
-    -- FIXME This gets weird when there's more than one line visible at the relative frame.
-    --     The script can't really read the user's mind here but in theory there could be a system
-    --     that allows for tracking multiple sets of lines at once like the old persp-mo had
-    --     (although that was only really necessary back when that wasn't able to fbf).
-    --     I won't bother with doing this until anyone actually needs this, though
 
     rel_quad = quads[options.relframe]
 
-    local rel_line
-    lines\runCallback (lines, line) ->
-        rel_line = line if line.startFrame == lines.startFrame + options.relframe - 1
-
-    die("No line at relative frame!") if rel_line == nil
-
-    -- If we're supposed to apply the perspective, apply it to the relative line
+    -- If we're supposed to apply the perspective, apply it to the relative lines
     if options.applyperspective
-        data = ASS\parse rel_line
+        for rel_line,_ in pairs(rel_lines)
+            data = ASS\parse rel_line
 
-        tagvals, width, height, warnings = prepareForPerspective(ASS, data)
-        -- ignore the warnings because I'm lazy and this script isn't usually run unsupervised
+            tagvals, width, height, warnings = prepareForPerspective(ASS, data)
+            -- ignore the warnings because I'm lazy and this script isn't usually run unsupervised
 
-        pos = Point(tagvals.position.x, tagvals.position.y)
+            pos = Point(tagvals.position.x, tagvals.position.y)
 
-        oldscale = { k,tagvals[k].value for k in *{"scale_x", "scale_y"} }
+            oldscale = { k,tagvals[k].value for k in *{"scale_x", "scale_y"} }
 
-        -- Really, blindly applying perspective to some quad isn't a good idea (and not really necessary
-        -- either now that there's a perspective tool), but some people want it.
-        -- The problem is that it's not really clear what \fscx and \fscy should be, but I guess the
-        -- most natural choice is just picking a perspective that does not change \fscx and \fscy
-        -- (i.e. that keeps them at 100 if they weren't explicitly specified before).
-        -- So the plan is to transform the line to the entire quad, see what \fscx and \fscy end up at,
-        -- and use the inverses of those values to find the actual quad we want to transform to.
+            -- Really, blindly applying perspective to some quad isn't a good idea (and not really necessary
+            -- either now that there's a perspective tool), but some people want it.
+            -- The problem is that it's not really clear what \fscx and \fscy should be, but I guess the
+            -- most natural choice is just picking a perspective that does not change \fscx and \fscy
+            -- (i.e. that keeps them at 100 if they weren't explicitly specified before).
+            -- So the plan is to transform the line to the entire quad, see what \fscx and \fscy end up at,
+            -- and use the inverses of those values to find the actual quad we want to transform to.
 
-        data\removeTags relevantTags
-        data\insertTags [ tagvals[k] for k in *usedTags ]
+            data\removeTags relevantTags
+            data\insertTags [ tagvals[k] for k in *usedTags ]
 
-        rect_at_pos = (width, height) ->
-            result = Quad.rect 1, 1
-            result -= Point(an_xshift[tagvals.align.value], an_yshift[tagvals.align.value])
-            result *= (Matrix.diag(width, height))
-            result += rel_quad\xy_to_uv(pos)   -- This breaks if the line already has some perspective but honestly if you run the script like that then that's on you
-            result = Quad [ rel_quad\uv_to_xy(p) for p in *result ]
-            return result
+            rect_at_pos = (width, height) ->
+                result = Quad.rect 1, 1
+                result -= Point(an_xshift[tagvals.align.value], an_yshift[tagvals.align.value])
+                result *= (Matrix.diag(width, height))
+                result += rel_quad\xy_to_uv(pos)   -- This breaks if the line already has some perspective but honestly if you run the script like that then that's on you
+                result = Quad [ rel_quad\uv_to_xy(p) for p in *result ]
+                return result
 
-        tagsFromQuad(tagvals, rect_at_pos(1, 1), width, height, options.orgmode)
+            tagsFromQuad(tagvals, rect_at_pos(1, 1), width, height, options.orgmode)
 
-        tagsFromQuad(tagvals, rect_at_pos(oldscale.scale_x / tagvals.scale_x.value, oldscale.scale_y / tagvals.scale_y.value), width, height, options.orgmode)
+            tagsFromQuad(tagvals, rect_at_pos(oldscale.scale_x / tagvals.scale_x.value, oldscale.scale_y / tagvals.scale_y.value), width, height, options.orgmode)
 
-        -- we don't need to adjust bord/shad since we're going for no change in scale
+            -- we don't need to adjust bord/shad since we're going for no change in scale
 
-        data\cleanTags 4
-        data\commit!
+            data\cleanTags 4
+            data\commit!
 
-    -- Find some more data for the relative line
-    local rel_line_tags
-    local rel_line_quad
-    do
+    -- Find some more data for the relative lines
+    for rel_line,_ in pairs(rel_lines)
         data = ASS\parse rel_line
         rel_line_tags, width, height, warnings = prepareForPerspective(ASS, data)     -- ignore warnings
         rel_line_quad = transformPoints(rel_line_tags, width, height)
 
+        rel_line.tags = rel_line_tags
+        rel_line.quad = rel_line_quad
+
     -- Then, do the actual tracking
     lines\runCallback (lines, line) ->
+        return if line.willdelete
+        line.rel_line or= single_rel_line
+
         data = ASS\parse line
         frame_quad = quads[line.startFrame - lines.startFrame + 1]
 
         tagvals, width, height, warnings = prepareForPerspective(ASS, data)     -- ignore warnings
         oldscale = { k,tagvals[k].value for k in *{"scale_x", "scale_y"} }
 
-        uv_quad = Quad [ rel_quad\xy_to_uv(p) for p in *rel_line_quad ]
+        uv_quad = Quad [ rel_quad\xy_to_uv(p) for p in *line.rel_line.quad ]
         if not options.trackpos
             -- Is this mode even useful in practice? Who knows!
-            uv_quad += frame_quad\xy_to_uv(Point(tagvals.position.x, tagvals.position.y)) - rel_quad\xy_to_uv(Point(rel_line_tags.position.x, rel_line_tags.position.y))
+            uv_quad += frame_quad\xy_to_uv(Point(tagvals.position.x, tagvals.position.y)) - rel_quad\xy_to_uv(Point(line.rel_line.tags.position.x, line.rel_line.tags.position.y))
             -- This breaks if the lines have different alignments or if the relative line has its position shifted by something like \fax. If you have a better idea to find positions (and an actual use case for all this) I'd love to hear it.
 
         target_quad = Quad [ frame_quad\uv_to_xy(p) for p in *uv_quad ]
@@ -311,6 +330,8 @@ main_dialog = (subs, sel, active) ->
 
     die("Invalid tracking data!") if quads == nil
     die("The length of the tracking data does not match the selected lines.") if #quads != selection_frames
+
+    results.selection_start_frame = selection_start_frame
 
     track(quads, results, subs, sel, active)
 
