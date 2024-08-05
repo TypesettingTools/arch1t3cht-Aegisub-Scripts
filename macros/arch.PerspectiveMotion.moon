@@ -329,7 +329,7 @@ main_dialog = (subs, sel, active) ->
     quads = parse_powerpin_data results.data
 
     die("Invalid tracking data!") if quads == nil
-    die("The length of the tracking data does not match the selected lines.") if #quads != selection_frames
+    die("The length of the tracking data (#{#quads}) does not match the selected lines (#{selection_frames}).") if #quads != selection_frames
 
     results.selection_start_frame = selection_start_frame
 
