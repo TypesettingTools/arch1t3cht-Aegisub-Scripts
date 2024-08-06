@@ -64,6 +64,8 @@ Yet another line2fbf script. Meaning, this script turns lines into frame-by-fram
 ### PerspectiveMotion
 An analogue to [Aegisub-Motion](https://github.com/TypesettingTools/Aegisub-Motion) that can handle perspective motion. Unlike the "After Effects Transform Data" that Aegisub-Motion needs, this tool requires an "After Effects Power Pin" track, which you can export directly from Mocha, or using [Akatsumekusa's plugin](https://github.com/Akatmks/Akatsumekusa-Aegisub-Scripts) for Blender.
 
+Detailed documentation [here](doc/perspective_motion.md)
+
 ### Derive Perspective Track
 More or less an analogue to [The0x539's DeriveTrack](https://github.com/The0x539/Aegisub-Scripts/blob/trunk/doc/0x.DeriveTrack.md) for perspective tracks. It turns the outer quads of a set of lines (as set using the perspective tool in [my Aegisub fork](https://github.com/arch1t3cht/Aegisub)) into a PowerPin track that can be used with [Aegisub Perspective-Motion](#perspective-motion). Alternatively, it can derive a track directly from the override tags. This way, manual perspective tracks can be made and applied to multiple different lines directly in Aegisub, without having to go through Mocha or Blender.
 
