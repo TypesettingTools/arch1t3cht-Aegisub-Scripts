@@ -25,6 +25,8 @@ LineCollection, ASS, AMath, APersp, Util, clipboard = dep\requireModules!
 {:Point, :Matrix} = AMath
 {:Quad, :an_xshift, :an_yshift, :relevantTags, :usedTags, :transformPoints, :tagsFromQuad, :prepareForPerspective} = APersp
 
+complained_about_layout_res = {}
+
 logger = dep\getLogger!
 
 die = (errmsg) ->
@@ -36,6 +38,13 @@ track = (quads, options, subs, sel, active) ->
     lines = LineCollection subs, sel, () -> true
     videoW, videoH = aegisub.video_size!
     layoutScale = lines.meta.PlayResY / (lines.meta.LayoutResY or videoH)
+
+    if layoutScale != 1 and not complained_about_layout_res[aegisub.file_name! or ""]
+        complained_about_layout_res[aegisub.file_name! or ""] = true
+        if lines.meta.LayoutResY
+            aegisub.log("Your file's LayoutResY (#{lines.meta.LayoutResY}) does not match its PlayResY (#{lines.meta.PlayResY}). Unless you know what you're doing you should probably resample to make them match.")
+        else
+            aegisub.log("Your file's LPlayResY (#{lines.meta.PlayResY}) does not match your video's height (#{videoH}). You may want to set a LayoutResY for your file.")
 
     die("Invalid relative frame") if options.relframe < 1 or options.relframe > #quads
 
