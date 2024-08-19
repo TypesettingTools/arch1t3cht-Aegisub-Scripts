@@ -220,14 +220,14 @@
       "description": "Apply perspective motion tracking data",
       "channels": {
         "release": {
-          "version": "0.2.0",
-          "released": "2024-04-14",
+          "version": "0.3.0",
+          "released": "2024-08-19",
           "default": true,
           "files": [
             {
               "name": ".moon",
               "url": "@{fileBaseUrl}@{fileName}",
-              "sha1": "cd4b455905d23cf0a2ce861c3d91440790df0486"
+              "sha1": "ec5cc2452b3869f31c6232a35c987106aa701b1a"
             }
           ],
           "requiredModules": [
@@ -649,14 +649,14 @@
       "description": "Math functions for dealing with perspective transformations.",
       "channels": {
         "release": {
-          "version": "1.1.0",
-          "released": "2024-01-16",
+          "version": "1.2.0",
+          "released": "2024-08-19",
           "default": true,
           "files": [
             {
               "name": ".moon",
               "url": "@{fileBaseUrl}@{fileName}",
-              "sha1": "ed62bc8a13aeacf27da88ed4f266941d4d1915be"
+              "sha1": "0b29db07336fbf299c7db65dc083de55b1c17ddf"
             }
           ],
           "requiredModules": [
