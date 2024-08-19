@@ -14,7 +14,7 @@ dep = DependencyControl{
          feed: "https://raw.githubusercontent.com/TypesettingTools/ASSFoundation/master/DependencyControl.json"},
         {"arch.Math", version: "0.1.10", url: "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
          feed: "https://raw.githubusercontent.com/TypesettingTools/arch1t3cht-Aegisub-Scripts/main/DependencyControl.json"},
-        {"arch.Perspective", version: "1.1.0", url: "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
+        {"arch.Perspective", version: "1.2.0", url: "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
          feed: "https://raw.githubusercontent.com/TypesettingTools/arch1t3cht-Aegisub-Scripts/main/DependencyControl.json"},
         {"arch.Util", version: "0.1.0", url: "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
          feed: "https://raw.githubusercontent.com/TypesettingTools/arch1t3cht-Aegisub-Scripts/main/DependencyControl.json"},
@@ -34,6 +34,8 @@ die = (errmsg) ->
 
 track = (quads, options, subs, sel, active) ->
     lines = LineCollection subs, sel, () -> true
+    videoW, videoH = aegisub.video_size!
+    layoutScale = lines.meta.PlayResY / (lines.meta.LayoutResY or videoH)
 
     die("Invalid relative frame") if options.relframe < 1 or options.relframe > #quads
 
@@ -110,9 +112,9 @@ track = (quads, options, subs, sel, active) ->
                 result = Quad [ rel_quad\uv_to_xy(p) for p in *result ]
                 return result
 
-            tagsFromQuad(tagvals, rect_at_pos(1, 1), width, height, options.orgmode)
+            tagsFromQuad(tagvals, rect_at_pos(1, 1), width, height, options.orgmode, layoutScale)
 
-            tagsFromQuad(tagvals, rect_at_pos(oldscale.scale_x / tagvals.scale_x.value, oldscale.scale_y / tagvals.scale_y.value), width, height, options.orgmode)
+            tagsFromQuad(tagvals, rect_at_pos(oldscale.scale_x / tagvals.scale_x.value, oldscale.scale_y / tagvals.scale_y.value), width, height, options.orgmode, layoutScale)
 
             -- we don't need to adjust bord/shad since we're going for no change in scale
 
@@ -123,7 +125,7 @@ track = (quads, options, subs, sel, active) ->
     for rel_line,_ in pairs(rel_lines)
         data = ASS\parse rel_line
         rel_line_tags, width, height, warnings = prepareForPerspective(ASS, data)     -- ignore warnings
-        rel_line_quad = transformPoints(rel_line_tags, width, height)
+        rel_line_quad = transformPoints(rel_line_tags, width, height, nil, layoutScale)
 
         rel_line.tags = rel_line_tags
         rel_line.quad = rel_line_quad
@@ -151,7 +153,7 @@ track = (quads, options, subs, sel, active) ->
         data\removeTags relevantTags
         data\insertTags [ tagvals[k] for k in *usedTags ]
 
-        tagsFromQuad(tagvals, target_quad, width, height, options.orgmode)
+        tagsFromQuad(tagvals, target_quad, width, height, options.orgmode, layoutScale)
 
         -- -- Correct \bord and \shad for the \fscx\fscy change
         if options.trackbordshad
