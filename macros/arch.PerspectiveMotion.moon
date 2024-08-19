@@ -2,7 +2,7 @@ export script_name = "Aegisub Perspective-Motion"
 export script_description = "Apply perspective motion tracking data"
 export script_author = "arch1t3cht"
 export script_namespace = "arch.PerspectiveMotion"
-export script_version = "0.2.0"
+export script_version = "0.3.0"
 
 DependencyControl = require "l0.DependencyControl"
 dep = DependencyControl{

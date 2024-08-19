@@ -280,6 +280,9 @@
         ],
         "0.2.0": [
           "Allow tracking multiple lines at once as long as they're arranged in some sane way"
+        ],
+        "0.3.0": [
+          "Correctly handle LayoutResY or the video height differing from PlayResY, but yell at the user when they differ"
         ]
       }
     },
