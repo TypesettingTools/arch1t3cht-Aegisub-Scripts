@@ -698,6 +698,9 @@
           "Remove stray code line in prepareForPerspective",
           "Fix bounds calculation for drawings",
           "Export an_xshift and an_yshift"
+        ],
+        "1.2.0": [
+          "Add layoutScale parameter to account for differing LayoutRes or video resolution"
         ]
       }
     },

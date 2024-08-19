@@ -5,7 +5,7 @@ local amath
 if haveDepCtrl
     depctrl = DependencyControl {
         name: "Perspective",
-        version: "1.1.0",
+        version: "1.2.0",
         description: [[Math functions for dealing with perspective transformations.]],
         author: "arch1t3cht",
         url: "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
@@ -211,11 +211,15 @@ prepareForPerspective = (ASS, data) ->
 -- Thus, when transforming a shape with \an7, width and height can be zero. When transforming text, they should be whatever aegisub.text_extents returned.
 -- The table t is supposed to be a table of tags as returned by ASSFoundation, but any table with the same keys and .value or .x/.y
 -- fields for the respective tags works.
-transformPoints = (t, width, height, points=nil) ->
+-- The layoutScale parameter should be set to (script's PlayResY)/(script's LayoutResY), or (scipt's PlayResY)/(video height) if LayoutResY is not present
+--   (though in that case you should add it to your script or yell at your user to do so)
+transformPoints = (t, width, height, points=nil, layoutScale=1) ->
     if points == nil
         points = Quad.rect width, height
     else
         points = Matrix(points)
+
+    scaled_screen_z = screen_z * layoutScale
 
     pos = Point(t.position.x, t.position.y)
     org = Point(t.origin.x, t.origin.y)
@@ -243,7 +247,7 @@ transformPoints = (t, width, height, points=nil) ->
     points *= Matrix.rot2d(math.rad(t.angle_y.value))\onSubspace(2)\t!
 
     -- Project
-    points = Matrix [ (screen_z / (p\z! + screen_z)) * p\project(2) for p in *points ]
+    points = Matrix [ (scaled_screen_z / (p\z! + scaled_screen_z)) * p\project(2) for p in *points ]
 
     -- Move to origin
     points += org
@@ -256,9 +260,12 @@ transformPoints = (t, width, height, points=nil) ->
 --   orgMode = 1: \org is not changed, i.e. the origin tag passed in the t parameter is not modified
 --   orgMode = 2: \org is set to the center of the quad
 --   orgMode = 3: \org is chosen in a way that tries to ensure that \fax can be zero, or as close to zero as possible
+-- The layoutScale parameter should be set to (script's PlayResY)/(script's LayoutResY), or (scipt's PlayResY)/(video height) if LayoutResY is not present
+--   (though in that case you should add it to your script or yell at your user to do so)
 -- For the sake of backwards compatibility, orgMode=false is synonymous with orgMode=1 and orgMode=true is synonymous with orgMode=2 .
-tagsFromQuad = (t, quad, width, height, orgMode=0) ->
+tagsFromQuad = (t, quad, width, height, orgMode=0, layoutScale=1) ->
     quad = Quad(quad) if quad.__class != Quad
+    scaled_screen_z = layoutScale * screen_z
 
     -- Find a parallelogram projecting to the quad
     z24 = Matrix({ quad[2] - quad[3], quad[4] - quad[3] })\t!\preim(quad[1] - quad[3])
@@ -278,7 +285,7 @@ tagsFromQuad = (t, quad, width, height, orgMode=0) ->
 
         a = (1 - z24[1]) * (1 - z24[2])
         b = z24[1] * v2 + z24[2] * v4 - z24[1] * z24[2] * (v2 + v4)
-        c = z24[1] * z24[2] * v2 * v4 + (z24[1] - 1) * (z24[2] - 1) * screen_z ^ 2
+        c = z24[1] * z24[2] * v2 * v4 + (z24[1] - 1) * (z24[2] - 1) * scaled_screen_z ^ 2
 
         -- Our default value for o, which would put \org at the center of the quad.
         -- We'll try to find a value for \org that's as close as possible to it.
@@ -319,14 +326,14 @@ tagsFromQuad = (t, quad, width, height, orgMode=0) ->
 
     -- Unproject the quad
     zs = Point(1, z24[1], z24\sum! - 1, z24[2])
-    quad ..= screen_z
+    quad ..= scaled_screen_z
     quad = Matrix.diag(zs) * quad
 
-    -- Normalize so the origin has z=screen_z
-    orgla = Matrix({Point(0, 0, screen_z), quad[1] - quad[2], quad[1] - quad[4]})\t!\preim(quad[1])
+    -- Normalize so the origin has z=scaled_screen_z
+    orgla = Matrix({Point(0, 0, scaled_screen_z), quad[1] - quad[2], quad[1] - quad[4]})\t!\preim(quad[1])
     quad /= orgla[1]
 
-    quad -= Matrix[{0, 0, screen_z} for i=1,4]
+    quad -= Matrix[{0, 0, scaled_screen_z} for i=1,4]
 
     -- Find the rotations
     n = (quad[2] - quad[1])\cross(quad[4] - quad[1])
