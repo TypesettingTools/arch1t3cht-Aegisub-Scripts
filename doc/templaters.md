@@ -32,6 +32,33 @@ There exist some other notable tools for making KFX. They're not explained here 
 ## Getting Started
 This guide uses [The0x539's Templater](https://github.com/The0x539/Aegisub-Scripts/blob/trunk/src/0x.KaraTemplater.moon), which you'll need to install first (I also strongly recommend you to bind its function to a keyboard shortcut. I use Ctrl+Alt+S.). The guide interleaves semi-technical explanations (formatted normally) with very simple but concrete examples (formatted in italics). You can also follow just the italics if you want a purely hands-on approach.
 
+### Preamble: How to use a Templater
+If you're not yet experienced with subtitling and the ASS format, you need to understand the following before trying to learn to use a templater:
+
+**Karaoke templaters are *not* magic.**
+
+A mistake many beginners make is thinking of a karaoke templater (and, similarly, Aegisub's automation scripts) as a magic box that takes in some cryptic looking code and outputs some nice visual effect.
+Thus, they ask questions like "How can I write a template that makes the text look like this?".
+But this is incorrect: A karaoke templater cannot magically achieve any visual effect.
+Instead, a templater is just a tool that takes in some code and outputs *subtitle lines*, and these subtitle lines are then drawn by the renderer just like any other lines are.
+Hence, templaters are no more powerful than the ASS format itself: If some visual effect can't easily be achieved using ASS subtitles, they can't easily be achieved using a templater either.
+A templater only helps you in *producing* the final ASS lines more efficiently.
+In theory, any karaoke effect could also be achieved manually without a templater, e.g. by just manually typing in all the lines and transform tags you need (and, in fact, doing just that for a very simple karaoke effect can be a great exercise!).
+This is very tedious and error-prone, but it's possible. It's this tedious part that a templater helps you automate.
+
+For someone who actually wants to create a karaoke template, this means the following:
+Instead of asking "How can I write a template that makes the text look like this?", you should instead ask the following two separate questions:
+1. How can I achieve this effect using some amount of ASS lines (with which override tags, transforms, etc)
+2. How can I tell the templater to produce this set of ASS lines I want it to produce?
+
+Of course, experienced users will intuitively combine these two steps, but if you're ever confused, this is how you should think about things.
+
+Similarly (and maybe even more importantly), this also applies to how you should *debug* karaoke templates.
+If your karaoke effect doesn't look like you want it to look, you shouldn't just blindly mess with the template until it works out, but instead examine the ASS lines it outputs.
+Do you understand why those ASS lines look the way they look on screen?
+Are these ASS lines the ones you wanted your templater to generate, or are they different somehow? (For example: Are there any malformed tags? Any invalid numbers?)
+Asking questions like these will help you find out what part of your template you need to fix, and whether the problem lies in the template itself, or in your mental model of the ASS lines you want to generate.
+
 ### First Steps
 The following is the simplest karaoke file you can imagine:
 ```
