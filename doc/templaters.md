@@ -10,7 +10,9 @@ If you're looking for actual guides on KFX, here are some links:
 - [Jocko's Posts](https://jockotan.wordpress.com/2015/08/12/karaoke-templater/): Also very concise and example driven, but uses the stock templater.
 - The actual documentation of the various templaters, linked below.
 
-Furthermore, I have a collection [here](misc_kara.md) of miscellaneous templates I made for typesetting or other purposes that aren't song styling.
+Moreover, I have a few other pages on templating myself:
+- A [list of common snippets and idioms for templaters](templaters_idioms.md), i.e. a kind of "cheat sheet".
+- A [collection of miscellaneous templates](misc_kara.md) I made for typesetting or other purposes that aren't song styling. Note that that page is fairly old, so some of the techniques there may be outdated. They're not *wrong*, but there may be better ways to do things.
 
 ## Existing Templaters
 At the time of writing (2022), there are three major karaoke templaters around:
