@@ -3,7 +3,7 @@ This page collects some common templating tricks and idioms.
 You can use it to learn new tricks, or as a kind of "cheat sheet".
 Of course, you should also refer to the respective templater's documentation (see [my general templater guide](templaters.md) for links).
 
-Everything listed here uses The0x539's templater.
+This list is written for The0x539's templater, but many of the techniques also transfer to other templaters.
 
 ### Setting a Random Seed
 If your template uses randomness, it may be helpful to set a constant seed at the top of your template by adding a `code once` with `math.randomseed(1337)` (or some other seed).
@@ -62,6 +62,21 @@ Hence, for `\move` you may need to add some additional logic or to use `util.ler
 ### Easy Alternating Values with `(-1)^i`
 If you want a value to flip between positive and negative every syl/char/line/etc, you can multiply it with `(-1)^syl.i`.
 This is much more compact than manual code or something like `syl.i % 2 == 0 and value or -value`.
+
+### Skipping Negative-Duration Lines
+When you do a lot of looping and retiming you may end up with some lines that have negative duration, i.e. whose start time ends up being larger than their end time.
+To avoid this, you can add a `!d(line.start_time > line.end_time and skip())!` after all retimes (e.g. in a separate `mixin`).
+
+As a reminder, this works because `line` is the *generated* line, as opposed to `orgline` which is your *input* line.
+Calls to `retime` affect `line.start_time` and `line.end_time`, but not `orgline.start_time` and `orgline.end_time`.
+
+### Clamping Line Times
+When (for example) you have some per-syllable highlight effect that lasts longer than the syllable itself (e.g. some highlight color that fades out), you may not want it to last longer than your entire line.
+Even if you want your highlights to last longer than the line they belong to, you may want them to stop before the *following* line starts.
+To enforce this, you can use snippets like `!d(retime("abs", line.start_time, math.min(line.end_time, orgline.end_time)))!` to clamp the end time to the line's end time,
+or `!d(orgline.next and orgline.next.start_time > orgline.start_time and retime("abs", line.start_time, math.min(line.end_time, orgline.next.start_time)))!` to clamp the end time to the following line's start time.
+If your lines have lead-in, this needs to be accounted for in the `retime` call.
+Of course, you can do similar things for start times.
 
 ### Text to Shape
 Use [ILL](https://github.com/TypesettingTools/ILL-Aegisub-Scripts/) to convert text to shapes and modify those shapes:
