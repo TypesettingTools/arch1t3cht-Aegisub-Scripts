@@ -15,6 +15,55 @@ For example, picking out five random angles on a circle rarely looks good and yo
 ### A Simple Random Range Function
 Put `function random(a, b) return a + (b - a) * math.random()` in a `code once`  to get a function that gives you a random float in the given range (as opposed to Lua's built-in `math.random(a, b)` which only returns integers).
 
+### Consistent Random Values
+Say you want to randomly shake a line that's split into multiple layers.
+Naively, you might try to write something like the following:
+```lua
+Comment: 0,[...],template line,{\bord4\shad0\1a&HFF&}
+Comment: 1,[...],template line,{\bord0\shad0}
+Comment: 0,[...],mixin line    ,!util.fbf()!{\blur2\an5\pos(!orgline.center + math.random(-10,10)!,!orgline.middle + math.random(-10,10)!)}
+```
+However, this does not work since `math.random` is called once *per layer* and returns a different value each time, so the two layers will shake independently from each other.
+
+One way to fix this is to pregenerate all random values ahead of time, i.e. to have a `code line` that creates a table of one random value per frame.
+This works, but it's quite cumbersome and gets more and more annoying the more loops or random values you use.
+
+A simpler way is to use `math.randomseed` in each layer to make the random generator deterministic:
+```lua
+Comment: 0,[...],template line,{\bord4\shad0\1a&HFF&}
+Comment: 1,[...],template line,{\bord0\shad0}
+Comment: 0,[...],mixin line    ,!util.fbf()!!math.randomseed(loopctx.state.fbf)!{\blur2\an5\pos(!orgline.center + math.random(-10,10)!,!orgline.middle + math.random(-10,10)!)}
+```
+Here, it's important to make the seed depend on the current frame number `loopctx.state.fbf` so that the random values are actually different every frame.
+
+However, this still has a problem:
+Now, the random seed *only* depends on the current frame.
+This means that it *doesn't* depend on the karaoke line, so every line will shake in the same way.
+This may not be too visible for this effect, but for other effects that use random values in different ways it can be much more apparent.
+You can work around this with more tricks (like instead using `line.start_time` as a seed), but the following function abstracts this away quite nicely:[^hash]
+```lua
+Comment: [...],code once,local seed = 1234; local p = 2 ^ 31 - 1; function setseed(...) local v = tostring(seed); for _,x in _G.ipairs({...}) do v = v .. "|" .. tostring(x):gsub("\\", "\\\\"):gsub("|", "\\|") end local s=1; for i = 1,#v do s = (s * (string.byte(v, i) + 256 * i)) % p end; math.randomseed(s); end
+```
+By changing the `seed` variable at the beginning you can shuffle all the seeds for random variables generated in this way.
+
+[^hash]: This uses a very simple and stupid hash function to turn all dependencies into a single numerical seed. I do not pretend that this is a *good* hash function, the main goal was to write something simple that fits in one line without any dependencies.
+
+Now, you can use this function in place of `math.randomseed` as follows:
+```lua
+Comment: 0,[...],template line,{\bord4\shad0\1a&HFF&}
+Comment: 1,[...],template line,{\bord0\shad0}
+Comment: 0,[...],mixin line    ,!util.fbf()!!setseed(orgline.raw, loopctx.state.fbf)!{\blur2\an5\pos(!orgline.center + math.random(-10,10)!,!orgline.middle + math.random(-10,10)!)}
+```
+As arguments to `setseed` you should pass all the values that the random values should depend on.
+Hence, we pass `orgline.raw` and `loopctx.state.fbf` here to make different lines and different frames have different values, but we do not pass `line.layer`, since we want both layers to have the same random values.
+
+You can pass any Lua value as a dependency, but note that all dependencies are converted to strings via `tostring`, so tables are effectively checked for referential equality rather than equality of elements.
+
+There are a few other ways to achieve consistent random values like this (e.g. implementing your own stateless PRNG or using a lazily initialized dictionary of random values), but this method has the advantage that you can transparently use any existing functions that make use of `math.random` like `random` (see above), the `util.rand.*` functions in 0x's templater, and so on.
+However, one caveat for this method is that the number and order of calls to `math.random()` needs to be the same in every iteration:
+You cannot call `math.random()` on one layer and not call it on the other or the random states will go out of sync.
+If you find yourself needing to do this, either call `math.random()` unconditionally and discard the result where you don't need it, or call `setseed` again after your conditional calls are finished.
+
 ### A Dummy Function to Eat Values
 Put `function d() return "" end` into a `code once` to get a function `d` that can be used to eat any value.
 This can be useful when some `!!` expression (e.g. something involving `or` or `and`) evaluates to a boolean or some other string, which then ends up being written into your generated line without you wanting to.
