@@ -83,7 +83,7 @@ Comment: 0,0:00:00.00,0:00:00.00,Karaoke,,0,0,0,,
 Comment: 0,0:00:20.88,0:00:26.80,Karaoke,,0,0,0,kara,{\k0}{\k39}A{\k22}to {\k54}i{\k44}chi{\k40}do {\k18}da{\k60}ke {\k12}ki{\k23}se{\k63}ki {\k39}wa {\k20}o{\k20}ko{\k39}ru {\k36}da{\k63}rou
 Comment: 0,0:00:26.80,0:00:32.96,Karaoke,,0,0,0,kara,{\k36}{\k20}Ya{\k30}sa{\k70}shi{\k38}i {\k39}ko{\k21}e {\k58}de {\k21}e{\k18}ga{\k57}ku {\k23}yu{\k37}gan{\k20}da {\k41}mi{\k35}ra{\k52}i
 ```
-(It's timed to [this OP](https://animethemes.moe/anime/fatezero_2nd_season/OP-NCBD1080) if you want to play around with it.[^1])
+(It's timed to [this OP](https://animethemes.moe/anime/fatezero_2nd_season/OP1-NCBD1080) if you want to play around with it.[^1])
 [^1]: In no way do I claim that this is perfect styling, I'm just trying to use a decent font almost everyone has. Feel free to play around with it.
 
 It contains
