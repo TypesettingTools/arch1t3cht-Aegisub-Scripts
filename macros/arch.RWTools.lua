@@ -1,6 +1,6 @@
 script_name = "Rewriting Tools"
 script_author = "arch1t3cht"
-script_version = "1.3.1"
+script_version = "1.3.2"
 script_namespace = "arch.RWTools"
 script_description = "Shortcuts for managing multiple rewrites of a line in one .ass event line."
 
@@ -418,10 +418,6 @@ function shift_backward(subs, sel)
     switch_lines_proper(subs, sel, false, true, false)
 end
 
-function can_run(subs, sel)
-    return #sel == 1
-end
-
 function configure()
     config:load()
     local diag = {
@@ -484,10 +480,10 @@ function wrap_register_macro(name, ...)
     end
 end
 
-wrap_register_macro("Switch Active Lines", "Deactivates the active line and activates any inactive lines marked with !- .", switch_lines, can_run)
-wrap_register_macro("Prepare Rewrite", "Deactivates the active line and copies it to a new line for rewriting.", rewrite_line, can_run)
-wrap_register_macro("Shift Line Break Forward", "Shifts the line break in the currently active line forward by one word.", shift_forward, can_run)
-wrap_register_macro("Shift Line Break Backward", "Shifts the line break in the currently active line backward by one word.", shift_backward, can_run)
+wrap_register_macro("Switch Active Lines", "Deactivates the active line and activates any inactive lines marked with !- .", switch_lines)
+wrap_register_macro("Prepare Rewrite", "Deactivates the active line and copies it to a new line for rewriting.", rewrite_line)
+wrap_register_macro("Shift Line Break Forward", "Shifts the line break in the currently active line forward by one word.", shift_forward)
+wrap_register_macro("Shift Line Break Backward", "Shifts the line break in the currently active line backward by one word.", shift_backward)
 wrap_register_macro("Clean Up Styling Tag Escapes", "Removes all pipe ('|') characters from the end of styling blocks.", clean_lines)
 wrap_register_macro("Configure", "Configure Rewriting Tools", configure)
 
