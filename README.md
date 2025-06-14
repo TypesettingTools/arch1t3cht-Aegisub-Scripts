@@ -7,6 +7,7 @@ My automation scripts for Aegisub. In my opinion, the coolest thing here is Aegi
   - [AegisubChain](#aegisubchain)
   - [Scripts for Typesetting](#scripts-for-typesetting)
     - [Focus Lines](#focus-lines)
+    - [FBF-ifier](#fbf-ifier)
     - [PerspectiveMotion](#perspectivemotion)
     - [Derive Perspective Track](#derive-perspective-track)
     - [Resample Perspective](#resample-perspective)
@@ -20,6 +21,7 @@ My automation scripts for Aegisub. In my opinion, the coolest thing here is Aegi
     - [Center Times](#center-times)
   - [Other Scripts](#other-scripts)
     - [Convert Folds](#convert-folds)
+    - [Fix KFX Boilerplate](#fix-kfx-boilerplate)
     - [Blender Export Scripts for After Effects Tracking Data](#blender-export-scripts-for-after-effects-tracking-data)
   - [See also](#see-also)
 
@@ -127,6 +129,17 @@ To use it, either
 - copy the "Line Folds:" line in your `.ass` file, open this file in Aegisub, and paste this into the dialog of the "Convert Folds" script, or
 - click the "From File" button to automatically read this line from the subtitle file. This only works if the file is saved on your disk.
 This will work on any version of Aegisub (i.e. an Aegisub version using extradata folds will be able to load folds from the resulting file), but in order for the folds to be displayed inside of Aegisub, you obviously need a build that supports extradata folds.
+
+### Fix KFX Boilerplate
+There is a large collection of old (stock templater) karaoke templates that all use the same boilerplate lines
+(which are often bad or even completely unnecessary, but that is another discussion).
+One of these boilerplate lines [broke after argument checking was added to the Lua utility libraries](https://github.com/TypesettingTools/Aegisub/issues/141#issuecomment-2561017082),
+which breaks these templates.
+This script automatically applies one of the simple workarounds to fix the template.
+
+Let me once again stress that the *proper* solution for such templates is to rewrite them to not need this boilerplate at all,
+using [a better templater](https://github.com/The0x539/Aegisub-Scripts/blob/trunk/doc/0x.KaraTemplater.md) if needed.
+I only wrote this script so certain people will stop complaining.
 
 ### Blender Export Scripts for After Effects Tracking Data
 You might be looking for my patched version of the After Effects Blender export script that adds the ability to export Power Pin data. This script has been superseded by Akatsumekusa's version, which is an almost complete rewrite with more features and a more user-friendly GUI. Go [here](https://github.com/Akatmks/Akatsumekusa-Aegisub-Scripts) to download this version.

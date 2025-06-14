@@ -578,6 +578,32 @@
           "Move repository to TypesettingTools/arch1t3cht-Aegisub-Scripts"
         ]
       }
+    },
+    "arch.FixKFXBoilerplate": {
+      "fileBaseUrl": "@{fileBaseUrl}/macros/@{namespace}",
+      "url": "@{baseUrl}#@{namespace}",
+      "author": "arch1t3cht",
+      "name": "Fix KFX Boilerplate",
+      "description": "Fix certain errors in boilerplate lines in old KFX templates on new Aegisub versions",
+      "channels": {
+        "release": {
+          "version": "1.0.0",
+          "released": "2025-06-14",
+          "default": true,
+          "files": [
+            {
+              "name": ".moon",
+              "url": "@{fileBaseUrl}@{fileName}",
+              "sha1": ""
+            }
+          ]
+        }
+      },
+      "changelog": {
+        "1.0.0": [
+          "Initial Release"
+        ]
+      }
     }
   },
   "modules": {
