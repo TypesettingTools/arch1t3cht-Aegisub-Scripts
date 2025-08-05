@@ -2,7 +2,7 @@ export script_name = "Aegisub Perspective-Motion"
 export script_description = "Apply perspective motion tracking data"
 export script_author = "arch1t3cht"
 export script_namespace = "arch.PerspectiveMotion"
-export script_version = "0.3.0"
+export script_version = "0.3.1"
 
 DependencyControl = require "l0.DependencyControl"
 dep = DependencyControl{
@@ -14,7 +14,7 @@ dep = DependencyControl{
          feed: "https://raw.githubusercontent.com/TypesettingTools/ASSFoundation/master/DependencyControl.json"},
         {"arch.Math", version: "0.1.10", url: "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
          feed: "https://raw.githubusercontent.com/TypesettingTools/arch1t3cht-Aegisub-Scripts/main/DependencyControl.json"},
-        {"arch.Perspective", version: "1.2.0", url: "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
+        {"arch.Perspective", version: "1.2.1", url: "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
          feed: "https://raw.githubusercontent.com/TypesettingTools/arch1t3cht-Aegisub-Scripts/main/DependencyControl.json"},
         {"arch.Util", version: "0.1.0", url: "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
          feed: "https://raw.githubusercontent.com/TypesettingTools/arch1t3cht-Aegisub-Scripts/main/DependencyControl.json"},

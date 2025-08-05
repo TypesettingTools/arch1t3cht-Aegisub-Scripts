@@ -5,7 +5,7 @@ local amath
 if haveDepCtrl
     depctrl = DependencyControl {
         name: "Perspective",
-        version: "1.2.0",
+        version: "1.2.1",
         description: [[Math functions for dealing with perspective transformations.]],
         author: "arch1t3cht",
         url: "https://github.com/TypesettingTools/arch1t3cht-Aegisub-Scripts",
@@ -146,6 +146,8 @@ usedTags = {"fontsize", "shear_x", "shear_y", "scale_x", "scale_y", "angle", "an
 --   - a table of warnings about possibly problematic tags
 --        -> each warning is of the form {warning, details} where details may be nil depending on the warning.
 prepareForPerspective = (ASS, data) ->
+    warnings = {}
+
     tagvals = data\getEffectiveTags(-1, true, true, true).tags
 
     width, height = 0, 0
@@ -155,23 +157,21 @@ prepareForPerspective = (ASS, data) ->
         if section.class == ASS.Section.Text
             has_text = true
             width, height = data\getTextExtents!
+            table.insert(warnings, {"zero_size"}) if width == 0 or height == 0
+
+            width /= (tagvals.scale_x.value / 100)
+            height /= (tagvals.scale_y.value / 100)
         if section.class == ASS.Section.Drawing
             has_drawing = true
             ext = section\getExtremePoints!
             width, height = ext.w, ext.h
 
-    warnings = {}
-
     table.insert(warnings, {"text_and_drawings"}) if has_text and has_drawing
-    table.insert(warnings, {"zero_size"}) if has_text and (width == 0 or height == 0)
     table.insert(warnings, {"move"}) if data\getPosition().class == ASS.Tag.Move
 
     -- Width and height can be 0 for drawings
     width = math.max(width, 0.01)
     height = math.max(height, 0.01)
-
-    width /= (tagvals.scale_x.value / 100)
-    height /= (tagvals.scale_y.value / 100)
 
     -- Do some checks for cases that break this script
     -- These are a bit more aggressive than necessary (e.g. two tags of the same type in the same section will trigger this detection but not break resampling)
