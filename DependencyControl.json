@@ -126,7 +126,7 @@
           "Switch to prepareForPerspective function"
         ],
         "1.1.3": [
-          "Fix \fscx/y being broken with drawings"
+          "Fix \\fscx/y being broken with drawings"
         ]
       }
     },
@@ -288,7 +288,7 @@
           "Correctly handle LayoutResY or the video height differing from PlayResY, but yell at the user when they differ"
         ],
         "0.3.1": [
-          "Fix \fscx/y being broken with drawings"
+          "Fix \\fscx/y being broken with drawings"
         ]
       }
     },
@@ -412,7 +412,7 @@
           "Move some more logic over to the Perspective module"
         ],
         "2.1.1": [
-          "Fix \fscx/y being broken with drawings"
+          "Fix \\fscx/y being broken with drawings"
         ]
       }
     },
@@ -741,7 +741,7 @@
           "Add layoutScale parameter to account for differing LayoutRes or video resolution"
         ],
         "1.2.1": [
-          "Fix \fscx/y being broken with drawings"
+          "Fix \\fscx/y being broken with drawings"
         ]
       }
     },
