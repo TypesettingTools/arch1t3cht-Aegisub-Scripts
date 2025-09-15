@@ -222,17 +222,14 @@ parse_single_pin = (lines, marker) ->
 
     return x, y
 
--- function that contains everything that happens before the transforms
 parse_powerpin_data = (powerpin) ->
-    -- Putting the user input into a table
     lines = [ line for line in string.gmatch(powerpin, "([^\n]*)\n?") ]
 
     return nil unless #([l for l in *lines when l\match"Effects[\t ]+CC Power Pin #1[\t ]+CC Power Pin%-0002"]) != 0
 
     -- FIXME sanity check more things here like the resolution and frame rate matching
 
-    -- Filtering out everything other than the data, and putting them into their own tables.
-    -- Power Pin data goes like this: TopLeft=0002, TopRight=0003, BottomRight=0005,  BottomLeft=0004
+    -- Power Pin pins are ordered as follows: TopLeft=0002, TopRight=0003, BottomRight=0005, BottomLeft=0004
     x1, y1 = parse_single_pin(lines, "0002")
     x2, y2 = parse_single_pin(lines, "0003")
     x3, y3 = parse_single_pin(lines, "0005")
