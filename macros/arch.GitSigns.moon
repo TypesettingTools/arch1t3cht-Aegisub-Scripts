@@ -1,6 +1,6 @@
 export script_name = "Git Signs"
 export script_description = "Displays git diffs in Aegisub"
-export script_version = "0.2.4"
+export script_version = "0.3.0"
 export script_namespace = "arch.GitSigns"
 export script_author = "arch1t3cht"
 
@@ -45,13 +45,18 @@ check_has_git = () ->
     return has_git
 
 
-get_git_diff = (ref) ->
+get_git_diff = (ref, subs, one_fat_diff) ->
     dir = aegisub.decode_path("?script")
     if dir == "?script"
         aegisub.log("File isn't saved! Aborting.")
         aegisub.cancel()
 
-    handle = io.popen("#{get_git()} -C \"#{dir}\" diff --raw -p \"#{ref}\" \"#{aegisub.file_name()}\"")
+    local git_u_arg
+    if one_fat_diff == true
+        git_u_arg = "--unified=#{#subs}"
+    else
+        git_u_arg = ""
+    handle = io.popen("#{get_git()} -C \"#{dir}\" diff --raw #{git_u_arg} -p \"#{ref}\" \"#{aegisub.file_name()}\"")
     return handle\read("*a")
 
 
@@ -138,7 +143,7 @@ show_diff_lines = (subs, diff, show_before) ->
                         break
 
                 if offset == nil
-                    aegisub.log("Diff didn't match the subtitles! Make sure to save your file.\n")
+                    aegisub.log("Diff didn't match the subtitles! Make sure to save your file.\nYou can try again with the \"One Fat Diff\" option enabled.\n")
                     aegisub.cancel()
 
             break unless offset == nil
@@ -199,8 +204,14 @@ show_diff_diag = (subs, sel) ->
         label: "Show before and after",
         hint: "Add commented lines marked [Git -] showing how the line looked before the change.",
         name: "show_before",
-        value: config.c.show_before
-        x: 2, y: 1, width: 2, height: 2,
+        value: config.c.show_before,
+        x: 2, y: 1, width: 2, height: 1,
+    },{
+        class: "checkbox",
+        label: "One Fat Diff (potentially very slow!)",
+        hint: "Have git output one fat diff from beginning to end of the file with no chunks. Use only when diff fails without this.",
+        name: "one_fat_diff",
+        x: 2, y: 2, width: 2, height: 1,
     }})
 
     return if not btn
@@ -209,7 +220,7 @@ show_diff_diag = (subs, sel) ->
     config\write()
 
     ref = "#{result.ref}~#{result.before}"
-    diff = get_git_diff(ref)
+    diff = get_git_diff(ref, subs, result.one_fat_diff)
 
     current_diff = diff
     show_diff_lines(subs, diff, result.show_before)
