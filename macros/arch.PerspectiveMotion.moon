@@ -2,7 +2,7 @@ export script_name = "Aegisub Perspective-Motion"
 export script_description = "Apply perspective motion tracking data"
 export script_author = "arch1t3cht"
 export script_namespace = "arch.PerspectiveMotion"
-export script_version = "0.3.1"
+export script_version = "0.4.0"
 
 DependencyControl = require "l0.DependencyControl"
 dep = DependencyControl{
@@ -97,6 +97,7 @@ track = (quads, options, subs, sel, active) ->
 
             tagvals, width, height, warnings = prepareForPerspective(ASS, data)
             -- ignore the warnings because I'm lazy and this script isn't usually run unsupervised
+            sourceQuad = transformPoints(tagvals, width, height, nil, layoutScale)
 
             pos = Point(tagvals.position.x, tagvals.position.y)
 
@@ -113,17 +114,31 @@ track = (quads, options, subs, sel, active) ->
             data\removeTags relevantTags
             data\insertTags [ tagvals[k] for k in *usedTags ]
 
-            rect_at_pos = (width, height) ->
+            aligned_scaled_rect = (width, height) ->
                 result = Quad.rect 1, 1
                 result -= Point(an_xshift[tagvals.align.value], an_yshift[tagvals.align.value])
                 result *= (Matrix.diag(width, height))
-                result += rel_quad\xy_to_uv(pos)   -- This breaks if the line already has some perspective but honestly if you run the script like that then that's on you
+                return result
+
+            rect_at_pos = (width, height) ->
+                result = aligned_scaled_rect(width, height)
+                result += rel_quad\xy_to_uv(pos)   -- This breaks a bit if the line already has some perspective involving \fax but honestly if you run the script like that then that's on you
                 result = Quad [ rel_quad\uv_to_xy(p) for p in *result ]
                 return result
 
             tagsFromQuad(tagvals, rect_at_pos(1, 1), width, height, options.orgmode, layoutScale)
 
-            tagsFromQuad(tagvals, rect_at_pos(oldscale.scale_x / tagvals.scale_x.value, oldscale.scale_y / tagvals.scale_y.value), width, height, options.orgmode, layoutScale)
+            -- This is the quad to which the untransformed (except for position and align) event should be transformed.
+            targetQuad = rect_at_pos(oldscale.scale_x / tagvals.scale_x.value, oldscale.scale_y / tagvals.scale_y.value)
+
+            -- If the relative line does not have any other perspective tags, we're done and can transform to targetquad.
+            -- However, if it does have some additional tags we apply those and compute the transformed target quad.
+            -- Running "Apply perspective" on a line with actual perspective tags is a bad idea, but people may want to "Apply perspective"
+            -- to lines with scale or Z rotation. In particular, the latter is needed for vertical (\fn(@foo)) text.
+            untransformedSourceQuad = pos + aligned_scaled_rect(width, height)
+            transformedTargetQuad = Quad [targetQuad\uv_to_xy(untransformedSourceQuad\xy_to_uv(p)) for p in *sourceQuad]
+
+            tagsFromQuad(tagvals, transformedTargetQuad, width, height, options.orgmode, layoutScale)
 
             -- we don't need to adjust bord/shad since we're going for no change in scale
 

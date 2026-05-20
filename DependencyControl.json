@@ -289,6 +289,9 @@
         ],
         "0.3.1": [
           "Fix \\fscx/y being broken with drawings"
+        ],
+        "0.4.0": [
+          "Make \"Apply Perspective\" option respect rotation tags"
         ]
       }
     },
