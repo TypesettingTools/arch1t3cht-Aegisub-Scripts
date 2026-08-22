@@ -292,6 +292,9 @@
         ],
         "0.4.0": [
           "Make \"Apply Perspective\" option respect rotation tags"
+        ],
+        "0.4.1": [
+          "Remove obsolete warning about LayoutRes mismatch"
         ]
       }
     },
