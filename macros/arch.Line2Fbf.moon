@@ -2,7 +2,7 @@ export script_name = "FBF-ifier"    -- thank Light for the name, I needed someth
 export script_description = "Convert lines into frame-by-frame chunks"
 export script_author = "arch1t3cht"
 export script_namespace = "arch.Line2Fbf"
-export script_version = "0.1.0"
+export script_version = "0.1.1"
 
 DependencyControl = require "l0.DependencyControl"
 dep = DependencyControl{
@@ -24,6 +24,7 @@ fbfify = (subs, sel, active) ->
     lines = LineCollection subs, sel, () -> true
 
     to_delete = {}
+    preFbfCount = #lines
     lines\runCallback ((lines, line) ->
         data = ASS\parse line
 
@@ -36,6 +37,8 @@ fbfify = (subs, sel, active) ->
 
     lines\insertLines!
     lines\deleteLines to_delete
+
+    return [i - preFbfCount for i in *lines\getSelection!]
 
 dep\registerMacro fbfify
 
